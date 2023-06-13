@@ -1,9 +1,10 @@
 import ctypes
 from typing import Tuple, Union
 
-from ..dtypes import Dtype, int64, uint64
-from ..dtypes.helpers import CShape, implicit_dtype
-from .backend import backend_api, safe_call
+from arrayfire.dtypes import Dtype, int64, uint64
+from arrayfire.dtypes.helpers import CShape, implicit_dtype
+
+from ..backend import backend_api, safe_call
 
 AFArray = ctypes.c_void_p
 

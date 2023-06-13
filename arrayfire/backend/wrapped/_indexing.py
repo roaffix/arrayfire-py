@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 import ctypes
 import math
-import numbers
 from typing import Union
 
+from arrayfire.array.array_object import Array
+from arrayfire.backend.wrapped import everything
+from arrayfire.dtypes import bool as af_bool
 
-class IndexSequence(ctypes.Structure):
+
+class _IndexSequence(ctypes.Structure):
     """
     arrayfire equivalent of slice
 
@@ -23,36 +28,38 @@ class IndexSequence(ctypes.Structure):
     Parameters
     ----------
 
-    S: slice or number.
+    chunk: slice or number.
 
     """
-    _fields_ = [("begin", ctypes.c_double),
-                ("end", ctypes.c_double),
-                ("step", ctypes.c_double)]
+    # More about _fields_ purpose: https://docs.python.org/3/library/ctypes.html#structures-and-unions
+    _fields_ = [
+        ("begin", ctypes.c_double),
+        ("end", ctypes.c_double),
+        ("step", ctypes.c_double)]
 
-    def __init__(self, S: Union[numbers.Number, slice, None]):
+    def __init__(self, chunk: Union[int, slice]):
         self.begin = ctypes.c_double(0)
         self.end = ctypes.c_double(-1)
         self.step = ctypes.c_double(1)
 
-        if isinstance(slice, numbers.Number):
-            self.begin = ctypes.c_double(S)
-            self.end = ctypes.c_double(S)
+        if isinstance(chunk, int):
+            self.begin = ctypes.c_double(chunk)
+            self.end = ctypes.c_double(chunk)
 
-        elif isinstance(S, slice):
-            if S.step:
-                self.step = ctypes.c_double(S.step)
-                if S.step < 0:
+        elif isinstance(chunk, slice):
+            if chunk.step:
+                self.step = ctypes.c_double(chunk.step)
+                if chunk.step < 0:
                     self.begin, self.end = self.end, self.begin
 
-            if S.start:
-                self.begin = ctypes.c_double(S.start)
+            if chunk.start:
+                self.begin = ctypes.c_double(chunk.start)
 
-            if S.stop:
-                self.end = ctypes.c_double(S.stop)
+            if chunk.stop:
+                self.end = ctypes.c_double(chunk.stop)
 
             # handle special cases
-            if self.begin >= 0 and self.end >= 0 and self.end <= self.begin and self.step >= 0:
+            if self.begin >= 0 and self.end >= 0 and 0 <= self.end <= self.begin and self.step >= 0:
                 self.begin = 1
                 self.end = 1
                 self.step = 1
@@ -62,23 +69,23 @@ class IndexSequence(ctypes.Structure):
                 self.end = -2
                 self.step = -1
 
-            if S.stop:
+            if chunk.stop:
                 self.end = self.end - math.copysign(1, self.step)
         else:
             raise IndexError("Invalid type while indexing arrayfire.array")
 
 
-class ParallelRange(IndexSequence):
+class ParallelRange(_IndexSequence):
 
     """
     Class used to parallelize for loop.
 
-    Inherits from Seq.
+    Inherits from _IndexSequence.
 
     Attributes
     ----------
 
-    S: slice
+    chunk: slice
 
     Parameters
     ----------
@@ -121,19 +128,19 @@ class ParallelRange(IndexSequence):
         1.4719     0.5282     1.1657
 
     """
-    def __init__(self, start, stop=None, step=None):
 
-        if (stop is None):
+    def __init__(self, start, stop=None, step=None):
+        if not stop:
             stop = start
             start = 0
 
-        self.S = slice(start, stop, step)
-        super(ParallelRange, self).__init__(self.S)
+        self.chunk = slice(start, stop, step)
+        super().__init__(self.chunk)
 
-    def __iter__(self):
+    def __iter__(self) -> ParallelRange:
         return self
 
-    def next(self):
+    def next(self) -> ParallelRange:
         """
         Function called by the iterator in Python 2
         """
@@ -144,21 +151,24 @@ class ParallelRange(IndexSequence):
             _bcast_var.toggle()
             return self
 
-    def __next__(self):
+    def __next__(self) -> ParallelRange:
         """
         Function called by the iterator in Python 3
         """
         return self.next()
 
-class IndexUnion(ctypes.Union):
-    _fields_ = [("arr", ctypes.c_void_p),
-                ("seq", IndexSequence)]
+
+class _IndexUnion(ctypes.Union):
+    _fields_ = [
+        ("arr", ctypes.c_void_p),
+        ("seq", _IndexSequence)]
 
 
-class IndexStructure(ctypes.Structure):
-    _fields_ = [("idx", IndexUnion),
-                ("isSeq", ctypes.c_bool),
-                ("isBatch", ctypes.c_bool)]
+class _IndexStructure(ctypes.Structure):
+    _fields_ = [
+        ("idx", _IndexUnion),
+        ("isSeq", ctypes.c_bool),
+        ("isBatch", ctypes.c_bool)]
 
     """
     Container for the index class in arrayfire C library
@@ -168,8 +178,8 @@ class IndexStructure(ctypes.Structure):
     idx.arr: ctypes.c_void_p
              - Default 0
 
-    idx.seq: af.Seq
-             - Default af.Seq(0, -1, 1)
+    idx.seq: af._IndexSequence
+             - Default af._IndexSequence(0, -1, 1)
 
     isSeq   : bool
             - Default True
@@ -183,7 +193,7 @@ class IndexStructure(ctypes.Structure):
     idx: key
          - If of type af.Array, self.idx.arr = idx, self.isSeq = False
          - If of type af.ParallelRange, self.idx.seq = idx, self.isBatch = True
-         - Default:, self.idx.seq = af.Seq(idx)
+         - Default:, self.idx.seq = af._IndexSequence(idx)
 
     Note
     ----
@@ -193,48 +203,44 @@ class IndexStructure(ctypes.Structure):
     """
 
     def __init__(self, idx):
-        self.idx = IndexUnion()
+        self.idx = _IndexUnion()
         self.isBatch = False
         self.isSeq = True
 
-        if isinstance(idx, ctypes.c_void_p):
-
-            arr = ctypes.c_void_p(0)
-
-            if (idx.type() == Dtype.b8.value):
-                safe_call(backend.get().af_where(c_pointer(arr), idx.arr))
+        if isinstance(idx, Array):
+            if idx.dtype == af_bool:
+                self.idx.arr = everything.where(idx.arr)
             else:
-                safe_call(backend.get().af_retain_array(c_pointer(arr), idx.arr))
+                self.idx.arr = everything.retain_array(idx.arr)
 
-            self.idx.arr = arr
             self.isSeq = False
+
         elif isinstance(idx, ParallelRange):
             self.idx.seq = idx
             self.isBatch = True
+
         else:
-            self.idx.seq = Seq(idx)
+            self.idx.seq = _IndexSequence(idx)
 
     def __del__(self) -> None:
         if not self.isSeq:
             # ctypes field variables are automatically
             # converted to basic C types so we have to
             # build the void_p from the value again.
-            arr = c_void_ptr_t(self.idx.arr)
+            arr = ctypes.c_void_p(self.idx.arr)
             backend.get().af_release_array(arr)
 
 
-class _Index4(object):
+class _CIndexStructure:
     def __init__(self) -> None:
-        index_vec = IndexStructure * 4
-        _span = IndexStructure(slice(None))
-        self.array = index_vec(_span, _span, _span, _span)
-        # Do not lose those idx as self.array keeps
-        # no reference to them. Otherwise the destructor
+        index_vec = _IndexStructure * 4
+        # NOTE Do not lose those idx as self.array keeps no reference to them. Otherwise the destructor
         # is prematurely called
-        self.idxs = [_span, _span, _span, _span]
+        self.idxs = [_IndexStructure(slice(None))] * 4
+        self.array = index_vec(*self.idxs)
 
     @property
-    def pointer(self):
+    def pointer(self) -> everything.AFArrayPointer:
         return ctypes.pointer(self.array)
 
     def __getitem__(self, idx):
@@ -245,13 +251,13 @@ class _Index4(object):
         self.idxs[idx] = value
 
 
-def _get_indices(key):
-    inds = _Index4()
-    if isinstance(key, tuple):
-        n_idx = len(key)
-        for n in range(n_idx):
-            inds[n] = Index(key[n])
-    else:
-        inds[0] = Index(key)
+def get_indices(key):
+    indices = _CIndexStructure()
 
-    return inds
+    if isinstance(key, tuple):
+        for n in range(len(key)):
+            indices[n] = _IndexStructure(key[n])
+    else:
+        indices[0] = _IndexStructure(key)
+
+    return indices

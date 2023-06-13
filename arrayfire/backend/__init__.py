@@ -6,5 +6,5 @@ __all__ = [
     "le", "gt", "ge", "eq", "neq"]
 
 from .backend import ArrayBuffer
-from .operators import (
+from .wrapped.operators import (
     add, bitand, bitnot, bitor, bitshiftl, bitshiftr, bitxor, div, eq, ge, gt, le, lt, mod, mul, neq, pow, sub)

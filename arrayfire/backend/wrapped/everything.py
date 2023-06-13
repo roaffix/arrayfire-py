@@ -3,10 +3,10 @@ from typing import Tuple, Union, cast
 
 # from arrayfire.array import _get_indices  # HACK replace with refactored one
 
-from ..library.device import PointerSource
-from ..dtypes import CType, Dtype
-from ..dtypes.helpers import CShape, c_dim_t, to_str
-from .backend import ArrayBuffer, backend_api, safe_call
+from ...library.device import PointerSource
+from ...dtypes import CType, Dtype
+from ...dtypes.helpers import CShape, c_dim_t, to_str
+from ..backend import ArrayBuffer, backend_api, safe_call
 
 AFArrayPointer = ctypes._Pointer
 AFArray = ctypes.c_void_p
@@ -236,3 +236,14 @@ def array_as_str(arr: AFArray) -> str:
         backend_api.af_free_host(arr_str)
     )
     return py_str
+
+
+def where(arr: AFArray) -> AFArray:
+    """
+    source: https://arrayfire.org/docs/group__scan__func__where.htm#gafda59a3d25d35238592dd09907be9d07
+    """
+    out = ctypes.c_void_p(0)
+    safe_call(
+        backend_api.af_where(ctypes.pointer(out), arr)
+    )
+    return out
