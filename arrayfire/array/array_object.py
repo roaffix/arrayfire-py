@@ -5,15 +5,15 @@ import ctypes
 import enum
 from typing import Any, List, Optional, Tuple, Union
 
-from . import backend
-from .backend import ArrayBuffer, library
-from .backend.operators import count_all
-from .backend.constant_array import create_constant_array
-from .device import PointerSource
-from .dtypes import CType
-from .dtypes import bool as af_bool
-from .dtypes import float32 as af_float32
-from .dtypes.helpers import Dtype, c_api_value_to_dtype, str_to_dtype
+from .. import backend
+from ..backend import ArrayBuffer, wrapped
+from ..backend.operators import count_all
+from ..backend.constant_array import create_constant_array
+from ..library.device import PointerSource
+from ..dtypes import CType
+from ..dtypes import bool as af_bool
+from ..dtypes import float32 as af_float32
+from ..dtypes.helpers import Dtype, c_api_value_to_dtype, str_to_dtype
 
 # TODO use int | float in operators -> remove bool | complex support
 
@@ -35,14 +35,14 @@ class Array:
 
         if x is None:
             if not shape:  # shape is None or empty tuple
-                self.arr = library.create_handle((), dtype)
+                self.arr = wrapped.create_handle((), dtype)
                 return
 
-            self.arr = library.create_handle(shape, dtype)
+            self.arr = wrapped.create_handle(shape, dtype)
             return
 
         if isinstance(x, Array):
-            self.arr = library.retain_array(x.arr)
+            self.arr = wrapped.retain_array(x.arr)
             return
 
         if isinstance(x, py_array.array):
@@ -79,13 +79,13 @@ class Array:
 
         if not (offset or strides):
             if pointer_source == PointerSource.host:
-                self.arr = library.create_array(shape, dtype, _array_buffer)
+                self.arr = wrapped.create_array(shape, dtype, _array_buffer)
                 return
 
-            self.arr = library.device_array(shape, dtype, _array_buffer)
+            self.arr = wrapped.device_array(shape, dtype, _array_buffer)
             return
 
-        self.arr = library.create_strided_array(
+        self.arr = wrapped.create_strided_array(
             shape, dtype, _array_buffer, offset, strides, pointer_source)  # type: ignore[arg-type]
 
     # Arithmetic Operators
@@ -722,11 +722,11 @@ class Array:
 
         if isinstance(key, Array) and key == af_bool.c_api_value:
             ndims = 1
-            if count_all(key.arr) == 0:
+            if count_all(key.arr) == 0:  # HACK was count() method before
                 return out
 
         # HACK known issue
-        out.arr = library.index_gen(self.arr, ndims, key)  # type: ignore[arg-type]
+        out.arr = wrapped.index_gen(self.arr, ndims, key)  # type: ignore[arg-type]
         return out
 
     def __index__(self) -> int:
@@ -750,12 +750,12 @@ class Array:
         # TODO change the look of array str. E.g., like np.array
         # if not _in_display_dims_limit(self.shape):
         #     return _metadata_string(self.dtype, self.shape)
-        return _metadata_string(self.dtype) + library.array_as_str(self.arr)
+        return _metadata_string(self.dtype) + wrapped.array_as_str(self.arr)
 
     def __repr__(self) -> str:
         # return _metadata_string(self.dtype, self.shape)
         # TODO change the look of array representation. E.g., like np.array
-        return library.array_as_str(self.arr)
+        return wrapped.array_as_str(self.arr)
 
     def to_device(self, device: Any, /, *, stream: Union[int, Any] = None) -> Array:
         # TODO implementation and change device type from Any to Device
@@ -773,7 +773,7 @@ class Array:
         out : Dtype
             Array data type.
         """
-        return c_api_value_to_dtype(library.get_ctype(self.arr))
+        return c_api_value_to_dtype(wrapped.get_ctype(self.arr))
 
     @property
     def device(self) -> Any:
@@ -806,7 +806,7 @@ class Array:
 
         # TODO add check if out.dtype == self.dtype
         out = Array()
-        out.arr = library.transpose(self.arr, False)
+        out.arr = wrapped.transpose(self.arr, False)
         return out
 
     @property
@@ -824,7 +824,7 @@ class Array:
         - This must equal the product of the array's dimensions.
         """
         # NOTE previously - elements()
-        return library.get_elements(self.arr)
+        return wrapped.get_elements(self.arr)
 
     @property
     def ndim(self) -> int:
@@ -834,7 +834,7 @@ class Array:
         out : int
             Number of array dimensions (axes).
         """
-        return library.get_numdims(self.arr)
+        return wrapped.get_numdims(self.arr)
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -847,7 +847,7 @@ class Array:
             Array dimensions.
         """
         # NOTE skipping passing any None values
-        return library.get_dims(self.arr)[:self.ndim]
+        return wrapped.get_dims(self.arr)[:self.ndim]
 
     def scalar(self) -> Union[None, int, float, bool, complex]:
         """
@@ -857,20 +857,20 @@ class Array:
         if self.is_empty():
             return None
 
-        return library.get_scalar(self.arr, self.dtype)
+        return wrapped.get_scalar(self.arr, self.dtype)
 
     def is_empty(self) -> bool:
         """
         Check if the array is empty i.e. it has no elements.
         """
-        return library.is_empty(self.arr)
+        return wrapped.is_empty(self.arr)
 
     def to_list(self, row_major: bool = False) -> List[Union[None, int, float, bool, complex]]:
         if self.is_empty():
             return []
 
         array = _reorder(self) if row_major else self
-        ctypes_array = library.get_data_ptr(array.arr, array.size, array.dtype)
+        ctypes_array = wrapped.get_data_ptr(array.arr, array.size, array.dtype)
 
         if array.ndim == 1:
             return list(ctypes_array)
@@ -891,7 +891,7 @@ class Array:
             raise RuntimeError("Can not convert an empty array to ctype.")
 
         array = _reorder(self) if row_major else self
-        return library.get_data_ptr(array.arr, array.size, array.dtype)
+        return wrapped.get_data_ptr(array.arr, array.size, array.dtype)
 
 
 def _reorder(array: Array) -> Array:
@@ -902,7 +902,7 @@ def _reorder(array: Array) -> Array:
         return array
 
     out = Array()
-    out.arr = library.reorder(array.arr, array.ndim)
+    out.arr = wrapped.reorder(array.arr, array.ndim)
     return out
 
 

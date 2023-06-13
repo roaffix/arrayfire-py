@@ -3,7 +3,7 @@ from typing import Any, Callable, List, Union
 
 import pytest
 
-from arrayfire.array_object import Array
+from arrayfire.array.array_object import Array
 from arrayfire.dtypes import bool as af_bool
 
 Operator = Callable[[Union[int, float, Array], Union[int, float, Array]], Array]

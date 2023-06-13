@@ -1,9 +1,9 @@
 import ctypes
 from typing import Tuple, Union, cast
 
-from arrayfire.array import _get_indices  # HACK replace with refactored one
+# from arrayfire.array import _get_indices  # HACK replace with refactored one
 
-from ..device import PointerSource
+from ..library.device import PointerSource
 from ..dtypes import CType, Dtype
 from ..dtypes.helpers import CShape, c_dim_t, to_str
 from .backend import ArrayBuffer, backend_api, safe_call

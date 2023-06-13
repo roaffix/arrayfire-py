@@ -1,4 +1,4 @@
-from arrayfire.array_object import Array
+from arrayfire.array.array_object import Array
 
 # TODO add more tests for different dtypes
 

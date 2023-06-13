@@ -1,7 +1,7 @@
 from typing import Any
 
-from arrayfire import operators
-from arrayfire.array_object import Array
+from arrayfire.library import operators
+from arrayfire.array.array_object import Array
 
 
 class TestArithmeticOperators:

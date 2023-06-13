@@ -4,7 +4,8 @@ from dataclasses import dataclass
 
 from ..dtypes.helpers import c_dim_t, to_str
 
-backend_api = ctypes.CDLL("/opt/arrayfire//lib/libafcpu.3.dylib")  # Mock
+# backend_api = ctypes.CDLL("/opt/arrayfire//lib/libafcpu.3.dylib")  # Mock
+backend_api = ctypes.CDLL("C:/Program Files/ArrayFire/v3/lib/afcpu.dll")
 
 
 def safe_call(c_err: int) -> None:

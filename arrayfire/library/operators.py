@@ -1,7 +1,7 @@
 from typing import Callable
 
-from . import backend
-from .array_object import Array
+from .. import backend
+from ..array.array_object import Array
 
 
 class return_copy:

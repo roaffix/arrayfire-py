@@ -4,7 +4,7 @@ from typing import Any, Optional, Tuple
 
 import pytest
 
-from arrayfire.array_object import Array
+from arrayfire.array.array_object import Array
 from arrayfire.dtypes import Dtype, float32, int16
 
 # TODO add tests for array arguments: device, offset, strides
