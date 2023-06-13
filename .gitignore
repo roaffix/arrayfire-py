@@ -10,6 +10,7 @@ dist/
 # dev tools
 
 venv/
+.vscode/
 
 
 # jupyter notebooks
