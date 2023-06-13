@@ -12,9 +12,6 @@ env:
     DEFAULT_PYTHON_VERSION: 3.10
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
   style:
     name: Code Style and Lint
     runs-on: ubuntu-latest
