@@ -59,18 +59,18 @@ class _IndexSequence(ctypes.Structure):
                 self.end = ctypes.c_double(chunk.stop)
 
             # handle special cases
-            if self.begin >= 0 and self.end >= 0 and 0 <= self.end <= self.begin and self.step >= 0:
-                self.begin = 1
-                self.end = 1
-                self.step = 1
+            if 0 <= self.end.value <= self.begin.value and self.step.value >= 0:
+                self.begin.value = 1
+                self.end.value = 1
+                self.step.value = 1
 
-            elif self.begin < 0 and self.end < 0 and self.end >= self.begin and self.step <= 0:
-                self.begin = -2
-                self.end = -2
-                self.step = -1
+            elif 0 > self.end.value >= self.begin.value and self.step.value <= 0:
+                self.begin.value = -2
+                self.end.value = -2
+                self.step.value = -1
 
             if chunk.stop:
-                self.end = self.end - math.copysign(1, self.step)
+                self.end.value = self.end.value - math.copysign(1, self.step.value)
         else:
             raise IndexError("Invalid type while indexing arrayfire.array")
 
