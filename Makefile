@@ -29,11 +29,11 @@ flake8 :
 
 .PHONY : import-sort
 typecheck :
-	isort arrayfire tests
+	isort arrayfire tests examples
 
 .PHONY : typecheck
 typecheck :
-	mypy arrayfire tests --cache-dir=/dev/null
+	mypy arrayfire tests examples --cache-dir=/dev/null
 
 .PHONY : tests
 tests :
