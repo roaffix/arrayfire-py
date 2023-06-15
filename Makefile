@@ -27,6 +27,10 @@ install :
 flake8 :
 	flake8 arrayfire tests examples
 
+.PHONY : import-sort
+typecheck :
+	isort arrayfire tests
+
 .PHONY : typecheck
 typecheck :
 	mypy arrayfire tests --cache-dir=/dev/null

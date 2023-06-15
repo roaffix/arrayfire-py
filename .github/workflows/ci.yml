@@ -58,6 +58,7 @@ jobs:
             platform: cpu
             run: |
               make flake8
+              make import-sort
               make typecheck
 
           - name: CPU Tests

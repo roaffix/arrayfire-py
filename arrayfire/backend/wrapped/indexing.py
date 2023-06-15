@@ -60,12 +60,12 @@ class _IndexSequence(ctypes.Structure):
                 self.end = ctypes.c_double(chunk.stop)
 
             # handle special cases
-            if 0 <= self.end <= self.begin and self.step >= 0:
+            if 0 <= self.end <= self.begin and self.step >= 0:  # type: ignore[operator]
                 self.begin.value = 1
                 self.end.value = 1
                 self.step.value = 1
 
-            elif 0 > self.end >= self.begin and self.step <= 0:
+            elif 0 > self.end >= self.begin and self.step <= 0:  # type: ignore[operator]
                 self.begin.value = -2
                 self.end.value = -2
                 self.step.value = -1
