@@ -1,6 +1,5 @@
 from collections import defaultdict
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 from setuptools import find_packages, setup
 
@@ -18,9 +17,7 @@ from setuptools import find_packages, setup
 #   X.Y     # Final release
 
 
-def parse_requirements_file(
-        path: Path, allowed_extras: Optional[set] = None,
-        include_all_extra: bool = True) -> Tuple[List[str], defaultdict[str, List[str]]]:
+def parse_requirements_file(path: Path, allowed_extras: set = None, include_all_extra: bool = True):
     requirements = []
     extras = defaultdict(list)
     with path.open("r") as requirements_file:
