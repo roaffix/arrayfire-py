@@ -12,25 +12,83 @@ env:
   DEFAULT_PYTHON_VERSION: "3.8"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  checks:
+    name: ${{ matrix.task.name }}
+    runs-on: ${{ matrix.task.runs_on }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          - name: Lint
+            runs_on: ubuntu-latest
+            coverage_report: false
+            platform: cpu
+            run: |
+              make flake8
+              make typecheck
+
+          - name: CPU Tests
+            runs_on: ubuntu-latest
+            coverage_report: true
+            platform: cpu
+            run: make tests
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
-
-      - name: Install requirements
+      - name: Set build variables
         run: |
-          pip install -r requirements.txt
+          # Get the exact Python version to use in the cache key.
+          echo "PYTHON_VERSION=$(python --version)" >> $GITHUB_ENV
+          echo "RUNNER_ARCH=$(uname -m)" >> $GITHUB_ENV
+          # Use week number in cache key so we can refresh the cache weekly.
+          echo "WEEK_NUMBER=$(date +%V)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v3
+        id: virtualenv-cache
+        with:
+          path: .venv
+          key: ${{ env.CACHE_PREFIX }}-${{ env.WEEK_NUMBER }}-${{ runner.os }}-${{ env.RUNNER_ARCH }}-${{ env.PYTHON_VERSION }}-${{ matrix.task.platform }}-${{ hashFiles('setup.py') }}-${{ hashFiles('*requirements.txt') }}
+
+      - name: Setup virtual environment (no cache hit)
+        if: steps.virtualenv-cache.outputs.cache-hit != 'true'
+        run: |
+          python${{ env.DEFAULT_PYTHON_VERSION }} -m venv .venv
+          source .venv/bin/activate
+
+      - name: Setup virtual environment (cache hit)
+        if: steps.virtualenv-cache.outputs.cache-hit == 'true'
+        run: |
+          source .venv/bin/activate
+          pip install --no-deps -e .[all]
+          make download-extras
 
       - name: Debug info
         run: |
+          source .venv/bin/activate
           pip freeze
 
-      - name: Run tests
+      - name: ${{ matrix.task.name }}
         run: |
-          pytest .
+          source .venv/bin/activate
+          ${{ matrix.task.run }}
+
+      - name: Prepare coverage report
+        if: matrix.task.coverage_report
+        run: |
+          mkdir coverage
+          mv coverage.xml coverage/
+
+      - name: Save coverage report
+        if: matrix.task.coverage_report
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.task.name }}-coverage
+          path: ./coverage
+
+      - name: Clean up
+        if: always()
+        run: |
+          source .venv/bin/activate
+          pip uninstall --yes arrayfire
