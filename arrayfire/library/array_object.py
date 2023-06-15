@@ -15,7 +15,7 @@ from ..dtypes import CType
 from ..dtypes import bool as af_bool
 from ..dtypes import float32 as af_float32
 from ..dtypes.helpers import Dtype, c_api_value_to_dtype, str_to_dtype
-from ..library.device import PointerSource
+from .device import PointerSource
 
 # TODO use int | float in operators -> remove bool | complex support
 
