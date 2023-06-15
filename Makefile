@@ -12,17 +12,17 @@ endif
 
 .PHONY : version
 version : 
-		@python -c 'from arrayfire.version import VERSION; print(f"ArrayFire Python v{VERSION}")'
+	@python -c 'from arrayfire.version import VERSION; print(f"ArrayFire Python v{VERSION}")'
 
 # Testing
 
 .PHONY : flake8
 flake8 :
-		flake8 arrayfire tests examples
+	flake8 arrayfire tests examples
 
 .PHONY : typecheck
 typecheck :
-		mypy arrayfire tests --cache-dir=/dev/null
+	mypy arrayfire tests --cache-dir=/dev/null
 
 .PHONY : tests
 tests :
