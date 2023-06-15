@@ -93,13 +93,13 @@ jobs:
         run: |
           python${{ env.DEFAULT_PYTHON_VERSION }} -m venv .venv
           source .venv/bin/activate
+          make install
 
       - name: Setup virtual environment (cache hit)
         if: steps.virtualenv-cache.outputs.cache-hit == 'true'
         run: |
           source .venv/bin/activate
           pip install --no-deps -e .[all]
-          make download-extras
 
       - name: Debug info
         run: |

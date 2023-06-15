@@ -14,6 +14,11 @@ endif
 version : 
 	@python -c 'from arrayfire.version import VERSION; print(f"ArrayFire Python v{VERSION}")'
 
+.PHONY : install
+install :
+	pip install --upgrade pip
+	pip install -r requirements.txt
+
 # Testing
 
 .PHONY : flake8
