@@ -12,6 +12,30 @@ env:
   DEFAULT_PYTHON_VERSION: "3.8"
 
 jobs:
+  style:
+    name: Style
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
+
+    # - name: Install requirements
+    #   run: |
+    #     grep -E '^black' dev-requirements.txt | xargs pip install
+
+    - name: Debug info
+      run: |
+        pip freeze
+
+    # - name: Run black
+    #   run: |
+    #     black --check .
+
   checks:
     name: ${{ matrix.task.name }}
     runs-on: ${{ matrix.task.runs_on }}
