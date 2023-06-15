@@ -4,8 +4,8 @@ from typing import Any, Optional, Tuple
 
 import pytest
 
-from arrayfire.array.array_object import Array
 from arrayfire.dtypes import Dtype, float32, int16
+from arrayfire.library.array_object import Array
 
 # TODO add tests for array arguments: device, offset, strides
 # TODO add tests for all supported dtypes on initialisation

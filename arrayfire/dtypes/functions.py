@@ -1,6 +1,6 @@
 from typing import Tuple, Union
 
-from ..array.array_object import Array
+from ..library.array_object import Array
 from . import Dtype
 
 # TODO implement functions
