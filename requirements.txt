@@ -1,6 +1,0 @@
-# Build requirements
-setuptools
-wheel
-
-# Development requirements
--e .[dev,test]
