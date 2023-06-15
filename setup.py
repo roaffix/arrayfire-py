@@ -2,7 +2,7 @@ from pathlib import Path
 
 from setuptools import setup
 
-VERSION: dict[str, str] = {}
+VERSION = {}  # type: ignore[var-annotated]
 
 
 with (Path().absolute() / "arrayfire" / "version.py").open("r") as version_file:
