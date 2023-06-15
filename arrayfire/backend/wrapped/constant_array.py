@@ -5,11 +5,10 @@ from arrayfire.dtypes import Dtype, int64, uint64
 from arrayfire.dtypes.helpers import CShape, implicit_dtype
 
 from ..backend import backend_api, safe_call
+from .constants import AFArrayType
 
-AFArray = ctypes.c_void_p
 
-
-def _constant_complex(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArray:
+def _constant_complex(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#ga5a083b1f3cd8a72a41f151de3bdea1a2
     """
@@ -24,7 +23,7 @@ def _constant_complex(number: Union[int, float], shape: Tuple[int, ...], dtype: 
     return out
 
 
-def _constant_long(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArray:
+def _constant_long(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#ga10f1c9fad1ce9e9fefd885d5a1d1fd49
     """
@@ -33,12 +32,12 @@ def _constant_long(number: Union[int, float], shape: Tuple[int, ...], dtype: Dty
 
     safe_call(
         backend_api.af_constant_long(
-            ctypes.pointer(out), ctypes.c_longlong(number.real), 4, ctypes.pointer(c_shape.c_array))
+            ctypes.pointer(out), ctypes.c_longlong(int(number.real)), 4, ctypes.pointer(c_shape.c_array))
     )
     return out
 
 
-def _constant_ulong(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArray:
+def _constant_ulong(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#ga67af670cc9314589f8134019f5e68809
     """
@@ -48,12 +47,12 @@ def _constant_ulong(number: Union[int, float], shape: Tuple[int, ...], dtype: Dt
 
     safe_call(
         backend_api.af_constant_ulong(
-            ctypes.pointer(out), ctypes.c_ulonglong(number.real), 4, ctypes.pointer(c_shape.c_array))
+            ctypes.pointer(out), ctypes.c_ulonglong(int(number.real)), 4, ctypes.pointer(c_shape.c_array))
     )
     return out
 
 
-def _constant(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArray:
+def _constant(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#gafc51b6a98765dd24cd4139f3bde00670
     """
@@ -67,7 +66,7 @@ def _constant(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /
     return out
 
 
-def create_constant_array(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArray:
+def create_constant_array(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     dtype = implicit_dtype(number, dtype)
 
     # NOTE complex is not supported in Data API

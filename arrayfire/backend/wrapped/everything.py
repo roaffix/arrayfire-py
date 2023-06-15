@@ -1,23 +1,16 @@
 import ctypes
-from typing import Tuple, Union, cast
+from typing import Any, Tuple, Union, cast
 
-# from arrayfire.array import _get_indices  # HACK replace with refactored one
-
-from ...library.device import PointerSource
 from ...dtypes import CType, Dtype
 from ...dtypes.helpers import CShape, c_dim_t, to_str
+from ...library.device import PointerSource
 from ..backend import ArrayBuffer, backend_api, safe_call
-
-AFArrayPointer = ctypes._Pointer
-AFArray = ctypes.c_void_p
-
-# HACK, TODO replace for actual bcast_var after refactoring ~ https://github.com/arrayfire/arrayfire/pull/2871
-_bcast_var = False
+from .constants import AFArrayType
 
 # Array management
 
 
-def create_handle(shape: Tuple[int, ...], dtype: Dtype, /) -> AFArray:
+def create_handle(shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga3b8f5cf6fce69aa1574544bc2d44d7d0
     """
@@ -31,7 +24,7 @@ def create_handle(shape: Tuple[int, ...], dtype: Dtype, /) -> AFArray:
     return out
 
 
-def retain_array(arr: AFArray) -> AFArray:
+def retain_array(arr: AFArrayType) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga7ed45b3f881c0f6c80c5cf2af886dbab
     """
@@ -43,7 +36,7 @@ def retain_array(arr: AFArray) -> AFArray:
     return out
 
 
-def create_array(shape: Tuple[int, ...], dtype: Dtype, array_buffer: ArrayBuffer, /) -> AFArray:
+def create_array(shape: Tuple[int, ...], dtype: Dtype, array_buffer: ArrayBuffer, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga834be32357616d8ab735087c6f681858
     """
@@ -58,7 +51,7 @@ def create_array(shape: Tuple[int, ...], dtype: Dtype, array_buffer: ArrayBuffer
     return out
 
 
-def device_array(shape: Tuple[int, ...], dtype: Dtype, array_buffer: ArrayBuffer, /) -> AFArray:
+def device_array(shape: Tuple[int, ...], dtype: Dtype, array_buffer: ArrayBuffer, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#gaad4fc77f872217e7337cb53bfb623cf5
     """
@@ -75,7 +68,7 @@ def device_array(shape: Tuple[int, ...], dtype: Dtype, array_buffer: ArrayBuffer
 
 def create_strided_array(
         shape: Tuple[int, ...], dtype: Dtype, array_buffer: ArrayBuffer, offset: CType, strides: Tuple[int, ...],
-        pointer_source: PointerSource, /) -> AFArray:
+        pointer_source: PointerSource, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__internal__func__create.htm#gad31241a3437b7b8bc3cf49f85e5c4e0c
     """
@@ -99,7 +92,7 @@ def create_strided_array(
     return out
 
 
-def get_ctype(arr: AFArray) -> int:
+def get_ctype(arr: AFArrayType) -> int:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga0dda6898e1c0d9a43efb56cd6a988c9b
     """
@@ -111,7 +104,7 @@ def get_ctype(arr: AFArray) -> int:
     return out.value
 
 
-def get_elements(arr: AFArray) -> int:
+def get_elements(arr: AFArrayType) -> int:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga6845bbe4385a60a606b88f8130252c1f
     """
@@ -123,7 +116,7 @@ def get_elements(arr: AFArray) -> int:
     return out.value
 
 
-def get_numdims(arr: AFArray) -> int:
+def get_numdims(arr: AFArrayType) -> int:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#gaefa019d932ff58c2a829ce87edddd2a8
     """
@@ -135,7 +128,7 @@ def get_numdims(arr: AFArray) -> int:
     return out.value
 
 
-def get_dims(arr: AFArray) -> Tuple[int, ...]:
+def get_dims(arr: AFArrayType) -> Tuple[int, ...]:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga8b90da50a532837d9763e301b2267348
     """
@@ -150,7 +143,7 @@ def get_dims(arr: AFArray) -> Tuple[int, ...]:
     return (d0.value, d1.value, d2.value, d3.value)
 
 
-def get_scalar(arr: AFArray, dtype: Dtype, /) -> Union[None, int, float, bool, complex]:
+def get_scalar(arr: AFArrayType, dtype: Dtype, /) -> Union[None, int, float, bool, complex]:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#gaefe2e343a74a84bd43b588218ecc09a3
     """
@@ -161,7 +154,7 @@ def get_scalar(arr: AFArray, dtype: Dtype, /) -> Union[None, int, float, bool, c
     return cast(Union[None, int, float, bool, complex], out.value)
 
 
-def is_empty(arr: AFArray) -> bool:
+def is_empty(arr: AFArrayType) -> bool:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga19c749e95314e1c77d816ad9952fb680
     """
@@ -172,7 +165,7 @@ def is_empty(arr: AFArray) -> bool:
     return out.value
 
 
-def get_data_ptr(arr: AFArray, size: int, dtype: Dtype, /) -> ctypes.Array:
+def get_data_ptr(arr: AFArrayType, size: int, dtype: Dtype, /) -> ctypes.Array:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga6040dc6f0eb127402fbf62c1165f0b9d
     """
@@ -187,18 +180,20 @@ def get_data_ptr(arr: AFArray, size: int, dtype: Dtype, /) -> ctypes.Array:
 # Arrayfire Functions
 
 
-def index_gen(arr: AFArray, ndims: int, key: Union[int, slice, Tuple[Union[int, slice, ], ...]], /) -> AFArray:
+def index_gen(
+        arr: AFArrayType, ndims: int, key: Union[int, slice, Tuple[Union[int, slice, ], ...]],
+        indices: Any, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__index__func__index.htm#ga14a7d149dba0ed0b977335a3df9d91e6
     """
     out = ctypes.c_void_p(0)
     safe_call(
-        backend_api.af_index_gen(ctypes.pointer(out), arr, c_dim_t(ndims), _get_indices(key).pointer)
+        backend_api.af_index_gen(ctypes.pointer(out), arr, c_dim_t(ndims), indices.pointer)
     )
     return out
 
 
-def transpose(arr: AFArray, conjugate: bool, /) -> AFArray:
+def transpose(arr: AFArrayType, conjugate: bool, /) -> AFArrayType:
     """
     https://arrayfire.org/docs/group__blas__func__transpose.htm#ga716b2b9bf190c8f8d0970aef2b57d8e7
     """
@@ -209,7 +204,7 @@ def transpose(arr: AFArray, conjugate: bool, /) -> AFArray:
     return out
 
 
-def reorder(arr: AFArray, ndims: int, /) -> AFArray:
+def reorder(arr: AFArrayType, ndims: int, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__manip__func__reorder.htm#ga57383f4d00a3a86eab08dddd52c3ad3d
     """
@@ -221,7 +216,7 @@ def reorder(arr: AFArray, ndims: int, /) -> AFArray:
     return out
 
 
-def array_as_str(arr: AFArray) -> str:
+def array_as_str(arr: AFArrayType) -> str:
     """
     source:
     - https://arrayfire.org/docs/group__print__func__tostring.htm#ga01f32ef2420b5d4592c6e4b4964b863b
@@ -238,7 +233,7 @@ def array_as_str(arr: AFArray) -> str:
     return py_str
 
 
-def where(arr: AFArray) -> AFArray:
+def where(arr: AFArrayType) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__scan__func__where.htm#gafda59a3d25d35238592dd09907be9d07
     """

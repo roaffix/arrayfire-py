@@ -1,21 +1,24 @@
-
-class _bcast(object):
-    _flag = False
-
-    def get(self):
-        return _bcast._flag
-
-    def set(self, flag):
-        _bcast._flag = flag
-
-    def toggle(self):
-        _bcast._flag ^= True
+from typing import Any, Callable
 
 
-_bcast_var = _bcast()
+class Bcast:
+    def __init__(self) -> None:
+        self._flag: bool = False
+
+    def get(self) -> bool:
+        return self._flag
+
+    def set(self, flag: bool) -> None:
+        self._flag = flag
+
+    def toggle(self) -> None:
+        self._flag ^= True
 
 
-def broadcast(func, *args):
+bcast_var: Bcast = Bcast()
+
+
+def broadcast(func: Callable[..., Any], *args: Any) -> Any:
     """
     Function to perform broadcast operations.
 
@@ -74,14 +77,13 @@ def broadcast(func, *args):
         1.5328     0.8898     0.7185
 
     """
-
-    def wrapper(*func_args):
-        _bcast_var.toggle()
+    def wrapper(*func_args: Any) -> Any:
+        bcast_var.toggle()
         res = func(*func_args)
-        _bcast_var.toggle()
+        bcast_var.toggle()
         return res
 
     if len(args) == 0:
-        return wrapper
+        return wrapper()
     else:
         return wrapper(*args)

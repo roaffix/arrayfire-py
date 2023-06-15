@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import ctypes
 import math
-from typing import Union
+from typing import Any, Union
 
-from arrayfire.array.array_object import Array
-from arrayfire.backend.wrapped import everything
-from arrayfire.dtypes import bool as af_bool
+from arrayfire.library.broadcast import bcast_var
+
+from ..backend import backend_api, safe_call
+from . import constants
 
 
 class _IndexSequence(ctypes.Structure):
@@ -59,12 +60,12 @@ class _IndexSequence(ctypes.Structure):
                 self.end = ctypes.c_double(chunk.stop)
 
             # handle special cases
-            if 0 <= self.end.value <= self.begin.value and self.step.value >= 0:
+            if 0 <= self.end <= self.begin and self.step >= 0:
                 self.begin.value = 1
                 self.end.value = 1
                 self.step.value = 1
 
-            elif 0 > self.end.value >= self.begin.value and self.step.value <= 0:
+            elif 0 > self.end >= self.begin and self.step <= 0:
                 self.begin.value = -2
                 self.end.value = -2
                 self.step.value = -1
@@ -129,7 +130,9 @@ class ParallelRange(_IndexSequence):
 
     """
 
-    def __init__(self, start, stop=None, step=None):
+    def __init__(
+            self, start: Union[int, float], stop: Union[int, float, None] = None,
+            step: Union[int, float, None] = None) -> None:
         if not stop:
             stop = start
             start = 0
@@ -144,11 +147,11 @@ class ParallelRange(_IndexSequence):
         """
         Function called by the iterator in Python 2
         """
-        if _bcast_var.get() is True:
-            _bcast_var.toggle()
+        if bcast_var.get() is True:
+            bcast_var.toggle()
             raise StopIteration
         else:
-            _bcast_var.toggle()
+            bcast_var.toggle()
             return self
 
     def __next__(self) -> ParallelRange:
@@ -164,7 +167,7 @@ class _IndexUnion(ctypes.Union):
         ("seq", _IndexSequence)]
 
 
-class _IndexStructure(ctypes.Structure):
+class IndexStructure(ctypes.Structure):
     _fields_ = [
         ("idx", _IndexUnion),
         ("isSeq", ctypes.c_bool),
@@ -202,20 +205,21 @@ class _IndexStructure(ctypes.Structure):
 
     """
 
-    def __init__(self, idx):
+    def __init__(self, idx: Any) -> None:
         self.idx = _IndexUnion()
         self.isBatch = False
         self.isSeq = True
 
-        if isinstance(idx, Array):
-            if idx.dtype == af_bool:
-                self.idx.arr = everything.where(idx.arr)
-            else:
-                self.idx.arr = everything.retain_array(idx.arr)
+        # FIXME cyclic reimport
+        # if isinstance(idx, Array):
+        #     if idx.dtype == af_bool:
+        #         self.idx.arr = everything.where(idx.arr)
+        #     else:
+        #         self.idx.arr = everything.retain_array(idx.arr)
 
-            self.isSeq = False
+        #     self.isSeq = False
 
-        elif isinstance(idx, ParallelRange):
+        if isinstance(idx, ParallelRange):
             self.idx.seq = idx
             self.isBatch = True
 
@@ -228,36 +232,24 @@ class _IndexStructure(ctypes.Structure):
             # converted to basic C types so we have to
             # build the void_p from the value again.
             arr = ctypes.c_void_p(self.idx.arr)
-            backend.get().af_release_array(arr)
+            safe_call(backend_api.af_release_array(arr))
 
 
-class _CIndexStructure:
+class CIndexStructure:
     def __init__(self) -> None:
-        index_vec = _IndexStructure * 4
+        index_vec = IndexStructure * 4
         # NOTE Do not lose those idx as self.array keeps no reference to them. Otherwise the destructor
         # is prematurely called
-        self.idxs = [_IndexStructure(slice(None))] * 4
+        self.idxs = [IndexStructure(slice(None))] * 4
         self.array = index_vec(*self.idxs)
 
     @property
-    def pointer(self) -> everything.AFArrayPointer:
+    def pointer(self) -> constants.AFArrayPointerType:
         return ctypes.pointer(self.array)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> IndexStructure:
         return self.array[idx]
 
-    def __setitem__(self, idx, value):
+    def __setitem__(self, idx: int, value: IndexStructure) -> None:
         self.array[idx] = value
         self.idxs[idx] = value
-
-
-def get_indices(key):
-    indices = _CIndexStructure()
-
-    if isinstance(key, tuple):
-        for n in range(len(key)):
-            indices[n] = _IndexStructure(key[n])
-    else:
-        indices[0] = _IndexStructure(key)
-
-    return indices

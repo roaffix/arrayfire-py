@@ -9,6 +9,7 @@ from .. import backend
 from ..backend import ArrayBuffer
 from ..backend.wrapped import everything
 from ..backend.wrapped.constant_array import create_constant_array
+from ..backend.wrapped.indexing import CIndexStructure, IndexStructure
 from ..backend.wrapped.reduction_operations import count_all
 from ..dtypes import CType
 from ..dtypes import bool as af_bool
@@ -727,7 +728,7 @@ class Array:
                 return out
 
         # HACK known issue
-        out.arr = everything.index_gen(self.arr, ndims, key)  # type: ignore[arg-type]
+        out.arr = everything.index_gen(self.arr, ndims, key, _get_indices(key))  # type: ignore[arg-type]
         return out
 
     def __index__(self) -> int:
@@ -934,3 +935,15 @@ def _process_c_function(lhs: Union[int, float, Array], rhs: Union[int, float, Ar
 
     out.arr = c_function(lhs_array, rhs_array)
     return out
+
+
+def _get_indices(key: Union[int, slice, Tuple[Union[int, slice, ], ...], Array]) -> CIndexStructure:
+    indices = CIndexStructure()
+
+    if isinstance(key, tuple):
+        for n in range(len(key)):
+            indices[n] = IndexStructure(key[n])
+    else:
+        indices[0] = IndexStructure(key)
+
+    return indices
