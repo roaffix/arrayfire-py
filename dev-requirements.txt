@@ -10,7 +10,7 @@ mypy==1.3.0
 isort>=5.10.1
 
 # Automatic code formatting
-# TBD
+black>=23.3.0
 
 # Allows generation of coverage reports with pytest.
 pytest-cov>=3.0.0

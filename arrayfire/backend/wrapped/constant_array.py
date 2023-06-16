@@ -17,8 +17,13 @@ def _constant_complex(number: Union[int, float], shape: Tuple[int, ...], dtype: 
 
     safe_call(
         backend_api.af_constant_complex(
-            ctypes.pointer(out), ctypes.c_double(number.real), ctypes.c_double(number.imag), 4,
-            ctypes.pointer(c_shape.c_array), dtype.c_api_value)
+            ctypes.pointer(out),
+            ctypes.c_double(number.real),
+            ctypes.c_double(number.imag),
+            4,
+            ctypes.pointer(c_shape.c_array),
+            dtype.c_api_value,
+        )
     )
     return out
 
@@ -32,7 +37,8 @@ def _constant_long(number: Union[int, float], shape: Tuple[int, ...], dtype: Dty
 
     safe_call(
         backend_api.af_constant_long(
-            ctypes.pointer(out), ctypes.c_longlong(int(number.real)), 4, ctypes.pointer(c_shape.c_array))
+            ctypes.pointer(out), ctypes.c_longlong(int(number.real)), 4, ctypes.pointer(c_shape.c_array)
+        )
     )
     return out
 
@@ -47,7 +53,8 @@ def _constant_ulong(number: Union[int, float], shape: Tuple[int, ...], dtype: Dt
 
     safe_call(
         backend_api.af_constant_ulong(
-            ctypes.pointer(out), ctypes.c_ulonglong(int(number.real)), 4, ctypes.pointer(c_shape.c_array))
+            ctypes.pointer(out), ctypes.c_ulonglong(int(number.real)), 4, ctypes.pointer(c_shape.c_array)
+        )
     )
     return out
 
@@ -61,7 +68,8 @@ def _constant(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /
 
     safe_call(
         backend_api.af_constant(
-            ctypes.pointer(out), ctypes.c_double(number), 4, ctypes.pointer(c_shape.c_array), dtype.c_api_value)
+            ctypes.pointer(out), ctypes.c_double(number), 4, ctypes.pointer(c_shape.c_array), dtype.c_api_value
+        )
     )
     return out
 

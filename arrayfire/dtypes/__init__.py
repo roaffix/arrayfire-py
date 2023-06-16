@@ -1,8 +1,19 @@
 from __future__ import annotations
 
 __all__ = [
-    "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64", "float32", "float64", "complex64",
-    "complex128", "bool"]
+    "int16",
+    "int32",
+    "int64",
+    "uint8",
+    "uint16",
+    "uint32",
+    "uint64",
+    "float32",
+    "float64",
+    "complex64",
+    "complex128",
+    "bool",
+]
 
 import ctypes
 from dataclasses import dataclass
@@ -30,10 +41,8 @@ uint32 = Dtype("I", ctypes.c_uint, "unsigned int", 6)
 uint64 = Dtype("L", ctypes.c_ulonglong, "unsigned long int", 9)
 float32 = Dtype("f", ctypes.c_float, "float", 0)
 float64 = Dtype("d", ctypes.c_double, "double", 2)
-complex64 = Dtype("F", ctypes.c_float*2, "float complext", 1)  # type: ignore[arg-type]
-complex128 = Dtype("D", ctypes.c_double*2, "double complext", 3)  # type: ignore[arg-type]
+complex64 = Dtype("F", ctypes.c_float * 2, "float complext", 1)  # type: ignore[arg-type]
+complex128 = Dtype("D", ctypes.c_double * 2, "double complext", 3)  # type: ignore[arg-type]
 bool = Dtype("b", ctypes.c_bool, "bool", 4)
 
-supported_dtypes = [
-    int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, complex64, complex128, bool
-]
+supported_dtypes = [int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, complex64, complex128, bool]

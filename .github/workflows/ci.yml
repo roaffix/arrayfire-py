@@ -32,17 +32,17 @@ jobs:
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
 
-      # - name: Install requirements
-      #   run: |
-      #     grep -E '^black' dev-requirements.txt | xargs pip install
+      - name: Install requirements
+        run: |
+          grep -E '^black' dev-requirements.txt | xargs pip install
 
       - name: Debug info
         run: |
           pip freeze
 
-    # - name: Run black
-    #   run: |
-    #     black --check .
+      - name: Run black
+        run: |
+          black --check .
 
   checks:
     name: ${{ matrix.task.name }}
@@ -87,7 +87,10 @@ jobs:
         id: virtualenv-cache
         with:
           path: .venv
-          key: ${{ env.CACHE_PREFIX }}-${{ env.WEEK_NUMBER }}-${{ runner.os }}-${{ env.RUNNER_ARCH }}-${{ env.PYTHON_VERSION }}-${{ matrix.task.platform }}-${{ hashFiles('setup.py') }}-${{ hashFiles('*requirements.txt') }}
+          key: >
+            ${{ env.CACHE_PREFIX }}-${{ env.WEEK_NUMBER }}-${{ runner.os }}-${{ env.RUNNER_ARCH }}-
+            ${{ env.PYTHON_VERSION }}-${{ matrix.task.platform }}-${{ hashFiles('setup.py') }}-
+            ${{ hashFiles('*requirements.txt') }}
 
       - name: Setup virtual environment (no cache hit)
         if: steps.virtualenv-cache.outputs.cache-hit != 'true'

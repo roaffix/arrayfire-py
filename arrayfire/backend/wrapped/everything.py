@@ -19,7 +19,8 @@ def create_handle(shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
 
     safe_call(
         backend_api.af_create_handle(
-            ctypes.pointer(out), c_shape.original_shape, ctypes.pointer(c_shape.c_array), dtype.c_api_value)
+            ctypes.pointer(out), c_shape.original_shape, ctypes.pointer(c_shape.c_array), dtype.c_api_value
+        )
     )
     return out
 
@@ -30,9 +31,7 @@ def retain_array(arr: AFArrayType) -> AFArrayType:
     """
     out = ctypes.c_void_p(0)
 
-    safe_call(
-        backend_api.af_retain_array(ctypes.pointer(out), arr)
-    )
+    safe_call(backend_api.af_retain_array(ctypes.pointer(out), arr))
     return out
 
 
@@ -45,8 +44,12 @@ def create_array(shape: Tuple[int, ...], dtype: Dtype, array_buffer: ArrayBuffer
 
     safe_call(
         backend_api.af_create_array(
-            ctypes.pointer(out), ctypes.c_void_p(array_buffer.address), c_shape.original_shape,
-            ctypes.pointer(c_shape.c_array), dtype.c_api_value)
+            ctypes.pointer(out),
+            ctypes.c_void_p(array_buffer.address),
+            c_shape.original_shape,
+            ctypes.pointer(c_shape.c_array),
+            dtype.c_api_value,
+        )
     )
     return out
 
@@ -60,15 +63,25 @@ def device_array(shape: Tuple[int, ...], dtype: Dtype, array_buffer: ArrayBuffer
 
     safe_call(
         backend_api.af_device_array(
-            ctypes.pointer(out), ctypes.c_void_p(array_buffer.address), c_shape.original_shape,
-            ctypes.pointer(c_shape.c_array), dtype.c_api_value)
+            ctypes.pointer(out),
+            ctypes.c_void_p(array_buffer.address),
+            c_shape.original_shape,
+            ctypes.pointer(c_shape.c_array),
+            dtype.c_api_value,
+        )
     )
     return out
 
 
 def create_strided_array(
-        shape: Tuple[int, ...], dtype: Dtype, array_buffer: ArrayBuffer, offset: CType, strides: Tuple[int, ...],
-        pointer_source: PointerSource, /) -> AFArrayType:
+    shape: Tuple[int, ...],
+    dtype: Dtype,
+    array_buffer: ArrayBuffer,
+    offset: CType,
+    strides: Tuple[int, ...],
+    pointer_source: PointerSource,
+    /,
+) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__internal__func__create.htm#gad31241a3437b7b8bc3cf49f85e5c4e0c
     """
@@ -79,15 +92,22 @@ def create_strided_array(
         offset = c_dim_t(0)
 
     if strides is None:
-        strides = (1, c_shape[0], c_shape[0]*c_shape[1], c_shape[0]*c_shape[1]*c_shape[2])
+        strides = (1, c_shape[0], c_shape[0] * c_shape[1], c_shape[0] * c_shape[1] * c_shape[2])
 
     if len(strides) < 4:
-        strides += (strides[-1], ) * (4 - len(strides))
+        strides += (strides[-1],) * (4 - len(strides))
 
     safe_call(
         backend_api.af_create_strided_array(
-            ctypes.pointer(out), ctypes.c_void_p(array_buffer.address), offset, c_shape.original_shape,
-            ctypes.pointer(c_shape.c_array), CShape(*strides).c_array, dtype.c_api_value, pointer_source.value)
+            ctypes.pointer(out),
+            ctypes.c_void_p(array_buffer.address),
+            offset,
+            c_shape.original_shape,
+            ctypes.pointer(c_shape.c_array),
+            CShape(*strides).c_array,
+            dtype.c_api_value,
+            pointer_source.value,
+        )
     )
     return out
 
@@ -98,9 +118,7 @@ def get_ctype(arr: AFArrayType) -> int:
     """
     out = ctypes.c_int()
 
-    safe_call(
-        backend_api.af_get_type(ctypes.pointer(out), arr)
-    )
+    safe_call(backend_api.af_get_type(ctypes.pointer(out), arr))
     return out.value
 
 
@@ -110,9 +128,7 @@ def get_elements(arr: AFArrayType) -> int:
     """
     out = c_dim_t(0)
 
-    safe_call(
-        backend_api.af_get_elements(ctypes.pointer(out), arr)
-    )
+    safe_call(backend_api.af_get_elements(ctypes.pointer(out), arr))
     return out.value
 
 
@@ -122,9 +138,7 @@ def get_numdims(arr: AFArrayType) -> int:
     """
     out = ctypes.c_uint(0)
 
-    safe_call(
-        backend_api.af_get_numdims(ctypes.pointer(out), arr)
-    )
+    safe_call(backend_api.af_get_numdims(ctypes.pointer(out), arr))
     return out.value
 
 
@@ -148,9 +162,7 @@ def get_scalar(arr: AFArrayType, dtype: Dtype, /) -> Union[None, int, float, boo
     source: https://arrayfire.org/docs/group__c__api__mat.htm#gaefe2e343a74a84bd43b588218ecc09a3
     """
     out = dtype.c_type()
-    safe_call(
-        backend_api.af_get_scalar(ctypes.pointer(out), arr)
-    )
+    safe_call(backend_api.af_get_scalar(ctypes.pointer(out), arr))
     return cast(Union[None, int, float, bool, complex], out.value)
 
 
@@ -159,9 +171,7 @@ def is_empty(arr: AFArrayType) -> bool:
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga19c749e95314e1c77d816ad9952fb680
     """
     out = ctypes.c_bool()
-    safe_call(
-        backend_api.af_is_empty(ctypes.pointer(out), arr)
-    )
+    safe_call(backend_api.af_is_empty(ctypes.pointer(out), arr))
     return out.value
 
 
@@ -171,9 +181,7 @@ def get_data_ptr(arr: AFArrayType, size: int, dtype: Dtype, /) -> ctypes.Array:
     """
     c_shape = dtype.c_type * size
     ctypes_array = c_shape()
-    safe_call(
-        backend_api.af_get_data_ptr(ctypes.pointer(ctypes_array), arr)
-    )
+    safe_call(backend_api.af_get_data_ptr(ctypes.pointer(ctypes_array), arr))
     return ctypes_array
 
 
@@ -181,15 +189,27 @@ def get_data_ptr(arr: AFArrayType, size: int, dtype: Dtype, /) -> ctypes.Array:
 
 
 def index_gen(
-        arr: AFArrayType, ndims: int, key: Union[int, slice, Tuple[Union[int, slice, ], ...]],
-        indices: Any, /) -> AFArrayType:
+    arr: AFArrayType,
+    ndims: int,
+    key: Union[
+        int,
+        slice,
+        Tuple[
+            Union[
+                int,
+                slice,
+            ],
+            ...,
+        ],
+    ],
+    indices: Any,
+    /,
+) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__index__func__index.htm#ga14a7d149dba0ed0b977335a3df9d91e6
     """
     out = ctypes.c_void_p(0)
-    safe_call(
-        backend_api.af_index_gen(ctypes.pointer(out), arr, c_dim_t(ndims), indices.pointer)
-    )
+    safe_call(backend_api.af_index_gen(ctypes.pointer(out), arr, c_dim_t(ndims), indices.pointer))
     return out
 
 
@@ -198,9 +218,7 @@ def transpose(arr: AFArrayType, conjugate: bool, /) -> AFArrayType:
     https://arrayfire.org/docs/group__blas__func__transpose.htm#ga716b2b9bf190c8f8d0970aef2b57d8e7
     """
     out = ctypes.c_void_p(0)
-    safe_call(
-        backend_api.af_transpose(ctypes.pointer(out), arr, conjugate)
-    )
+    safe_call(backend_api.af_transpose(ctypes.pointer(out), arr, conjugate))
     return out
 
 
@@ -210,9 +228,7 @@ def reorder(arr: AFArrayType, ndims: int, /) -> AFArrayType:
     """
     out = ctypes.c_void_p(0)
     c_shape = CShape(*(tuple(reversed(range(ndims))) + tuple(range(ndims, 4))))
-    safe_call(
-        backend_api.af_reorder(ctypes.pointer(out), arr, *c_shape)
-    )
+    safe_call(backend_api.af_reorder(ctypes.pointer(out), arr, *c_shape))
     return out
 
 
@@ -223,13 +239,9 @@ def array_as_str(arr: AFArrayType) -> str:
     - https://arrayfire.org/docs/group__device__func__free__host.htm#ga3f1149a837a7ebbe8002d5d2244e3370
     """
     arr_str = ctypes.c_char_p(0)
-    safe_call(
-        backend_api.af_array_to_string(ctypes.pointer(arr_str), "", arr, 4, True)
-    )
+    safe_call(backend_api.af_array_to_string(ctypes.pointer(arr_str), "", arr, 4, True))
     py_str = to_str(arr_str)
-    safe_call(
-        backend_api.af_free_host(arr_str)
-    )
+    safe_call(backend_api.af_free_host(arr_str))
     return py_str
 
 
@@ -238,7 +250,5 @@ def where(arr: AFArrayType) -> AFArrayType:
     source: https://arrayfire.org/docs/group__scan__func__where.htm#gafda59a3d25d35238592dd09907be9d07
     """
     out = ctypes.c_void_p(0)
-    safe_call(
-        backend_api.af_where(ctypes.pointer(out), arr)
-    )
+    safe_call(backend_api.af_where(ctypes.pointer(out), arr))
     return out

@@ -16,52 +16,50 @@ def _round(list_: List[Union[int, float]], symbols: int = 4) -> List[Union[int, 
 
 def pytest_generate_tests(metafunc: Any) -> None:
     if "array_origin" in metafunc.fixturenames:
-        metafunc.parametrize("array_origin", [
-            [1, 2, 3],
-            # [4.2, 7.5, 5.41]  # FIXME too big difference between python pow and af backend
-        ])
+        metafunc.parametrize(
+            "array_origin",
+            [
+                [1, 2, 3],
+                # [4.2, 7.5, 5.41]  # FIXME too big difference between python pow and af backend
+            ],
+        )
     if "arithmetic_operator" in metafunc.fixturenames:
-        metafunc.parametrize("arithmetic_operator", [
-            "add",  # __add__, __iadd__, __radd__
-            "sub",  # __sub__, __isub__, __rsub__
-            "mul",  # __mul__, __imul__, __rmul__
-            "truediv",  # __truediv__, __itruediv__, __rtruediv__
-            # "floordiv",  # __floordiv__, __ifloordiv__, __rfloordiv__  # TODO
-            "mod",  # __mod__, __imod__, __rmod__
-            "pow",  # __pow__, __ipow__, __rpow__,
-        ])
+        metafunc.parametrize(
+            "arithmetic_operator",
+            [
+                "add",  # __add__, __iadd__, __radd__
+                "sub",  # __sub__, __isub__, __rsub__
+                "mul",  # __mul__, __imul__, __rmul__
+                "truediv",  # __truediv__, __itruediv__, __rtruediv__
+                # "floordiv",  # __floordiv__, __ifloordiv__, __rfloordiv__  # TODO
+                "mod",  # __mod__, __imod__, __rmod__
+                "pow",  # __pow__, __ipow__, __rpow__,
+            ],
+        )
     if "array_operator" in metafunc.fixturenames:
-        metafunc.parametrize("array_operator", [
-            operator.matmul,
-            operator.imatmul
-        ])
+        metafunc.parametrize("array_operator", [operator.matmul, operator.imatmul])
     if "comparison_operator" in metafunc.fixturenames:
-        metafunc.parametrize("comparison_operator", [
-            operator.lt,
-            operator.le,
-            operator.gt,
-            operator.ge,
-            operator.eq,
-            operator.ne
-        ])
+        metafunc.parametrize(
+            "comparison_operator", [operator.lt, operator.le, operator.gt, operator.ge, operator.eq, operator.ne]
+        )
     if "operand" in metafunc.fixturenames:
-        metafunc.parametrize("operand", [
-            2,
-            1.5,
-            [9, 9, 9],
-        ])
+        metafunc.parametrize(
+            "operand",
+            [
+                2,
+                1.5,
+                [9, 9, 9],
+            ],
+        )
     if "false_operand" in metafunc.fixturenames:
-        metafunc.parametrize("false_operand", [
-            (1, 2, 3),
-            ("2"),
-            {2.34, 523.2},
-            "15"
-        ])
+        metafunc.parametrize("false_operand", [(1, 2, 3), ("2"), {2.34, 523.2}, "15"])
 
 
 def test_arithmetic_operators(
-        array_origin: List[Union[int, float]], arithmetic_operator: str,
-        operand: Union[int, float, List[Union[int, float]]]) -> None:
+    array_origin: List[Union[int, float]],
+    arithmetic_operator: str,
+    operand: Union[int, float, List[Union[int, float]]],
+) -> None:
     op = getattr(operator, arithmetic_operator)
     iop = getattr(operator, "i" + arithmetic_operator)
 
@@ -90,7 +88,8 @@ def test_arithmetic_operators(
 
 
 def test_arithmetic_operators_expected_to_raise_error(
-        array_origin: List[Union[int, float]], arithmetic_operator: str, false_operand: Any) -> None:
+    array_origin: List[Union[int, float]], arithmetic_operator: str, false_operand: Any
+) -> None:
     array = Array(array_origin)
     op = getattr(operator, arithmetic_operator)
     with pytest.raises(TypeError):
@@ -98,8 +97,10 @@ def test_arithmetic_operators_expected_to_raise_error(
 
 
 def test_comparison_operators(
-        array_origin: List[Union[int, float]], comparison_operator: Operator,
-        operand: Union[int, float, List[Union[int, float]]]) -> None:
+    array_origin: List[Union[int, float]],
+    comparison_operator: Operator,
+    operand: Union[int, float, List[Union[int, float]]],
+) -> None:
     if isinstance(operand, list):
         ref = [comparison_operator(x, y) for x, y in zip(array_origin, operand)]
         operand = Array(operand)  # type: ignore[assignment]
@@ -114,7 +115,8 @@ def test_comparison_operators(
 
 
 def test_comparison_operators_expected_to_raise_error(
-        array_origin: List[Union[int, float]], comparison_operator: Operator, false_operand: Any) -> None:
+    array_origin: List[Union[int, float]], comparison_operator: Operator, false_operand: Any
+) -> None:
     array = Array(array_origin)
 
     with pytest.raises(TypeError):

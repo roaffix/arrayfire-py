@@ -25,9 +25,7 @@ def parse_requirements_file(path: Path, allowed_extras: set = None, include_all_
 
         def fix_url_dependencies(req: str) -> str:
             """Pip and setuptools disagree about how URL dependencies should be handled."""
-            m = re.match(
-                r"^(git\+)?(https|ssh)://(git@)?github\.com/([\w-]+)/(?P<name>[\w-]+)\.git", req
-            )
+            m = re.match(r"^(git\+)?(https|ssh)://(git@)?github\.com/([\w-]+)/(?P<name>[\w-]+)\.git", req)
             if m is None:
                 return req
             else:
@@ -61,7 +59,8 @@ with (ABS_PATH / "arrayfire" / "version.py").open("r") as version_file:
 # Load requirements.
 install_requirements, extras = parse_requirements_file(ABS_PATH / "requirements.txt")
 dev_requirements, dev_extras = parse_requirements_file(
-    ABS_PATH / "dev-requirements.txt", allowed_extras={"examples"}, include_all_extra=False)
+    ABS_PATH / "dev-requirements.txt", allowed_extras={"examples"}, include_all_extra=False
+)
 extras["dev"] = dev_requirements
 extras.update(dev_extras)
 

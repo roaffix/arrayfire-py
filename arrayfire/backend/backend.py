@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from ..dtypes.helpers import c_dim_t, to_str
 
 # HACK for osx
-# backend_api = ctypes.CDLL("/opt/arrayfire//lib/libafcpu.3.dylib")
+backend_api = ctypes.CDLL("/opt/arrayfire//lib/libafcpu.3.dylib")
 # HACK for windows
-backend_api = ctypes.CDLL("C:/Program Files/ArrayFire/v3/lib/afcpu.dll")
+# backend_api = ctypes.CDLL("C:/Program Files/ArrayFire/v3/lib/afcpu.dll")
 
 
 def safe_call(c_err: int) -> None:

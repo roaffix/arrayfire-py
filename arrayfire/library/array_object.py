@@ -22,10 +22,14 @@ from .device import PointerSource
 
 class Array:
     def __init__(
-            self, x: Union[None, Array, py_array.array, int, ctypes.c_void_p, List[Union[int, float]]] = None,
-            dtype: Union[None, Dtype, str] = None, shape: Tuple[int, ...] = (),
-            pointer_source: PointerSource = PointerSource.host, offset: Optional[CType] = None,
-            strides: Optional[Tuple[int, ...]] = None) -> None:
+        self,
+        x: Union[None, Array, py_array.array, int, ctypes.c_void_p, List[Union[int, float]]] = None,
+        dtype: Union[None, Dtype, str] = None,
+        shape: Tuple[int, ...] = (),
+        pointer_source: PointerSource = PointerSource.host,
+        offset: Optional[CType] = None,
+        strides: Optional[Tuple[int, ...]] = None,
+    ) -> None:
         _no_initial_dtype = False  # HACK, FIXME
 
         if isinstance(dtype, str):
@@ -72,7 +76,7 @@ class Array:
 
         if not shape:
             if _array_buffer.length != 0:
-                shape = (_array_buffer.length, )
+                shape = (_array_buffer.length,)
             else:
                 RuntimeError("Shape and buffer length are size invalid.")
 
@@ -88,7 +92,8 @@ class Array:
             return
 
         self.arr = everything.create_strided_array(
-            shape, dtype, _array_buffer, offset, strides, pointer_source)  # type: ignore[arg-type]
+            shape, dtype, _array_buffer, offset, strides, pointer_source  # type: ignore[arg-type]
+        )
 
     # Arithmetic Operators
 
@@ -535,7 +540,7 @@ class Array:
         """
         return _process_c_function(other, self, backend.div)
 
-    def __rfloordiv__(self, other:  Array, /) -> Array:
+    def __rfloordiv__(self, other: Array, /) -> Array:
         # TODO
         return NotImplemented
 
@@ -700,7 +705,7 @@ class Array:
         # TODO
         return NotImplemented
 
-    def __getitem__(self, key: Union[int, slice, Tuple[Union[int, slice, ], ...], Array], /) -> Array:
+    def __getitem__(self, key: IndexKey, /) -> Array:
         """
         Returns self[key].
 
@@ -742,9 +747,7 @@ class Array:
     def __len__(self) -> int:
         return self.shape[0] if self.shape else 0
 
-    def __setitem__(
-            self, key: Union[int, slice, Tuple[Union[int, slice, ], ...], Array],
-            value: Union[int, float, bool, Array], /) -> None:
+    def __setitem__(self, key: IndexKey, value: Union[int, float, bool, Array], /) -> None:
         # TODO
         return NotImplemented  # type: ignore[return-value]  # FIXME
 
@@ -849,7 +852,7 @@ class Array:
             Array dimensions.
         """
         # NOTE skipping passing any None values
-        return everything.get_dims(self.arr)[:self.ndim]
+        return everything.get_dims(self.arr)[: self.ndim]
 
     def scalar(self) -> Union[None, int, float, bool, complex]:
         """
@@ -896,6 +899,9 @@ class Array:
         return everything.get_data_ptr(array.arr, array.size, array.dtype)
 
 
+IndexKey = Union[int, slice, Tuple[Union[int, slice], ...], Array]
+
+
 def _reorder(array: Array) -> Array:
     """
     Returns a reordered array to help interoperate with row major formats.
@@ -909,10 +915,7 @@ def _reorder(array: Array) -> Array:
 
 
 def _metadata_string(dtype: Dtype, dims: Optional[Tuple[int, ...]] = None) -> str:
-    return (
-        "arrayfire.Array()\n"
-        f"Type: {dtype.typename}\n"
-        f"Dims: {str(dims) if dims else ''}")
+    return "arrayfire.Array()\n" f"Type: {dtype.typename}\n" f"Dims: {str(dims) if dims else ''}"
 
 
 def _process_c_function(lhs: Union[int, float, Array], rhs: Union[int, float, Array], c_function: Any) -> Array:
@@ -937,7 +940,7 @@ def _process_c_function(lhs: Union[int, float, Array], rhs: Union[int, float, Ar
     return out
 
 
-def _get_indices(key: Union[int, slice, Tuple[Union[int, slice, ], ...], Array]) -> CIndexStructure:
+def _get_indices(key: IndexKey) -> CIndexStructure:
     indices = CIndexStructure()
 
     if isinstance(key, tuple):
