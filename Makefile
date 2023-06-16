@@ -28,7 +28,7 @@ flake8 :
 	flake8 arrayfire tests examples
 
 .PHONY : import-sort
-typecheck :
+import-sort :
 	isort arrayfire tests examples
 
 .PHONY : typecheck
