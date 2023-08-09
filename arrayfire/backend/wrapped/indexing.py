@@ -32,11 +32,9 @@ class _IndexSequence(ctypes.Structure):
     chunk: slice or number.
 
     """
+
     # More about _fields_ purpose: https://docs.python.org/3/library/ctypes.html#structures-and-unions
-    _fields_ = [
-        ("begin", ctypes.c_double),
-        ("end", ctypes.c_double),
-        ("step", ctypes.c_double)]
+    _fields_ = [("begin", ctypes.c_double), ("end", ctypes.c_double), ("step", ctypes.c_double)]
 
     def __init__(self, chunk: Union[int, slice]):
         self.begin = ctypes.c_double(0)
@@ -60,12 +58,12 @@ class _IndexSequence(ctypes.Structure):
                 self.end = ctypes.c_double(chunk.stop)
 
             # handle special cases
-            if 0 <= self.end <= self.begin and self.step >= 0:
+            if 0 <= self.end <= self.begin and self.step >= 0:  # type: ignore[operator]
                 self.begin.value = 1
                 self.end.value = 1
                 self.step.value = 1
 
-            elif 0 > self.end >= self.begin and self.step <= 0:
+            elif 0 > self.end >= self.begin and self.step <= 0:  # type: ignore[operator]
                 self.begin.value = -2
                 self.end.value = -2
                 self.step.value = -1
@@ -131,8 +129,8 @@ class ParallelRange(_IndexSequence):
     """
 
     def __init__(
-            self, start: Union[int, float], stop: Union[int, float, None] = None,
-            step: Union[int, float, None] = None) -> None:
+        self, start: Union[int, float], stop: Union[int, float, None] = None, step: Union[int, float, None] = None
+    ) -> None:
         if not stop:
             stop = start
             start = 0
@@ -162,16 +160,11 @@ class ParallelRange(_IndexSequence):
 
 
 class _IndexUnion(ctypes.Union):
-    _fields_ = [
-        ("arr", ctypes.c_void_p),
-        ("seq", _IndexSequence)]
+    _fields_ = [("arr", ctypes.c_void_p), ("seq", _IndexSequence)]
 
 
 class IndexStructure(ctypes.Structure):
-    _fields_ = [
-        ("idx", _IndexUnion),
-        ("isSeq", ctypes.c_bool),
-        ("isBatch", ctypes.c_bool)]
+    _fields_ = [("idx", _IndexUnion), ("isSeq", ctypes.c_bool), ("isBatch", ctypes.c_bool)]
 
     """
     Container for the index class in arrayfire C library

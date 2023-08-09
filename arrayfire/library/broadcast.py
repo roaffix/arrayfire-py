@@ -77,6 +77,7 @@ def broadcast(func: Callable[..., Any], *args: Any) -> Any:
         1.5328     0.8898     0.7185
 
     """
+
     def wrapper(*func_args: Any) -> Any:
         bcast_var.toggle()
         res = func(*func_args)

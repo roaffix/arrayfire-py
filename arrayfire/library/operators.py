@@ -17,9 +17,9 @@ class return_copy:
 
 @return_copy
 def add(x1: Array, x2: Array, /) -> Array:
-    return backend.add(x1, x2)
+    return backend.add(x1, x2)  # type: ignore[arg-type, return-value]  # FIXME
 
 
 @return_copy
 def sub(x1: Array, x2: Array, /) -> Array:
-    return backend.sub(x1, x2)
+    return backend.sub(x1, x2)  # type: ignore[arg-type, return-value]

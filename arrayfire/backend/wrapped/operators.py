@@ -53,14 +53,13 @@ def pow(lhs: AFArrayType, rhs: AFArrayType, /) -> AFArrayType:
 
 # Bitwise Operators
 
+
 def bitnot(arr: AFArrayType, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__arith__func__bitnot.htm#gaf97e8a38aab59ed2d3a742515467d01e
     """
     out = ctypes.c_void_p(0)
-    safe_call(
-        backend_api.af_bitnot(ctypes.pointer(out), arr)
-    )
+    safe_call(backend_api.af_bitnot(ctypes.pointer(out), arr))
     return out
 
 
