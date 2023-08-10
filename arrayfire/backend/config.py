@@ -1,13 +1,12 @@
 import ctypes
 import os
 import platform
-import sys
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Iterator, List, Optional, Tuple
+from typing import Iterator
 
-from arrayfire.version import ARRAYFIRE_VER_MAJOR, FORGE_VER_MAJOR
+from arrayfire.version import ARRAYFIRE_VER_MAJOR
 
 
 class SupportedLibs(Enum):

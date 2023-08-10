@@ -9,7 +9,6 @@ from typing import Dict, List, Optional, Tuple
 from arrayfire.backend import config
 from arrayfire.dtypes.helpers import c_dim_t, to_str
 from arrayfire.logger import logger
-from arrayfire.version import FORGE_VER_MAJOR
 
 VERBOSE_LOADS = os.environ.get("AF_VERBOSE_LOADS") == "1"
 
@@ -42,15 +41,19 @@ class Backend:
         self.load_backend_libs()
         print(self._clibs)
 
+        if all(value is None for value in self._clibs.values()):
+            raise RuntimeError(
+                "Could not load any ArrayFire libraries.\n"
+                "Please look at https://github.com/arrayfire/arrayfire-python/wiki for more information.")
+
     def load_forge_lib(self) -> None:
-        for libname in self._libnames("forge", config.SupportedLibs.forge, FORGE_VER_MAJOR):
-            full_libname = libname[0] + libname[1]
+        for libname in self._libnames("forge", config.SupportedLibs.forge):
             try:
-                ctypes.cdll.LoadLibrary(full_libname)
-                logger.info(f"Loaded {full_libname}")
+                ctypes.cdll.LoadLibrary(str(libname))
+                logger.info(f"Loaded {libname}")
                 break
             except OSError:
-                logger.warning(f"Unable to load {full_libname}")
+                logger.warning(f"Unable to load {libname}")
                 pass
 
     def load_backend_libs(self) -> None:
@@ -62,36 +65,30 @@ class Backend:
         name = device.name if device != BackendDevices.unified else ""
 
         for libname in self._libnames(name):
-            full_libname = Path(libname[0]) / Path(libname[1])
             try:
-                ctypes.cdll.LoadLibrary(str(full_libname))
-                self._clibs[device.name] = ctypes.CDLL(str(full_libname))
+                ctypes.cdll.LoadLibrary(str(libname))
+                self._clibs[device.name] = ctypes.CDLL(str(libname))
 
                 if device == BackendDevices.cuda:
-                    self.load_nvrtc_builtins_lib(libname[0])
+                    self.load_nvrtc_builtins_lib(libname.parent)
 
-                logger.info(f"Loaded {full_libname}")
+                logger.info(f"Loaded {libname}")
                 break
             except OSError:
-                logger.warning(f"Unable to load {full_libname}")
+                logger.warning(f"Unable to load {libname}")
                 pass
 
-    def load_nvrtc_builtins_lib(self, lib_path: str) -> None:
-        nvrtc_name = self._find_nvrtc_builtins_libname(Path(lib_path))
+    def load_nvrtc_builtins_lib(self, lib_path: Path) -> None:
+        nvrtc_name = self._find_nvrtc_builtins_libname(lib_path)
         if nvrtc_name:
-            ctypes.cdll.LoadLibrary(lib_path + nvrtc_name)
-            logger.info("Loaded " + lib_path + nvrtc_name)
+            ctypes.cdll.LoadLibrary(str(lib_path / nvrtc_name))
+            logger.info(f"Loaded {lib_path / nvrtc_name}")
         else:
             logger.warning("Could not find local nvrtc-builtins library")
 
-        if all(value is None for value in self._clibs.values()):
-            raise RuntimeError(
-                "Could not load any ArrayFire libraries.\n"
-                "Please look at https://github.com/arrayfire/arrayfire-python/wiki for more information.")
-
     def _libnames(
         self, name: str, lib: config.SupportedLibs = config.SupportedLibs.arrayfire, ver_major: Optional[str] = None
-    ) -> List[Tuple[str, str]]:
+    ) -> List[Path]:
         post = self.setup.post if ver_major is None else ver_major
         libname = self.setup.pre + lib.value + name + post
 
@@ -102,15 +99,15 @@ class Backend:
 
         # prefer locally packaged arrayfire libraries if they exist
         af_module = __import__(__name__)
-        local_path = af_module.__path__[0] + "/" if af_module.__path__ else None
+        local_path = Path(af_module.__path__[0]) if af_module.__path__ else Path("")
 
-        libpaths = [("", libname), (str(site_path), libname), (str(local_path), libname)]
+        libpaths = [Path("", libname), site_path / libname, local_path / libname]
 
         if self.setup.af_path:  # prefer specified AF_PATH if exists
-            libpaths.append((str(search_path), libname))
+            return [search_path / libname] + libpaths
         else:
-            libpaths.insert(2, (str(search_path), libname))
-        return libpaths
+            libpaths.insert(2, Path(str(search_path), libname))
+            return libpaths
 
     def _find_nvrtc_builtins_libname(self, search_path: Path) -> Optional[str]:
         for f in search_path.iterdir():
