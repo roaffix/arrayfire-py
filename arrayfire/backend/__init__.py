@@ -23,7 +23,7 @@ __all__ = [
 ]
 
 from .backend import ArrayBuffer
-from .wrapped.operators import (
+from .c_backend.operators import (
     add,
     bitand,
     bitnot,

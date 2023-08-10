@@ -5,11 +5,14 @@ import sys
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Iterator, List, Tuple
+from typing import Iterator, List, Optional, Tuple
 
-_VER_MAJOR_PLACEHOLDER = "__VER_MAJOR__"
-AF_VER_MAJOR = "3"
-FORGE_VER_MAJOR = "1"
+from arrayfire.version import ARRAYFIRE_VER_MAJOR, FORGE_VER_MAJOR
+
+
+class SupportedLibs(Enum):
+    forge = "forge"
+    arrayfire = "af"
 
 
 class SupportedPlatforms(Enum):
@@ -60,7 +63,7 @@ def setup() -> Setup:
             ctypes.windll.kernel32.SetErrorMode(0x0001 | 0x0002)  # type: ignore[attr-defined]
 
         if not af_path:
-            af_path = _find_default_path(f"C:/Program Files/ArrayFire/v{AF_VER_MAJOR}")
+            af_path = _find_default_path(f"C:/Program Files/ArrayFire/v{ARRAYFIRE_VER_MAJOR}")
 
         if cuda_path and (cuda_path / "bin").is_dir() and (cuda_path / "nvvm/bin").is_dir():
             cuda_found = True
@@ -76,13 +79,13 @@ def setup() -> Setup:
         if not (cuda_path and default_cuda_path.exists()):
             cuda_found = (default_cuda_path / "lib").is_dir() and (default_cuda_path / "/nvvm/lib").is_dir()
 
-        return Setup("lib", f".{_VER_MAJOR_PLACEHOLDER}.dylib", af_path, cuda_found)
+        return Setup("lib", f".{ARRAYFIRE_VER_MAJOR}.dylib", af_path, cuda_found)
 
     if platform_name == SupportedPlatforms.linux.value:
         default_cuda_path = Path("/usr/local/cuda/")
 
         if not af_path:
-            af_path = _find_default_path(f"/opt/arrayfire-{AF_VER_MAJOR}", "/opt/arrayfire/", "/usr/local/")
+            af_path = _find_default_path(f"/opt/arrayfire-{ARRAYFIRE_VER_MAJOR}", "/opt/arrayfire/", "/usr/local/")
 
         if not (cuda_path and default_cuda_path.exists()):
             if "64" in platform.architecture()[0]:  # Check either is 64 bit arch is selected
@@ -90,7 +93,7 @@ def setup() -> Setup:
             else:
                 cuda_found = (default_cuda_path / "lib").is_dir() and (default_cuda_path / "nvvm/lib").is_dir()
 
-        return Setup("lib", f".so.{_VER_MAJOR_PLACEHOLDER}", af_path, cuda_found)
+        return Setup("lib", f".so.{ARRAYFIRE_VER_MAJOR}", af_path, cuda_found)
 
     raise OSError(f"{platform_name} is not supported.")
 
@@ -101,25 +104,3 @@ def _find_default_path(*args: str) -> Path:
         if default_path.exists():
             return default_path
     raise ValueError("None of specified default paths were found.")
-
-
-def libnames(setup: Setup) -> List[Tuple[str, str]]:
-    post = setup.post.replace(_VER_MAJOR_PLACEHOLDER, AF_VER_MAJOR)
-    libname = setup.pre + "forge" + post
-
-    lib64_path = setup.af_path / "lib64"
-    search_path = lib64_path if lib64_path.is_dir() else setup.af_path / "lib"
-
-    site_path = Path(sys.prefix) / "lib64" if "64" in platform.architecture()[0] else Path(sys.prefix) / "lib"
-
-    # prefer locally packaged arrayfire libraries if they exist
-    af_module = __import__(__name__)
-    local_path = af_module.__path__[0] + "/" if af_module.__path__ else None
-
-    libpaths = [("", libname), (str(site_path), libname), (str(local_path), libname)]
-
-    if setup.af_path:  # prefer specified AF_PATH if exists
-        libpaths.append((str(search_path), libname))
-    else:
-        libpaths.insert(2, (str(search_path), libname))
-    return libpaths

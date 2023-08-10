@@ -7,10 +7,10 @@ from typing import Any, List, Optional, Tuple, Union
 
 from .. import backend
 from ..backend import ArrayBuffer
-from ..backend.wrapped import everything
-from ..backend.wrapped.constant_array import create_constant_array
-from ..backend.wrapped.indexing import CIndexStructure, IndexStructure
-from ..backend.wrapped.reduction_operations import count_all
+from ..backend.c_backend import unsorted
+from ..backend.c_backend.constant_array import create_constant_array
+from ..backend.c_backend.indexing import CIndexStructure, IndexStructure
+from ..backend.c_backend.reduction_operations import count_all
 from ..dtypes import CType
 from ..dtypes import bool as af_bool
 from ..dtypes import float32 as af_float32
@@ -41,14 +41,14 @@ class Array:
 
         if obj is None:
             if not shape:  # shape is None or empty tuple
-                self.arr = everything.create_handle((), dtype)
+                self.arr = unsorted.create_handle((), dtype)
                 return
 
-            self.arr = everything.create_handle(shape, dtype)
+            self.arr = unsorted.create_handle(shape, dtype)
             return
 
         if isinstance(obj, Array):
-            self.arr = everything.retain_array(obj.arr)
+            self.arr = unsorted.retain_array(obj.arr)
             return
 
         if isinstance(obj, py_array.array):
@@ -85,13 +85,13 @@ class Array:
 
         if not (offset or strides):
             if pointer_source == PointerSource.host:
-                self.arr = everything.create_array(shape, dtype, _array_buffer)
+                self.arr = unsorted.create_array(shape, dtype, _array_buffer)
                 return
 
-            self.arr = everything.device_array(shape, dtype, _array_buffer)
+            self.arr = unsorted.device_array(shape, dtype, _array_buffer)
             return
 
-        self.arr = everything.create_strided_array(
+        self.arr = unsorted.create_strided_array(
             shape, dtype, _array_buffer, offset, strides, pointer_source  # type: ignore[arg-type]
         )
 
@@ -733,7 +733,7 @@ class Array:
                 return out
 
         # HACK known issue
-        out.arr = everything.index_gen(self.arr, ndims, key, _get_indices(key))  # type: ignore[arg-type]
+        out.arr = unsorted.index_gen(self.arr, ndims, key, _get_indices(key))  # type: ignore[arg-type]
         return out
 
     def __index__(self) -> int:
@@ -755,12 +755,12 @@ class Array:
         # TODO change the look of array str. E.g., like np.array
         # if not _in_display_dims_limit(self.shape):
         #     return _metadata_string(self.dtype, self.shape)
-        return _metadata_string(self.dtype) + everything.array_as_str(self.arr)
+        return _metadata_string(self.dtype) + unsorted.array_as_str(self.arr)
 
     def __repr__(self) -> str:
         # return _metadata_string(self.dtype, self.shape)
         # TODO change the look of array representation. E.g., like np.array
-        return everything.array_as_str(self.arr)
+        return unsorted.array_as_str(self.arr)
 
     def to_device(self, device: Any, /, *, stream: Union[int, Any] = None) -> Array:
         # TODO implementation and change device type from Any to Device
@@ -778,7 +778,7 @@ class Array:
         out : Dtype
             Array data type.
         """
-        return c_api_value_to_dtype(everything.get_ctype(self.arr))
+        return c_api_value_to_dtype(unsorted.get_ctype(self.arr))
 
     @property
     def device(self) -> Any:
@@ -811,7 +811,7 @@ class Array:
 
         # TODO add check if out.dtype == self.dtype
         out = Array()
-        out.arr = everything.transpose(self.arr, False)
+        out.arr = unsorted.transpose(self.arr, False)
         return out
 
     @property
@@ -829,7 +829,7 @@ class Array:
         - This must equal the product of the array's dimensions.
         """
         # NOTE previously - elements()
-        return everything.get_elements(self.arr)
+        return unsorted.get_elements(self.arr)
 
     @property
     def ndim(self) -> int:
@@ -839,7 +839,7 @@ class Array:
         out : int
             Number of array dimensions (axes).
         """
-        return everything.get_numdims(self.arr)
+        return unsorted.get_numdims(self.arr)
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -852,7 +852,7 @@ class Array:
             Array dimensions.
         """
         # NOTE skipping passing any None values
-        return everything.get_dims(self.arr)[: self.ndim]
+        return unsorted.get_dims(self.arr)[: self.ndim]
 
     def scalar(self) -> Union[None, int, float, bool, complex]:
         """
@@ -862,20 +862,20 @@ class Array:
         if self.is_empty():
             return None
 
-        return everything.get_scalar(self.arr, self.dtype)
+        return unsorted.get_scalar(self.arr, self.dtype)
 
     def is_empty(self) -> bool:
         """
         Check if the array is empty i.e. it has no elements.
         """
-        return everything.is_empty(self.arr)
+        return unsorted.is_empty(self.arr)
 
     def to_list(self, row_major: bool = False) -> List[Union[None, int, float, bool, complex]]:
         if self.is_empty():
             return []
 
         array = _reorder(self) if row_major else self
-        ctypes_array = everything.get_data_ptr(array.arr, array.size, array.dtype)
+        ctypes_array = unsorted.get_data_ptr(array.arr, array.size, array.dtype)
 
         if array.ndim == 1:
             return ctypes_array[:]
@@ -896,7 +896,7 @@ class Array:
             raise RuntimeError("Can not convert an empty array to ctype.")
 
         array = _reorder(self) if row_major else self
-        return everything.get_data_ptr(array.arr, array.size, array.dtype)
+        return unsorted.get_data_ptr(array.arr, array.size, array.dtype)
 
     def copy(self) -> Array:  # BUG: this is not a deep copy
         """
@@ -907,7 +907,7 @@ class Array:
         out: af.Array()
              An identical copy of self.
         """
-        self.arr = everything.copy_array(self.arr)
+        self.arr = unsorted.copy_array(self.arr)
         return self
 
 
@@ -922,7 +922,7 @@ def _reorder(array: Array) -> Array:
         return array
 
     out = Array()
-    out.arr = everything.reorder(array.arr, array.ndim)
+    out.arr = unsorted.reorder(array.arr, array.ndim)
     return out
 
 
