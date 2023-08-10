@@ -1,9 +1,11 @@
-from .constants import NestedSequence, SupportsBufferProtocol, Device
-from .array_object import Array
+from typing import Optional, Union
+
+from arrayfire import Array as AFArray
 from arrayfire.dtypes import Dtype, supported_dtypes
 from arrayfire.library.device import supported_devices
-from arrayfire import Array as AFArray
-from typing import Union, Optional
+
+from .array_object import Array
+from .constants import Device, NestedSequence, SupportsBufferProtocol
 
 
 def asarray(

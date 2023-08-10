@@ -4,10 +4,11 @@ import ctypes
 import math
 from typing import Any, Union
 
+from arrayfire.backend.backend import backend_api
 from arrayfire.library.broadcast import bcast_var
 
-from ..backend import backend_api, safe_call
 from . import constants
+from .error_handler import safe_call
 
 
 class _IndexSequence(ctypes.Structure):

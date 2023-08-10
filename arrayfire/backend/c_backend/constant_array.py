@@ -1,11 +1,12 @@
 import ctypes
 from typing import Tuple, Union
 
+from arrayfire.backend.backend import backend_api
 from arrayfire.dtypes import Dtype, int64, uint64
 from arrayfire.dtypes.helpers import CShape, implicit_dtype
 
-from ..backend import backend_api, safe_call
 from .constants import AFArrayType
+from .error_handler import safe_call
 
 
 def _constant_complex(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:

@@ -1,10 +1,11 @@
 import ctypes
 from typing import Callable
 
+from arrayfire.backend.backend import backend_api
 from arrayfire.library.broadcast import bcast_var
 
-from ..backend import backend_api, safe_call
 from .constants import AFArrayType
+from .error_handler import safe_call
 
 # Arithmetic Operators
 

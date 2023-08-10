@@ -3,7 +3,8 @@ from __future__ import annotations
 import ctypes
 from typing import Tuple, Union
 
-from arrayfire.backend.config import is_arch_x86
+from arrayfire.platform import is_arch_x86
+
 from . import Dtype
 from . import bool as af_bool
 from . import complex64, complex128, float32, float64, int64, supported_dtypes

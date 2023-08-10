@@ -1,5 +1,5 @@
 __all__ = [
-    # Backend
+    # Backend Constants
     "ArrayBuffer",
     # Operators
     "add",
@@ -21,25 +21,9 @@ __all__ = [
     "eq",
     "neq",
 ]
-
-from .backend import ArrayBuffer
+# fmt: off
 from .c_backend.operators import (
-    add,
-    bitand,
-    bitnot,
-    bitor,
-    bitshiftl,
-    bitshiftr,
-    bitxor,
-    div,
-    eq,
-    ge,
-    gt,
-    le,
-    lt,
-    mod,
-    mul,
-    neq,
-    pow,
-    sub,
-)
+    add, bitand, bitnot, bitor, bitshiftl, bitshiftr, bitxor, div, eq, ge, gt, le, lt, mod, mul, neq, pow, sub)
+from .constants import ArrayBuffer
+
+# fmt: on

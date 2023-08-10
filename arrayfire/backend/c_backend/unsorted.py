@@ -1,11 +1,14 @@
 import ctypes
 from typing import Any, Tuple, Union, cast
 
-from ...dtypes import CType, Dtype
-from ...dtypes.helpers import CShape, c_dim_t, to_str
-from ...library.device import PointerSource
-from ..backend import ArrayBuffer, backend_api, safe_call
+from arrayfire.backend.backend import backend_api
+from arrayfire.backend.constants import ArrayBuffer
+from arrayfire.dtypes import CType, Dtype
+from arrayfire.dtypes.helpers import CShape, c_dim_t, to_str
+from arrayfire.library.device import PointerSource
+
 from .constants import AFArrayType
+from .error_handler import safe_call
 
 # Array management
 
@@ -270,4 +273,13 @@ def randu(shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     out = ctypes.c_void_p(0)
     c_shape = CShape(*shape)
     safe_call(backend_api.af_randu(ctypes.pointer(out), *c_shape, dtype.c_api_value))
+    return out
+
+
+def get_last_error() -> ctypes.c_char_p:
+    """
+    source: https://arrayfire.org/docs/exception_8h.htm#a4f0227c17954d343021313f77e695c8e
+    """
+    out = ctypes.c_char_p(0)
+    backend_api.af_get_last_error(ctypes.pointer(out), ctypes.pointer(c_dim_t(0)))
     return out

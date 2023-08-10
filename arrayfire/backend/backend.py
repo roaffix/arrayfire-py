@@ -1,26 +1,17 @@
 import ctypes
 import enum
-import os
 import sys
-from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import List, Optional
 
-from arrayfire.backend import config
-from arrayfire.dtypes.helpers import c_dim_t, to_str
 from arrayfire.logger import logger
-
-VERBOSE_LOADS = os.environ.get("AF_VERBOSE_LOADS") == "1"
-
-
-class _ErrorCodes(enum.Enum):
-    none = 0
+from arrayfire.platform import get_platform_config, is_arch_x86
 
 
-@dataclass
-class ArrayBuffer:
-    address: int
-    length: int = 0
+class _LibPrefixes(Enum):
+    forge = ""
+    arrayfire = "af"
 
 
 class BackendDevices(enum.Enum):
@@ -35,13 +26,13 @@ class Backend:
     library: ctypes.CDLL
 
     def __init__(self) -> None:
-        self._setup = config.setup()
+        self._platform_config = get_platform_config()
 
         self._load_forge_lib()
         self._load_backend_libs()
 
     def _load_forge_lib(self) -> None:
-        for libname in self._libnames("forge", config.SupportedLibPrefixes.forge):
+        for libname in self._libnames("forge", _LibPrefixes.forge):
             try:
                 ctypes.cdll.LoadLibrary(str(libname))
                 logger.info(f"Loaded {libname}")
@@ -68,7 +59,7 @@ class Backend:
         # NOTE we still set unified cdll to it's original name later, even if the path search is different
         name = device.name if device != BackendDevices.unified else ""
 
-        for libname in self._libnames(name, config.SupportedLibPrefixes.arrayfire):
+        for libname in self._libnames(name, _LibPrefixes.arrayfire):
             try:
                 ctypes.cdll.LoadLibrary(str(libname))
                 self.device = device
@@ -91,14 +82,14 @@ class Backend:
         else:
             logger.warning("Could not find local nvrtc-builtins library")
 
-    def _libnames(self, name: str, lib: config.SupportedLibPrefixes, ver_major: Optional[str] = None) -> List[Path]:
-        post = self._setup.post if ver_major is None else ver_major
-        libname = self._setup.pre + lib.value + name + post
+    def _libnames(self, name: str, lib: _LibPrefixes, ver_major: Optional[str] = None) -> List[Path]:
+        post = self._platform_config.lib_postfix if ver_major is None else ver_major
+        libname = self._platform_config.lib_prefix + lib.value + name + post
 
-        lib64_path = self._setup.af_path / "lib64"
-        search_path = lib64_path if lib64_path.is_dir() else self._setup.af_path / "lib"
+        lib64_path = self._platform_config.af_path / "lib64"
+        search_path = lib64_path if lib64_path.is_dir() else self._platform_config.af_path / "lib"
 
-        site_path = Path(sys.prefix) / "lib64" if not config.is_arch_x86() else Path(sys.prefix) / "lib"
+        site_path = Path(sys.prefix) / "lib64" if not is_arch_x86() else Path(sys.prefix) / "lib"
 
         # prefer locally packaged arrayfire libraries if they exist
         af_module = __import__(__name__)
@@ -106,7 +97,7 @@ class Backend:
 
         libpaths = [Path("", libname), site_path / libname, local_path / libname]
 
-        if self._setup.af_path:  # prefer specified AF_PATH if exists
+        if self._platform_config.af_path:  # prefer specified AF_PATH if exists
             return [search_path / libname] + libpaths
         else:
             libpaths.insert(2, Path(str(search_path), libname))
@@ -124,12 +115,3 @@ class Backend:
 # HACK for windows
 # backend_api = ctypes.CDLL("C:/Program Files/ArrayFire/v3/lib/afcpu.dll")
 backend_api = Backend().library
-
-
-def safe_call(c_err: int) -> None:
-    if c_err == _ErrorCodes.none.value:
-        return
-
-    err_str = ctypes.c_char_p(0)
-    backend_api.af_get_last_error(ctypes.pointer(err_str), ctypes.pointer(c_dim_t(0)))
-    raise RuntimeError(to_str(err_str))

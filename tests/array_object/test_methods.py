@@ -1,4 +1,3 @@
-from arrayfire.dtypes import float32, int32
 from arrayfire.library.array_object import Array
 
 
@@ -42,11 +41,3 @@ def test_array_to_list_comparison() -> None:
     array2 = Array([1, 2, 3])
     assert array1 is not array2
     assert array1.to_list() == array2.to_list()
-
-
-# BUG
-# def test_copy_for_array_with_multiple_elements() -> None:
-#     array = Array([1, 2, 3])
-#     copy = array.copy()
-#     assert array is not copy
-#     assert array.to_list() == copy.to_list()

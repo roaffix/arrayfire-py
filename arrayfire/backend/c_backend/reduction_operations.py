@@ -1,8 +1,10 @@
 import ctypes
 from typing import Callable, Union
 
-from ..backend import backend_api, safe_call
+from arrayfire.backend.backend import backend_api
+
 from .constants import AFArrayType
+from .error_handler import safe_call
 
 
 def count_all(x: AFArrayType) -> Union[int, float, complex]:

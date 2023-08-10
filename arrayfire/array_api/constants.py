@@ -17,6 +17,7 @@ __all__ = [
 ]
 
 from typing import Any, Literal, Protocol, TypeVar
+
 from .array_object import Array
 
 _T_co = TypeVar("_T_co", covariant=True)
