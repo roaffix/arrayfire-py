@@ -185,6 +185,15 @@ def get_data_ptr(arr: AFArrayType, size: int, dtype: Dtype, /) -> ctypes.Array:
     return ctypes_array
 
 
+def copy_array(arr: AFArrayType) -> AFArrayType:
+    """
+    source: https://arrayfire.org/docs/group__c__api__mat.htm#ga6040dc6f0eb127402fbf62c1165f0b9d
+    """
+    out = ctypes.c_void_p(0)
+    safe_call(backend_api.af_copy_array(ctypes.pointer(out), arr))
+    return out
+
+
 # Arrayfire Functions
 
 

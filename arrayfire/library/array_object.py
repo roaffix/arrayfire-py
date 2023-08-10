@@ -23,7 +23,7 @@ from .device import PointerSource
 class Array:
     def __init__(
         self,
-        x: Union[None, Array, py_array.array, int, ctypes.c_void_p, List[Union[int, float]]] = None,
+        obj: Union[None, Array, py_array.array, int, ctypes.c_void_p, List[Union[int, float]]] = None,
         dtype: Union[None, Dtype, str] = None,
         shape: Tuple[int, ...] = (),
         pointer_source: PointerSource = PointerSource.host,
@@ -39,7 +39,7 @@ class Array:
             _no_initial_dtype = True
             dtype = af_float32
 
-        if x is None:
+        if obj is None:
             if not shape:  # shape is None or empty tuple
                 self.arr = everything.create_handle((), dtype)
                 return
@@ -47,32 +47,32 @@ class Array:
             self.arr = everything.create_handle(shape, dtype)
             return
 
-        if isinstance(x, Array):
-            self.arr = everything.retain_array(x.arr)
+        if isinstance(obj, Array):
+            self.arr = everything.retain_array(obj.arr)
             return
 
-        if isinstance(x, py_array.array):
-            _type_char: str = x.typecode
-            _array_buffer = ArrayBuffer(*x.buffer_info())
+        if isinstance(obj, py_array.array):
+            _type_char: str = obj.typecode
+            _array_buffer = ArrayBuffer(*obj.buffer_info())
 
-        elif isinstance(x, list):
-            _array = py_array.array("f", x)  # BUG [True, False] -> dtype: f32   # TODO add int and float
+        elif isinstance(obj, list):
+            _array = py_array.array("f", obj)  # BUG [True, False] -> dtype: f32   # TODO add int and float
             _type_char = _array.typecode
             _array_buffer = ArrayBuffer(*_array.buffer_info())
 
-        elif isinstance(x, int) or isinstance(x, ctypes.c_void_p):  # TODO
-            _array_buffer = ArrayBuffer(x if not isinstance(x, ctypes.c_void_p) else x.value)  # type: ignore[arg-type]
+        elif isinstance(obj, int) or isinstance(obj, ctypes.c_void_p):  # TODO
+            _array_buffer = ArrayBuffer(obj if not isinstance(obj, ctypes.c_void_p) else obj.value)  # type: ignore
 
             if not shape:
-                raise TypeError("Expected to receive the initial shape due to the x being a data pointer.")
+                raise TypeError("Expected to receive the initial shape due to the obj being a data pointer.")
 
             if _no_initial_dtype:
-                raise TypeError("Expected to receive the initial dtype due to the x being a data pointer.")
+                raise TypeError("Expected to receive the initial dtype due to the obj being a data pointer.")
 
             _type_char = dtype.typecode
 
         else:
-            raise TypeError("Passed object x is an object of unsupported class.")
+            raise TypeError("Passed object obj is an object of unsupported class.")
 
         if not shape:
             if _array_buffer.length != 0:
@@ -878,7 +878,7 @@ class Array:
         ctypes_array = everything.get_data_ptr(array.arr, array.size, array.dtype)
 
         if array.ndim == 1:
-            return list(ctypes_array)
+            return ctypes_array[:]
 
         out = []
         for i in range(array.size):
@@ -888,7 +888,7 @@ class Array:
                 div = array.shape[j]
                 sub_list.append(idx % div)
                 idx //= div
-            out.append(ctypes_array[sub_list[::-1]])  # type: ignore[call-overload]  # FIXME
+            out.append(ctypes_array[tuple(sub_list)])  # type: ignore[call-overload]  # FIXME
         return out
 
     def to_ctype_array(self, row_major: bool = False) -> ctypes.Array:
@@ -897,6 +897,18 @@ class Array:
 
         array = _reorder(self) if row_major else self
         return everything.get_data_ptr(array.arr, array.size, array.dtype)
+
+    def copy(self) -> Array:  # BUG: this is not a deep copy
+        """
+        Performs a deep copy of the array.
+
+        Returns
+        -------
+        out: af.Array()
+             An identical copy of self.
+        """
+        self.arr = everything.copy_array(self.arr)
+        return self
 
 
 IndexKey = Union[int, slice, Tuple[Union[int, slice], ...], Array]

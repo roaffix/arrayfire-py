@@ -54,4 +54,4 @@ def test_initalization_with_unsupported_argument_types(
     array_object: Any, dtype: Optional[Dtype], shape: Tuple[int, ...]
 ) -> None:
     with pytest.raises(TypeError):
-        Array(x=array_object, dtype=dtype, shape=shape)
+        Array(obj=array_object, dtype=dtype, shape=shape)

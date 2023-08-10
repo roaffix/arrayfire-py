@@ -31,7 +31,7 @@ class Dtype:
 
 
 # Specification required
-# int8 - Not Supported, b8?  # HACK Dtype("i8", ctypes.c_char, "int8", 4)
+int8 = Dtype("i8", ctypes.c_char, "int8", 4)  # HACK int8 - Not Supported, b8?
 int16 = Dtype("h", ctypes.c_short, "short int", 10)
 int32 = Dtype("i", ctypes.c_int, "int", 5)
 int64 = Dtype("l", ctypes.c_longlong, "long int", 8)

@@ -9,3 +9,6 @@ class PointerSource(enum.Enum):
     # FIXME
     device = 0
     host = 1
+
+
+supported_devices = []
