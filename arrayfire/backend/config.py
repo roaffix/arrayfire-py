@@ -11,7 +11,7 @@ from arrayfire.version import ARRAYFIRE_VER_MAJOR, FORGE_VER_MAJOR
 
 
 class SupportedLibs(Enum):
-    forge = "forge"
+    forge = ""
     arrayfire = "af"
 
 
