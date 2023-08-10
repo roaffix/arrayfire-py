@@ -47,7 +47,7 @@ class Backend:
             )
 
     def _load_forge_lib(self) -> None:
-        for libname in self._libnames("forge", config.SupportedLibs.forge):
+        for libname in self._libnames("forge", config.SupportedLibPrefixes.forge):
             try:
                 ctypes.cdll.LoadLibrary(str(libname))
                 logger.info(f"Loaded {libname}")
@@ -68,7 +68,7 @@ class Backend:
         # NOTE we still set unified cdll to it's original name later, even if the path search is different
         name = device.name if device != BackendDevices.unified else ""
 
-        for libname in self._libnames(name, config.SupportedLibs.arrayfire):
+        for libname in self._libnames(name, config.SupportedLibPrefixes.arrayfire):
             try:
                 ctypes.cdll.LoadLibrary(str(libname))
                 self.device = device
@@ -91,7 +91,7 @@ class Backend:
         else:
             logger.warning("Could not find local nvrtc-builtins library")
 
-    def _libnames(self, name: str, lib: config.SupportedLibs, ver_major: Optional[str] = None) -> List[Path]:
+    def _libnames(self, name: str, lib: config.SupportedLibPrefixes, ver_major: Optional[str] = None) -> List[Path]:
         post = self._setup.post if ver_major is None else ver_major
         libname = self._setup.pre + lib.value + name + post
 

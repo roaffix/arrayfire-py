@@ -9,7 +9,7 @@ from typing import Iterator
 from arrayfire.version import ARRAYFIRE_VER_MAJOR
 
 
-class SupportedLibs(Enum):
+class SupportedLibPrefixes(Enum):
     forge = ""
     arrayfire = "af"
 
