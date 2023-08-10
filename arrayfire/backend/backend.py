@@ -31,20 +31,14 @@ class BackendDevices(enum.Enum):
 
 
 class Backend:
-    def __init__(self) -> None:
-        self.device: Optional[BackendDevices] = None
-        self.library: Optional[ctypes.CDLL] = None
+    device: BackendDevices
+    library: ctypes.CDLL
 
+    def __init__(self) -> None:
         self._setup = config.setup()
 
         self._load_forge_lib()
         self._load_backend_libs()
-
-        if not self.device and not self.library:
-            raise RuntimeError(
-                "Could not load any ArrayFire libraries.\n"
-                "Please look at https://github.com/arrayfire/arrayfire-python/wiki for more information."
-            )
 
     def _load_forge_lib(self) -> None:
         for libname in self._libnames("forge", config.SupportedLibPrefixes.forge):
@@ -63,6 +57,12 @@ class Backend:
             if self.device:
                 logger.info(f"Setting {device.name} as backend.")
                 break
+
+        if not self.device and not self.library:
+            raise RuntimeError(
+                "Could not load any ArrayFire libraries.\n"
+                "Please look at https://github.com/arrayfire/arrayfire-python/wiki for more information."
+            )
 
     def _load_backend_lib(self, device: BackendDevices) -> None:
         # NOTE we still set unified cdll to it's original name later, even if the path search is different

@@ -29,7 +29,7 @@ def is_arch_x86() -> bool:
     return platform.architecture()[0][0:2] == "32" and (machine[-2:] == "86" or machine[0:3] == "arm")
 
 
-@dataclass
+@dataclass(frozen=True)
 class Setup:
     pre: str
     post: str
