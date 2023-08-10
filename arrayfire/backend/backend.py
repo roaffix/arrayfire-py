@@ -5,12 +5,12 @@ import sys
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from arrayfire.backend import config
-from arrayfire.dtypes import Dtype, float32
+from arrayfire.dtypes import float32
 from arrayfire.dtypes.helpers import CShape, c_dim_t, to_str
-from arrayfire.version import ARRAYFIRE_VER_MAJOR, FORGE_VER_MAJOR
+from arrayfire.version import FORGE_VER_MAJOR
 
 VERBOSE_LOADS = os.environ.get("AF_VERBOSE_LOADS") == "1"
 
@@ -34,61 +34,62 @@ class BackendDevices(enum.Enum):
 
 class Backend:
     def __init__(self) -> None:
-        self._clibs = {device.name: None for device in BackendDevices}
-
-        more_info_str = "Please look at https://github.com/arrayfire/arrayfire-python/wiki for more information."
+        self._clibs: Dict[str, Optional[ctypes.CDLL]] = {device.name: None for device in BackendDevices}
         self.setup = config.setup()
 
-        af_module = __import__(__name__)
-        self.AF_PYMODULE_PATH = af_module.__path__[0] + "/" if af_module.__path__ else None
+        self._name: Optional[str] = None
 
-        self._name = None
+        self.load_forge_lib()
+        self.load_backend_libs()
 
+    def load_forge_lib(self) -> None:
         for libname in self._libnames(config.SupportedLibs.forge, FORGE_VER_MAJOR):
             full_libname = libname[0] + libname[1]
             try:
                 ctypes.cdll.LoadLibrary(full_libname)
                 if VERBOSE_LOADS:
-                    print("Loaded " + full_libname)
+                    print(" > Loaded " + full_libname)
+                break
+            except OSError:
+                if VERBOSE_LOADS:
+                    # traceback.print_exc()
+                    print("Unable to load " + full_libname)
+                pass
+
+    def load_backend_libs(self) -> None:
+        for device in BackendDevices:
+            self.load_backend_lib(device)
+
+    def load_backend_lib(self, device: BackendDevices) -> None:
+        for libname in self._libnames(config.SupportedLibs.arrayfire):
+            full_libname = Path(libname[0]) / Path(libname[1])
+            try:
+                ctypes.cdll.LoadLibrary(str(full_libname))
+                self._clibs[device.name] = ctypes.CDLL(str(full_libname))
+
+                if device == BackendDevices.cuda:
+                    self.load_nvrtc_builtins_lib(libname[0])
+
+                if VERBOSE_LOADS:
+                    print(f"Loaded {full_libname}")
+                break
+
                 break
             except OSError:
                 if VERBOSE_LOADS:
                     traceback.print_exc()
-                    print("Unable to load " + full_libname)
+                    print(f"Unable to load {full_libname}")
                 pass
 
-        out = ctypes.c_void_p(0)
-        dims = CShape(10, 10, 1, 1)
-        for device in BackendDevices:
-            _name = device.name if device != BackendDevices.unified else ""
-            for libname in self._libnames(config.SupportedLibs.arrayfire):
-                full_libname = Path(libname[0]) / Path(libname[1])
-                try:
-                    ctypes.cdll.LoadLibrary(str(full_libname))
-                    clib = ctypes.CDLL(str(full_libname))
-                    self._clibs[_name] = clib
-                    err = clib.af_randu(ctypes.pointer(out), 4, ctypes.pointer(dims.c_array), float32.c_api_value)
-                    if err == _ErrorCodes.none.value:
-                        self._name = _name
-                        clib.af_release_array(out)
-                        if VERBOSE_LOADS:
-                            print("Loaded " + full_libname)
-
-                        if device == BackendDevices.cuda:
-                            nvrtc_name = self._find_nvrtc_builtins_libname(Path(libname[0]))
-                            if nvrtc_name:
-                                ctypes.cdll.LoadLibrary(libname[0] + nvrtc_name)
-                                if VERBOSE_LOADS:
-                                    print("Loaded " + libname[0] + nvrtc_name)
-                            else:
-                                if VERBOSE_LOADS:
-                                    print("Could not find local nvrtc-builtins library")
-                        break
-                except OSError:
-                    if VERBOSE_LOADS:
-                        traceback.print_exc()
-                        print("Unable to load " + full_libname)
-                    pass
+    def load_nvrtc_builtins_lib(self, lib_path: str) -> None:
+        nvrtc_name = self._find_nvrtc_builtins_libname(Path(lib_path))
+        if nvrtc_name:
+            ctypes.cdll.LoadLibrary(lib_path + nvrtc_name)
+            if VERBOSE_LOADS:
+                print("Loaded " + lib_path + nvrtc_name)
+        else:
+            if VERBOSE_LOADS:
+                print("Could not find local nvrtc-builtins library")
 
         # if self._name is None:
         #     raise RuntimeError("Could not load any ArrayFire libraries.\n" + more_info_str)
@@ -133,7 +134,7 @@ class Backend:
         return self._backend_map.get(bk_id, "unknown")
 
     def get(self):
-        return self._clibs.get(self._name)
+        return self._clibs.get("cpu")  # FIXME: should be self._name
 
     def name(self) -> str:
         return self._name

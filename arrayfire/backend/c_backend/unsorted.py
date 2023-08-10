@@ -261,3 +261,13 @@ def where(arr: AFArrayType) -> AFArrayType:
     out = ctypes.c_void_p(0)
     safe_call(backend_api.af_where(ctypes.pointer(out), arr))
     return out
+
+
+def randu(shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
+    """
+    source: https://arrayfire.org/docs/group__random__func__randu.htm#ga412e2c2f5135bdda218c3487c487d3b5
+    """
+    out = ctypes.c_void_p(0)
+    c_shape = CShape(*shape)
+    safe_call(backend_api.af_randu(ctypes.pointer(out), *c_shape, dtype.c_api_value))
+    return out
