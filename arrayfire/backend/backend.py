@@ -5,7 +5,7 @@ import enum
 import sys
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional
+from typing import Iterator, List, Optional
 
 from arrayfire.logger import logger
 from arrayfire.platform import get_platform_config, is_arch_x86
@@ -18,9 +18,13 @@ class _LibPrefixes(Enum):
 
 class BackendPlatform(enum.Enum):
     unified = 0  # NOTE It is set as Default value on Arrayfire backend
+    cpu = 1
     cuda = 2
     opencl = 4
-    cpu = 1  # NOTE It comes last because we want to keep this order on backend initialization
+
+    def __iter__(self) -> Iterator:
+        # NOTE cpu comes last because we want to keep this order priorty during backend initialization
+        return iter((self.unified, self.cuda, self.opencl, self.cpu))
 
 
 class Backend:

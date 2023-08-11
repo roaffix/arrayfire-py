@@ -19,11 +19,13 @@ from .device import PointerSource
 
 # TODO use int | float in operators -> remove bool | complex support
 
+AFArrayType = ctypes.c_void_p
+
 
 class Array:
     def __init__(
         self,
-        obj: Union[None, Array, py_array.array, int, ctypes.c_void_p, List[Union[int, float]]] = None,
+        obj: Union[None, Array, py_array.array, int, AFArrayType, List[Union[int, float]]] = None,
         dtype: Union[None, Dtype, str] = None,
         shape: Tuple[int, ...] = (),
         pointer_source: PointerSource = PointerSource.host,
@@ -60,8 +62,8 @@ class Array:
             _type_char = _array.typecode
             _array_buffer = ArrayBuffer(*_array.buffer_info())
 
-        elif isinstance(obj, int) or isinstance(obj, ctypes.c_void_p):  # TODO
-            _array_buffer = ArrayBuffer(obj if not isinstance(obj, ctypes.c_void_p) else obj.value)  # type: ignore
+        elif isinstance(obj, int) or isinstance(obj, AFArrayType):
+            _array_buffer = ArrayBuffer(obj if not isinstance(obj, AFArrayType) else obj.value)  # type: ignore
 
             if not shape:
                 raise TypeError("Expected to receive the initial shape due to the obj being a data pointer.")

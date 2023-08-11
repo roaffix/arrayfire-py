@@ -7,7 +7,6 @@ from typing import Any, Union
 from arrayfire.backend.backend import backend_api
 from arrayfire.library.broadcast import bcast_var
 
-from . import constants
 from .error_handler import safe_call
 
 
@@ -70,7 +69,7 @@ class _IndexSequence(ctypes.Structure):
                 self.step.value = -1
 
             if chunk.stop:
-                self.end -= math.copysign(1, self.step)  # type: ignore[operator]
+                self.end -= math.copysign(1, self.step)  # type: ignore[operator, assignment, arg-type]  # FIXME
         else:
             raise IndexError("Invalid type while indexing arrayfire.array")
 
@@ -238,7 +237,7 @@ class CIndexStructure:
         self.array = index_vec(*self.idxs)
 
     @property
-    def pointer(self) -> constants.AFArrayPointerType:
+    def pointer(self) -> ctypes._Pointer:
         return ctypes.pointer(self.array)
 
     def __getitem__(self, idx: int) -> IndexStructure:
