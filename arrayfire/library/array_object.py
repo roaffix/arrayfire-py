@@ -923,9 +923,7 @@ def _reorder(array: Array) -> Array:
     if array.ndim == 1:
         return array
 
-    out = Array()
-    out.arr = unsorted.reorder(array.arr, array.ndim)
-    return out
+    return Array(unsorted.reorder(array.arr, array.ndim))
 
 
 def _metadata_string(dtype: Dtype, dims: Optional[Tuple[int, ...]] = None) -> str:
