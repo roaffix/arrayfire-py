@@ -14,7 +14,7 @@ def is_arch_x86() -> bool:
     return platform.architecture()[0][0:2] == "32" and (machine[-2:] == "86" or machine[0:3] == "arm")
 
 
-class SupportedPlatforms(Enum):
+class _SupportedPlatforms(Enum):
     windows = "Windows"
     darwin = "Darwin"  # OSX
     linux = "Linux"
@@ -49,8 +49,8 @@ def get_platform_config() -> PlatformConfig:
     except KeyError:
         cuda_path = None
 
-    if platform_name == SupportedPlatforms.windows.value or SupportedPlatforms.is_cygwin(platform_name):
-        if platform_name == SupportedPlatforms.windows.value:
+    if platform_name == _SupportedPlatforms.windows.value or _SupportedPlatforms.is_cygwin(platform_name):
+        if platform_name == _SupportedPlatforms.windows.value:
             # HACK Supressing crashes caused by missing dlls
             # http://stackoverflow.com/questions/8347266/missing-dll-print-message-instead-of-launching-a-popup
             # https://msdn.microsoft.com/en-us/library/windows/desktop/ms680621.aspx
@@ -64,7 +64,7 @@ def get_platform_config() -> PlatformConfig:
 
         return PlatformConfig("", ".dll", af_path, cuda_found)
 
-    if platform_name == SupportedPlatforms.darwin.value:
+    if platform_name == _SupportedPlatforms.darwin.value:
         default_cuda_path = Path("/usr/local/cuda/")
 
         if not af_path:
@@ -75,7 +75,7 @@ def get_platform_config() -> PlatformConfig:
 
         return PlatformConfig("lib", f".{ARRAYFIRE_VER_MAJOR}.dylib", af_path, cuda_found)
 
-    if platform_name == SupportedPlatforms.linux.value:
+    if platform_name == _SupportedPlatforms.linux.value:
         default_cuda_path = Path("/usr/local/cuda/")
 
         if not af_path:

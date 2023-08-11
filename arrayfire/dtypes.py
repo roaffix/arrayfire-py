@@ -1,13 +1,55 @@
 from __future__ import annotations
 
 import ctypes
-from typing import Tuple, Union
+from dataclasses import dataclass
+from typing import Tuple, Type, Union
 
 from arrayfire.platform import is_arch_x86
 
-from . import Dtype
-from . import bool as af_bool
-from . import complex64, complex128, float32, float64, int64, supported_dtypes
+CType = Type[ctypes._SimpleCData]
+python_bool = bool
+
+
+@dataclass(frozen=True)
+class Dtype:
+    typecode: str
+    c_type: CType
+    typename: str
+    c_api_value: int  # Internal use only
+
+
+# Specification required
+int8 = Dtype("i8", ctypes.c_char, "int8", 4)  # HACK int8 - Not Supported, b8?
+int16 = Dtype("h", ctypes.c_short, "short int", 10)
+int32 = Dtype("i", ctypes.c_int, "int", 5)
+int64 = Dtype("l", ctypes.c_longlong, "long int", 8)
+uint8 = Dtype("B", ctypes.c_ubyte, "unsigned_char", 7)
+uint16 = Dtype("H", ctypes.c_ushort, "unsigned short int", 11)
+uint32 = Dtype("I", ctypes.c_uint, "unsigned int", 6)
+uint64 = Dtype("L", ctypes.c_ulonglong, "unsigned long int", 9)
+float16 = Dtype("e", ctypes.c_uint16, "half", 12)
+float32 = Dtype("f", ctypes.c_float, "float", 0)
+float64 = Dtype("d", ctypes.c_double, "double", 2)
+complex64 = Dtype("F", ctypes.c_float * 2, "float complext", 1)  # type: ignore[arg-type]
+complex128 = Dtype("D", ctypes.c_double * 2, "double complext", 3)  # type: ignore[arg-type]
+bool = Dtype("b", ctypes.c_bool, "bool", 4)
+
+supported_dtypes = (
+    int16,
+    int32,
+    int64,
+    uint8,
+    uint16,
+    uint32,
+    uint64,
+    float16,
+    float32,
+    float64,
+    complex64,
+    complex128,
+    bool,
+)
+
 
 c_dim_t = ctypes.c_int if is_arch_x86() else ctypes.c_longlong
 ShapeType = Tuple[int, ...]
@@ -38,8 +80,8 @@ def to_str(c_str: ctypes.c_char_p) -> str:
 
 
 def implicit_dtype(number: Union[int, float], array_dtype: Dtype) -> Dtype:
-    if isinstance(number, bool):
-        number_dtype = af_bool
+    if isinstance(number, python_bool):
+        number_dtype = bool
     if isinstance(number, int):
         number_dtype = int64
     elif isinstance(number, float):

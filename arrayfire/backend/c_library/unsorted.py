@@ -5,8 +5,7 @@ from typing import TYPE_CHECKING, Any, Tuple, Union, cast
 
 from arrayfire.backend.api import backend_api
 from arrayfire.backend.constants import ArrayBuffer
-from arrayfire.dtypes import CType, Dtype
-from arrayfire.dtypes.helpers import CShape, c_dim_t, to_str
+from arrayfire.dtypes import CShape, CType, Dtype, c_dim_t, to_str
 from arrayfire.library.device import PointerSource
 
 from .error_handler import safe_call

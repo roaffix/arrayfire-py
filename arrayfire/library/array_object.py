@@ -11,10 +11,11 @@ from ..backend.c_library import unsorted
 from ..backend.c_library.constant_array import create_constant_array
 from ..backend.c_library.indexing import CIndexStructure, IndexStructure
 from ..backend.c_library.reduction_operations import count_all
-from ..dtypes import CType
+from ..dtypes import CType, Dtype
 from ..dtypes import bool as af_bool
+from ..dtypes import c_api_value_to_dtype
 from ..dtypes import float32 as af_float32
-from ..dtypes.helpers import Dtype, c_api_value_to_dtype, str_to_dtype
+from ..dtypes import str_to_dtype
 from .device import PointerSource
 
 # TODO use int | float in operators -> remove bool | complex support

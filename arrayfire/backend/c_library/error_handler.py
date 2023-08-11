@@ -2,7 +2,7 @@ import ctypes
 from enum import Enum
 
 from arrayfire.backend.api import backend_api
-from arrayfire.dtypes.helpers import c_dim_t, to_str
+from arrayfire.dtypes import c_dim_t, to_str
 
 
 class _ErrorCodes(Enum):
