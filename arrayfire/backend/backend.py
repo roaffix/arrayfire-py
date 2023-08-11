@@ -1,3 +1,5 @@
+__all__ = ["BackendPlatform"]
+
 import ctypes
 import enum
 import sys
@@ -14,7 +16,7 @@ class _LibPrefixes(Enum):
     arrayfire = "af"
 
 
-class BackendDevices(enum.Enum):
+class BackendPlatform(enum.Enum):
     unified = 0  # NOTE It is set as Default value on Arrayfire backend
     cuda = 2
     opencl = 4
@@ -22,7 +24,7 @@ class BackendDevices(enum.Enum):
 
 
 class Backend:
-    device: BackendDevices
+    platform: BackendPlatform
     library: ctypes.CDLL
 
     def __init__(self) -> None:
@@ -42,30 +44,30 @@ class Backend:
                 pass
 
     def _load_backend_libs(self) -> None:
-        for device in BackendDevices:
-            self._load_backend_lib(device)
+        for platform in BackendPlatform:
+            self._load_backend_lib(platform)
 
-            if self.device:
-                logger.info(f"Setting {device.name} as backend.")
+            if self.platform:
+                logger.info(f"Setting {platform.name} as backend.")
                 break
 
-        if not self.device and not self.library:
+        if not self.platform and not self.library:
             raise RuntimeError(
                 "Could not load any ArrayFire libraries.\n"
                 "Please look at https://github.com/arrayfire/arrayfire-python/wiki for more information."
             )
 
-    def _load_backend_lib(self, device: BackendDevices) -> None:
+    def _load_backend_lib(self, platform: BackendPlatform) -> None:
         # NOTE we still set unified cdll to it's original name later, even if the path search is different
-        name = device.name if device != BackendDevices.unified else ""
+        name = platform.name if platform != BackendPlatform.unified else ""
 
         for libname in self._libnames(name, _LibPrefixes.arrayfire):
             try:
                 ctypes.cdll.LoadLibrary(str(libname))
-                self.device = device
+                self.platform = platform
                 self.library = ctypes.CDLL(str(libname))
 
-                if device == BackendDevices.cuda:
+                if platform == BackendPlatform.cuda:
                     self._load_nvrtc_builtins_lib(libname.parent)
 
                 logger.info(f"Loaded {libname}")
@@ -114,4 +116,5 @@ class Backend:
 # backend_api = ctypes.CDLL("/opt/arrayfire//lib/libafcpu.3.dylib")
 # HACK for windows
 # backend_api = ctypes.CDLL("C:/Program Files/ArrayFire/v3/lib/afcpu.dll")
-backend_api = Backend().library
+backend = Backend()
+backend_api = backend.library

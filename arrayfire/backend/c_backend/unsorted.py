@@ -276,6 +276,9 @@ def randu(shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     return out
 
 
+# Safe Call Wrapper
+
+
 def get_last_error() -> ctypes.c_char_p:
     """
     source: https://arrayfire.org/docs/exception_8h.htm#a4f0227c17954d343021313f77e695c8e
@@ -283,3 +286,14 @@ def get_last_error() -> ctypes.c_char_p:
     out = ctypes.c_char_p(0)
     backend_api.af_get_last_error(ctypes.pointer(out), ctypes.pointer(c_dim_t(0)))
     return out
+
+
+# Backend
+
+
+def set_backend(backend_c_value: int, /) -> None:
+    """
+    source: https://arrayfire.org/docs/group__unified__func__setbackend.htm#ga6fde820e8802776b7fc823504b37f1b4
+    """
+    safe_call(backend_api.af_set_backend(backend_c_value))
+    return None
