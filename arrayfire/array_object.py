@@ -5,18 +5,11 @@ import ctypes
 import enum
 from typing import Any, List, Optional, Tuple, Union
 
-from .. import backend
-from ..backend import ArrayBuffer
-from ..backend.c_library import unsorted
-from ..backend.c_library.constant_array import create_constant_array
-from ..backend.c_library.indexing import CIndexStructure, IndexStructure
-from ..backend.c_library.reduction_operations import count_all
-from ..dtypes import CType, Dtype
-from ..dtypes import bool as af_bool
-from ..dtypes import c_api_value_to_dtype
-from ..dtypes import float32 as af_float32
-from ..dtypes import str_to_dtype
-from .device import PointerSource
+from .backend import c_library as wrapper
+from .backend.c_library.indexing import CIndexStructure, IndexStructure
+from .backend.constants import ArrayBuffer
+from .dtypes import CType, Dtype, c_api_value_to_dtype, float32, str_to_dtype
+from .library.device import PointerSource
 
 # TODO use int | float in operators -> remove bool | complex support
 
@@ -40,18 +33,18 @@ class Array:
 
         if dtype is None:
             _no_initial_dtype = True
-            dtype = af_float32
+            dtype = float32
 
         if obj is None:
             if not shape:  # shape is None or empty tuple
-                self.arr = unsorted.create_handle((), dtype)
+                self.arr = wrapper.create_handle((), dtype)
                 return
 
-            self.arr = unsorted.create_handle(shape, dtype)
+            self.arr = wrapper.create_handle(shape, dtype)
             return
 
         if isinstance(obj, Array):
-            self.arr = unsorted.retain_array(obj.arr)
+            self.arr = wrapper.retain_array(obj.arr)
             return
 
         if isinstance(obj, py_array.array):
@@ -88,13 +81,13 @@ class Array:
 
         if not (offset or strides):
             if pointer_source == PointerSource.host:
-                self.arr = unsorted.create_array(shape, dtype, _array_buffer)
+                self.arr = wrapper.create_array(shape, dtype, _array_buffer)
                 return
 
-            self.arr = unsorted.device_array(shape, dtype, _array_buffer)
+            self.arr = wrapper.device_array(shape, dtype, _array_buffer)
             return
 
-        self.arr = unsorted.create_strided_array(
+        self.arr = wrapper.create_strided_array(
             shape, dtype, _array_buffer, offset, strides, pointer_source  # type: ignore[arg-type]
         )
 
@@ -133,7 +126,7 @@ class Array:
             determined by Type Promotion Rules.
 
         """
-        return _process_c_function(0, self, backend.sub)
+        return _process_c_function(0, self, wrapper.sub)
 
     def __add__(self, other: Union[int, float, Array], /) -> Array:
         """
@@ -152,7 +145,7 @@ class Array:
             An array containing the element-wise sums. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, backend.add)
+        return _process_c_function(self, other, wrapper.add)
 
     def __sub__(self, other: Union[int, float, Array], /) -> Array:
         """
@@ -174,7 +167,7 @@ class Array:
             An array containing the element-wise differences. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, backend.sub)
+        return _process_c_function(self, other, wrapper.sub)
 
     def __mul__(self, other: Union[int, float, Array], /) -> Array:
         """
@@ -193,7 +186,7 @@ class Array:
             An array containing the element-wise products. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, backend.mul)
+        return _process_c_function(self, other, wrapper.mul)
 
     def __truediv__(self, other: Union[int, float, Array], /) -> Array:
         """
@@ -220,7 +213,7 @@ class Array:
         Specification-compliant libraries may choose to raise an error or return an array containing the element-wise
         results. If an array is returned, the array must have a real-valued floating-point data type.
         """
-        return _process_c_function(self, other, backend.div)
+        return _process_c_function(self, other, wrapper.div)
 
     def __floordiv__(self, other: Union[int, float, Array], /) -> Array:
         # TODO
@@ -250,7 +243,7 @@ class Array:
         - For input arrays which promote to an integer data type, the result of division by zero is unspecified and
         thus implementation-defined.
         """
-        return _process_c_function(self, other, backend.mod)
+        return _process_c_function(self, other, wrapper.mod)
 
     def __pow__(self, other: Union[int, float, Array], /) -> Array:
         """
@@ -272,7 +265,7 @@ class Array:
             An array containing the element-wise results. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, backend.pow)
+        return _process_c_function(self, other, wrapper.pow)
 
     # Array Operators
 
@@ -298,7 +291,7 @@ class Array:
         """
         # FIXME
         out = Array()
-        out.arr = backend.bitnot(self.arr)
+        out.arr = wrapper.bitnot(self.arr)
         return out
 
     def __and__(self, other: Union[int, bool, Array], /) -> Array:
@@ -319,7 +312,7 @@ class Array:
             An array containing the element-wise results. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, backend.bitand)
+        return _process_c_function(self, other, wrapper.bitand)
 
     def __or__(self, other: Union[int, bool, Array], /) -> Array:
         """
@@ -339,7 +332,7 @@ class Array:
             An array containing the element-wise results. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, backend.bitor)
+        return _process_c_function(self, other, wrapper.bitor)
 
     def __xor__(self, other: Union[int, bool, Array], /) -> Array:
         """
@@ -359,7 +352,7 @@ class Array:
             An array containing the element-wise results. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, backend.bitxor)
+        return _process_c_function(self, other, wrapper.bitxor)
 
     def __lshift__(self, other: Union[int, Array], /) -> Array:
         """
@@ -379,7 +372,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have the same data type as self.
         """
-        return _process_c_function(self, other, backend.bitshiftl)
+        return _process_c_function(self, other, wrapper.bitshiftl)
 
     def __rshift__(self, other: Union[int, Array], /) -> Array:
         """
@@ -399,7 +392,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have the same data type as self.
         """
-        return _process_c_function(self, other, backend.bitshiftr)
+        return _process_c_function(self, other, wrapper.bitshiftr)
 
     # Comparison Operators
 
@@ -420,7 +413,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have a data type of bool.
         """
-        return _process_c_function(self, other, backend.lt)
+        return _process_c_function(self, other, wrapper.lt)
 
     def __le__(self, other: Union[int, float, Array], /) -> Array:
         """
@@ -439,7 +432,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have a data type of bool.
         """
-        return _process_c_function(self, other, backend.le)
+        return _process_c_function(self, other, wrapper.le)
 
     def __gt__(self, other: Union[int, float, Array], /) -> Array:
         """
@@ -458,7 +451,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have a data type of bool.
         """
-        return _process_c_function(self, other, backend.gt)
+        return _process_c_function(self, other, wrapper.gt)
 
     def __ge__(self, other: Union[int, float, Array], /) -> Array:
         """
@@ -477,7 +470,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have a data type of bool.
         """
-        return _process_c_function(self, other, backend.ge)
+        return _process_c_function(self, other, wrapper.ge)
 
     def __eq__(self, other: Union[int, float, bool, Array], /) -> Array:  # type: ignore[override]
         """
@@ -496,7 +489,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have a data type of bool.
         """
-        return _process_c_function(self, other, backend.eq)
+        return _process_c_function(self, other, wrapper.eq)
 
     def __ne__(self, other: Union[int, float, bool, Array], /) -> Array:  # type: ignore[override]
         """
@@ -515,7 +508,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have a data type of bool.
         """
-        return _process_c_function(self, other, backend.neq)
+        return _process_c_function(self, other, wrapper.neq)
 
     # Reflected Arithmetic Operators
 
@@ -523,25 +516,25 @@ class Array:
         """
         Return other + self.
         """
-        return _process_c_function(other, self, backend.add)
+        return _process_c_function(other, self, wrapper.add)
 
     def __rsub__(self, other: Array, /) -> Array:
         """
         Return other - self.
         """
-        return _process_c_function(other, self, backend.sub)
+        return _process_c_function(other, self, wrapper.sub)
 
     def __rmul__(self, other: Array, /) -> Array:
         """
         Return other * self.
         """
-        return _process_c_function(other, self, backend.mul)
+        return _process_c_function(other, self, wrapper.mul)
 
     def __rtruediv__(self, other: Array, /) -> Array:
         """
         Return other / self.
         """
-        return _process_c_function(other, self, backend.div)
+        return _process_c_function(other, self, wrapper.div)
 
     def __rfloordiv__(self, other: Array, /) -> Array:
         # TODO
@@ -551,13 +544,13 @@ class Array:
         """
         Return other % self.
         """
-        return _process_c_function(other, self, backend.mod)
+        return _process_c_function(other, self, wrapper.mod)
 
     def __rpow__(self, other: Array, /) -> Array:
         """
         Return other ** self.
         """
-        return _process_c_function(other, self, backend.pow)
+        return _process_c_function(other, self, wrapper.pow)
 
     # Reflected Array Operators
 
@@ -571,31 +564,31 @@ class Array:
         """
         Return other & self.
         """
-        return _process_c_function(other, self, backend.bitand)
+        return _process_c_function(other, self, wrapper.bitand)
 
     def __ror__(self, other: Array, /) -> Array:
         """
         Return other | self.
         """
-        return _process_c_function(other, self, backend.bitor)
+        return _process_c_function(other, self, wrapper.bitor)
 
     def __rxor__(self, other: Array, /) -> Array:
         """
         Return other ^ self.
         """
-        return _process_c_function(other, self, backend.bitxor)
+        return _process_c_function(other, self, wrapper.bitxor)
 
     def __rlshift__(self, other: Array, /) -> Array:
         """
         Return other << self.
         """
-        return _process_c_function(other, self, backend.bitshiftl)
+        return _process_c_function(other, self, wrapper.bitshiftl)
 
     def __rrshift__(self, other: Array, /) -> Array:
         """
         Return other >> self.
         """
-        return _process_c_function(other, self, backend.bitshiftr)
+        return _process_c_function(other, self, wrapper.bitshiftr)
 
     # In-place Arithmetic Operators
 
@@ -604,25 +597,25 @@ class Array:
         """
         Return self += other.
         """
-        return _process_c_function(self, other, backend.add)
+        return _process_c_function(self, other, wrapper.add)
 
     def __isub__(self, other: Union[int, float, Array], /) -> Array:
         """
         Return self -= other.
         """
-        return _process_c_function(self, other, backend.sub)
+        return _process_c_function(self, other, wrapper.sub)
 
     def __imul__(self, other: Union[int, float, Array], /) -> Array:
         """
         Return self *= other.
         """
-        return _process_c_function(self, other, backend.mul)
+        return _process_c_function(self, other, wrapper.mul)
 
     def __itruediv__(self, other: Union[int, float, Array], /) -> Array:
         """
         Return self /= other.
         """
-        return _process_c_function(self, other, backend.div)
+        return _process_c_function(self, other, wrapper.div)
 
     def __ifloordiv__(self, other: Union[int, float, Array], /) -> Array:
         # TODO
@@ -632,13 +625,13 @@ class Array:
         """
         Return self %= other.
         """
-        return _process_c_function(self, other, backend.mod)
+        return _process_c_function(self, other, wrapper.mod)
 
     def __ipow__(self, other: Union[int, float, Array], /) -> Array:
         """
         Return self **= other.
         """
-        return _process_c_function(self, other, backend.pow)
+        return _process_c_function(self, other, wrapper.pow)
 
     # In-place Array Operators
 
@@ -652,31 +645,31 @@ class Array:
         """
         Return self &= other.
         """
-        return _process_c_function(self, other, backend.bitand)
+        return _process_c_function(self, other, wrapper.bitand)
 
     def __ior__(self, other: Union[int, bool, Array], /) -> Array:
         """
         Return self |= other.
         """
-        return _process_c_function(self, other, backend.bitor)
+        return _process_c_function(self, other, wrapper.bitor)
 
     def __ixor__(self, other: Union[int, bool, Array], /) -> Array:
         """
         Return self ^= other.
         """
-        return _process_c_function(self, other, backend.bitxor)
+        return _process_c_function(self, other, wrapper.bitxor)
 
     def __ilshift__(self, other: Union[int, Array], /) -> Array:
         """
         Return self <<= other.
         """
-        return _process_c_function(self, other, backend.bitshiftl)
+        return _process_c_function(self, other, wrapper.bitshiftl)
 
     def __irshift__(self, other: Union[int, Array], /) -> Array:
         """
         Return self >>= other.
         """
-        return _process_c_function(self, other, backend.bitshiftr)
+        return _process_c_function(self, other, wrapper.bitshiftr)
 
     # Methods
 
@@ -724,19 +717,22 @@ class Array:
         out : Array
             An array containing the accessed value(s). The returned array must have the same data type as self.
         """
+
+        from .dtypes import bool
+
         # TODO
         # API Specification - key: Union[int, slice, ellipsis, Tuple[Union[int, slice, ellipsis], ...], array].
         # consider using af.span to replace ellipsis during refactoring
         out = Array()
         ndims = self.ndim
 
-        if isinstance(key, Array) and key == af_bool.c_api_value:
+        if isinstance(key, Array) and key == bool.c_api_value:
             ndims = 1
-            if count_all(key.arr) == 0:  # HACK was count() method before
+            if wrapper.count_all(key.arr) == 0:  # HACK was count() method before
                 return out
 
         # HACK known issue
-        out.arr = unsorted.index_gen(self.arr, ndims, key, _get_indices(key))  # type: ignore[arg-type]
+        out.arr = wrapper.index_gen(self.arr, ndims, key, _get_indices(key))  # type: ignore[arg-type]
         return out
 
     def __index__(self) -> int:
@@ -758,12 +754,12 @@ class Array:
         # TODO change the look of array str. E.g., like np.array
         # if not _in_display_dims_limit(self.shape):
         #     return _metadata_string(self.dtype, self.shape)
-        return _metadata_string(self.dtype) + unsorted.array_as_str(self.arr)
+        return _metadata_string(self.dtype) + wrapper.array_as_str(self.arr)
 
     def __repr__(self) -> str:
         # return _metadata_string(self.dtype, self.shape)
         # TODO change the look of array representation. E.g., like np.array
-        return unsorted.array_as_str(self.arr)
+        return wrapper.array_as_str(self.arr)
 
     def to_device(self, device: Any, /, *, stream: Union[int, Any] = None) -> Array:
         # TODO implementation and change device type from Any to Device
@@ -781,7 +777,7 @@ class Array:
         out : Dtype
             Array data type.
         """
-        return c_api_value_to_dtype(unsorted.get_ctype(self.arr))
+        return c_api_value_to_dtype(wrapper.get_ctype(self.arr))
 
     @property
     def device(self) -> Any:
@@ -814,7 +810,7 @@ class Array:
 
         # TODO add check if out.dtype == self.dtype
         out = Array()
-        out.arr = unsorted.transpose(self.arr, False)
+        out.arr = wrapper.transpose(self.arr, False)
         return out
 
     @property
@@ -832,7 +828,7 @@ class Array:
         - This must equal the product of the array's dimensions.
         """
         # NOTE previously - elements()
-        return unsorted.get_elements(self.arr)
+        return wrapper.get_elements(self.arr)
 
     @property
     def ndim(self) -> int:
@@ -842,7 +838,7 @@ class Array:
         out : int
             Number of array dimensions (axes).
         """
-        return unsorted.get_numdims(self.arr)
+        return wrapper.get_numdims(self.arr)
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -855,7 +851,7 @@ class Array:
             Array dimensions.
         """
         # NOTE skipping passing any None values
-        return unsorted.get_dims(self.arr)[: self.ndim]
+        return wrapper.get_dims(self.arr)[: self.ndim]
 
     def scalar(self) -> Union[None, int, float, bool, complex]:
         """
@@ -865,20 +861,20 @@ class Array:
         if self.is_empty():
             return None
 
-        return unsorted.get_scalar(self.arr, self.dtype)
+        return wrapper.get_scalar(self.arr, self.dtype)
 
     def is_empty(self) -> bool:
         """
         Check if the array is empty i.e. it has no elements.
         """
-        return unsorted.is_empty(self.arr)
+        return wrapper.is_empty(self.arr)
 
     def to_list(self, row_major: bool = False) -> List[Union[None, int, float, bool, complex]]:
         if self.is_empty():
             return []
 
         array = _reorder(self) if row_major else self
-        ctypes_array = unsorted.get_data_ptr(array.arr, array.size, array.dtype)
+        ctypes_array = wrapper.get_data_ptr(array.arr, array.size, array.dtype)
 
         if array.ndim == 1:
             return ctypes_array[:]
@@ -899,7 +895,7 @@ class Array:
             raise RuntimeError("Can not convert an empty array to ctype.")
 
         array = _reorder(self) if row_major else self
-        return unsorted.get_data_ptr(array.arr, array.size, array.dtype)
+        return wrapper.get_data_ptr(array.arr, array.size, array.dtype)
 
     def copy(self) -> Array:  # BUG: this is not a deep copy
         """
@@ -910,7 +906,7 @@ class Array:
         out: af.Array()
              An identical copy of self.
         """
-        self.arr = unsorted.copy_array(self.arr)
+        self.arr = wrapper.copy_array(self.arr)
         return self
 
     @classmethod
@@ -928,7 +924,7 @@ def _reorder(array: Array) -> Array:
     if array.ndim == 1:
         return array
 
-    return Array(unsorted.reorder(array.arr, array.ndim))
+    return Array(wrapper.reorder(array.arr, array.ndim))
 
 
 def _metadata_string(dtype: Dtype, dims: Optional[Tuple[int, ...]] = None) -> str:
@@ -944,10 +940,10 @@ def _process_c_function(lhs: Union[int, float, Array], rhs: Union[int, float, Ar
 
     elif isinstance(lhs, Array) and isinstance(rhs, (int, float)):
         lhs_array = lhs.arr
-        rhs_array = create_constant_array(rhs, lhs.shape, lhs.dtype)
+        rhs_array = wrapper.create_constant_array(rhs, lhs.shape, lhs.dtype)
 
     elif isinstance(lhs, (int, float)) and isinstance(rhs, Array):
-        lhs_array = create_constant_array(lhs, rhs.shape, rhs.dtype)
+        lhs_array = wrapper.create_constant_array(lhs, rhs.shape, rhs.dtype)
         rhs_array = rhs.arr
 
     else:

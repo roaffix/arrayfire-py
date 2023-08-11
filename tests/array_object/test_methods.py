@@ -1,4 +1,4 @@
-from arrayfire.library.array_object import Array
+from arrayfire import Array
 
 
 def test_array_getitem_by_index() -> None:

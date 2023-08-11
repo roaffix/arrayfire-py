@@ -11,7 +11,7 @@ from arrayfire.library.device import PointerSource
 from .error_handler import safe_call
 
 if TYPE_CHECKING:
-    from arrayfire.library.array_object import AFArrayType
+    from arrayfire.array_object import AFArrayType
 
 # Array management
 

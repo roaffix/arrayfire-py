@@ -6,8 +6,15 @@ from typing import Any, Optional, Tuple, Union
 from arrayfire import Array as AFArray
 from arrayfire.array_api.constants import Device, NestedSequence, PyCapsule, SupportsBufferProtocol
 from arrayfire.array_api.dtypes import (
-    all_dtypes, boolean_dtypes, complex_floating_dtypes, dtype_categories, floating_dtypes, integer_or_boolean_dtypes,
-    numeric_dtypes, promote_types)
+    all_dtypes,
+    boolean_dtypes,
+    complex_floating_dtypes,
+    dtype_categories,
+    floating_dtypes,
+    integer_or_boolean_dtypes,
+    numeric_dtypes,
+    promote_types,
+)
 from arrayfire.dtypes import Dtype
 
 

@@ -8,7 +8,7 @@ __all__ += ["__arrayfire_version__"]
 __arrayfire_version__ = ARRAYFIRE_VERSION
 
 __all__ += ["Array"]
-from .library.array_object import Array
+from .array_object import Array
 
 __all__ += [
     "int8",
@@ -57,16 +57,16 @@ __all__ += [
     "set_backend",
 ]
 
-from .backend import (
-    get_backend,
-    set_backend,
-    get_available_backends,
-    get_backend_count,
-    get_backend_id,
+from .backend.api import get_backend
+from .backend.helpers import (
     get_active_backend,
     get_array_backend_name,
     get_array_device_id,
+    get_available_backends,
+    get_backend_count,
+    get_backend_id,
     get_device_id,
     get_dtype_size,
     get_size_of,
+    set_backend,
 )

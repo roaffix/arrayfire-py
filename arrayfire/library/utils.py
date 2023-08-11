@@ -1,6 +1,6 @@
 from typing import Tuple, Union
 
-from .array_object import Array
+from arrayfire import Array
 
 # TODO implement functions
 
