@@ -22,8 +22,17 @@ __all__ = [
     "neq",
     # Backend
     "BackendPlatform",
-    "set_backend",
+    "get_active_backend",  # DeprecationWarning
+    "get_array_backend_name",
+    "get_array_device_id",
+    "get_available_backends",  # DeprecationWarning
     "get_backend",
+    "get_backend_count",
+    "get_backend_id",  # DeprecationWarning
+    "get_device_id",  # DeprecationWarning
+    "get_dtype_size",
+    "get_size_of",  # DeprecationWarning
+    "set_backend",
 ]
 
 # fmt: off
@@ -31,6 +40,8 @@ from .backend import BackendPlatform
 from .c_backend.operators import (
     add, bitand, bitnot, bitor, bitshiftl, bitshiftr, bitxor, div, eq, ge, gt, le, lt, mod, mul, neq, pow, sub)
 from .constants import ArrayBuffer
-from .helpers import get_backend, set_backend
+from .helpers import (
+    get_active_backend, get_array_backend_name, get_array_device_id, get_available_backends, get_backend,
+    get_backend_count, get_backend_id, get_device_id, get_dtype_size, get_size_of, set_backend)
 
 # fmt: on

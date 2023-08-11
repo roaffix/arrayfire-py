@@ -297,3 +297,39 @@ def set_backend(backend_c_value: int, /) -> None:
     """
     safe_call(backend_api.af_set_backend(backend_c_value))
     return None
+
+
+def get_backend_count() -> int:
+    """
+    source: https://arrayfire.org/docs/group__unified__func__getbackendcount.htm#gad38c2dfedfdabfa264afa46d8664e9cd
+    """
+    out = ctypes.c_int(0)
+    safe_call(backend_api.get().af_get_backend_count(ctypes.pointer(out)))
+    return out.value
+
+
+def get_device_id(arr: AFArrayType, /) -> int:
+    """
+    source: https://arrayfire.org/docs/group__unified__func__getdeviceid.htm#ga5d94b64dccd1c7cbc7a3a69fa64888c3
+    """
+    out = ctypes.c_int(0)
+    safe_call(backend_api.get().af_get_device_id(ctypes.pointer(out), arr))
+    return out.value
+
+
+def get_size_of(dtype: Dtype, /) -> int:
+    """
+    source: https://arrayfire.org/docs/util_8h.htm#a8b72cffd10a92a7a2ee7f52dadda5216
+    """
+    out = ctypes.c_size_t(0)
+    safe_call(backend_api.get().af_get_size_of(ctypes.pointer(out), dtype.c_api_value))
+    return out.value
+
+
+def get_backend_id(arr: AFArrayType, /) -> int:
+    """
+    source: https://arrayfire.org/docs/group__unified__func__getbackendid.htm#ga5fc39e209e1886cf250aec265c0d9079
+    """
+    out = ctypes.c_int(0)
+    safe_call(backend_api.get().af_get_backend_id(ctypes.pointer(out), arr))
+    return out.value
