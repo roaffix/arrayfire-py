@@ -8,17 +8,16 @@ valid for inputs that match the given type annotations.
 
 from __future__ import annotations
 
+from enum import Enum
+
 __all__ = [
-    "Array",
     "Device",
     "SupportsDLPack",
     "SupportsBufferProtocol",
     "PyCapsule",
 ]
 
-from typing import Any, Literal, Protocol, TypeVar
-
-from .array_object import Array
+from typing import Any, Iterator, Protocol, TypeVar
 
 _T_co = TypeVar("_T_co", covariant=True)
 
@@ -31,7 +30,14 @@ class NestedSequence(Protocol[_T_co]):
         ...
 
 
-Device = Literal["cpu"]  # FIXME: add support for other devices
+class Device(Enum):
+    cpu = "cpu"
+    gpu = "gpu"
+
+    def __iter__(self) -> Iterator[Device]:
+        yield self
+
+
 SupportsBufferProtocol = Any
 PyCapsule = Any
 

@@ -912,6 +912,10 @@ class Array:
         self.arr = unsorted.copy_array(self.arr)
         return self
 
+    @classmethod
+    def from_afarray(cls, array: AFArrayType) -> None:
+        cls.arr = array
+
 
 IndexKey = Union[int, slice, Tuple[Union[int, slice], ...], Array]
 

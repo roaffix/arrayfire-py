@@ -1,6 +1,54 @@
+from __future__ import annotations
+
+__all__ = [
+    "all_dtypes",
+    "boolean_dtypes",
+    "real_floating_dtypes",
+    "floating_dtypes",
+    "complex_floating_dtypes",
+    "integer_dtypes",
+    "signed_integer_dtypes",
+    "unsigned_integer_dtypes",
+    "integer_or_boolean_dtypes",
+    "real_numeric_dtypes",
+    "numeric_dtypes",
+    "dtype_categories",
+    # OG
+    "bool",
+    "complex64",
+    "complex128",
+    "float32",
+    "float64",
+    "int8",
+    "int16",
+    "int32",
+    "int64",
+    "uint8",
+    "uint16",
+    "uint32",
+    "uint64",
+]
+
+from typing import TYPE_CHECKING
+
 from arrayfire import (
-    bool, complex64, complex128, float32, float64, int8, int16, int32, int64, uint8, uint16, uint32, uint64)
-from arrayfire.dtypes import Dtype
+    bool,
+    complex64,
+    complex128,
+    float32,
+    float64,
+    int8,
+    int16,
+    int32,
+    int64,
+    uint8,
+    uint16,
+    uint32,
+    uint64,
+)
+
+if TYPE_CHECKING:
+    from arrayfire.dtypes import Dtype
 
 all_dtypes = (
     int8,
@@ -24,50 +72,16 @@ complex_floating_dtypes = (complex64, complex128)
 integer_dtypes = (int8, int16, int32, int64, uint8, uint16, uint32, uint64)
 signed_integer_dtypes = (int8, int16, int32, int64)
 unsigned_integer_dtypes = (uint8, uint16, uint32, uint64)
-integer_orboolean_dtypes = (
-    bool,
-    int8,
-    int16,
-    int32,
-    int64,
-    uint8,
-    uint16,
-    uint32,
-    uint64,
-)
-real_numeric_dtypes = (
-    float32,
-    float64,
-    int8,
-    int16,
-    int32,
-    int64,
-    uint8,
-    uint16,
-    uint32,
-    uint64,
-)
-numeric_dtypes = (
-    float32,
-    float64,
-    complex64,
-    complex128,
-    int8,
-    int16,
-    int32,
-    int64,
-    uint8,
-    uint16,
-    uint32,
-    uint64,
-)
+integer_or_boolean_dtypes = boolean_dtypes + integer_dtypes
+real_numeric_dtypes = real_floating_dtypes + integer_dtypes
+numeric_dtypes = floating_dtypes + integer_dtypes
 
 dtype_categories = {
     "all": all_dtypes,
     "real numeric": real_numeric_dtypes,
     "numeric": numeric_dtypes,
     "integer": integer_dtypes,
-    "integer or boolean": integer_orboolean_dtypes,
+    "integer or boolean": integer_or_boolean_dtypes,
     "boolean": boolean_dtypes,
     "real floating-point": floating_dtypes,
     "complex floating-point": complex_floating_dtypes,

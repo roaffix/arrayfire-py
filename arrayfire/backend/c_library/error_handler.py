@@ -14,5 +14,6 @@ def safe_call(c_err: int) -> None:
         return
 
     err_str = ctypes.c_char_p(0)
-    backend_api.af_get_last_error(ctypes.pointer(err_str), ctypes.pointer(c_dim_t(0)))
+    err_len = c_dim_t(0)
+    backend_api.af_get_last_error(ctypes.pointer(err_str), ctypes.pointer(err_len))
     raise RuntimeError(to_str(err_str))

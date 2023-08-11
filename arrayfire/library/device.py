@@ -6,9 +6,8 @@ class PointerSource(enum.Enum):
     Source of the pointer.
     """
 
-    # FIXME
-    device = 0
-    host = 1
+    device = 0  # gpu
+    host = 1  # cpu
 
 
 supported_devices = []

@@ -8,6 +8,7 @@ __all__ = [
     "uint16",
     "uint32",
     "uint64",
+    "float16",
     "float32",
     "float64",
     "complex64",
@@ -22,7 +23,7 @@ from typing import Type
 CType = Type[ctypes._SimpleCData]
 
 
-@dataclass
+@dataclass(frozen=True)
 class Dtype:
     typecode: str
     c_type: CType
@@ -39,10 +40,25 @@ uint8 = Dtype("B", ctypes.c_ubyte, "unsigned_char", 7)
 uint16 = Dtype("H", ctypes.c_ushort, "unsigned short int", 11)
 uint32 = Dtype("I", ctypes.c_uint, "unsigned int", 6)
 uint64 = Dtype("L", ctypes.c_ulonglong, "unsigned long int", 9)
+float16 = Dtype("e", ctypes.c_uint16, "half", 12)
 float32 = Dtype("f", ctypes.c_float, "float", 0)
 float64 = Dtype("d", ctypes.c_double, "double", 2)
 complex64 = Dtype("F", ctypes.c_float * 2, "float complext", 1)  # type: ignore[arg-type]
 complex128 = Dtype("D", ctypes.c_double * 2, "double complext", 3)  # type: ignore[arg-type]
 bool = Dtype("b", ctypes.c_bool, "bool", 4)
 
-supported_dtypes = [int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, complex64, complex128, bool]
+supported_dtypes = (
+    int16,
+    int32,
+    int64,
+    uint8,
+    uint16,
+    uint32,
+    uint64,
+    float16,
+    float32,
+    float64,
+    complex64,
+    complex128,
+    bool,
+)

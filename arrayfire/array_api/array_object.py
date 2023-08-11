@@ -1,18 +1,21 @@
 from __future__ import annotations
 
-__all__ = ["Array"]
-
 import types
-from enum import IntEnum
-from typing import TYPE_CHECKING, Any, Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Union
 
 from arrayfire import Array as AFArray
-from arrayfire.array_api.constants import NestedSequence, SupportsBufferProtocol
+from arrayfire.array_api.constants import Device, NestedSequence, PyCapsule, SupportsBufferProtocol
+from arrayfire.array_api.dtypes import (
+    all_dtypes,
+    boolean_dtypes,
+    complex_floating_dtypes,
+    dtype_categories,
+    floating_dtypes,
+    integer_or_boolean_dtypes,
+    numeric_dtypes,
+    promote_types,
+)
 from arrayfire.dtypes import Dtype
-
-if TYPE_CHECKING:
-    from .constants import PyCapsule
-    from .dtypes import all_dtypes, dtype_categories, numeric_dtypes, promote_types
 
 
 class Array:
@@ -79,10 +82,12 @@ class Array:
         elif isinstance(scalar, int):
             if self.dtype in boolean_dtypes:
                 raise TypeError("Python int scalars cannot be promoted with bool arrays")
-            if self.dtype in integer_dtypes:
-                info = np.iinfo(self.dtype)
-                if not (info.min <= scalar <= info.max):
-                    raise OverflowError("Python int scalars must be within the bounds of the dtype for integer arrays")
+            # TODO
+            # if self.dtype in integer_dtypes:
+            #     info = np.iinfo(self.dtype)
+            #     if not (info.min <= scalar <= info.max):
+            #         raise OverflowError(
+            #             "Python int scalars must be within the bounds of the dtype for integer arrays")
             # int + array(floating) is allowed
         elif isinstance(scalar, float):
             if self.dtype not in floating_dtypes:
@@ -100,7 +105,42 @@ class Array:
         # behavior for integers within the bounds of the integer dtype.
         # Outside of those bounds we use the default NumPy behavior (either
         # cast or raise OverflowError).
-        return Array._new(np.array(scalar, self.dtype))
+        return Array._new(AFArray(scalar, self.dtype, shape=(1,)))
+
+    @staticmethod
+    def _normalize_two_args(x1, x2) -> Tuple[Array, Array]:
+        """
+        Normalize inputs to two arg functions to fix type promotion rules
+
+        NumPy deviates from the spec type promotion rules in cases where one
+        argument is 0-dimensional and the other is not. For example:
+
+        >>> import numpy as np
+        >>> a = np.array([1.0], dtype=np.float32)
+        >>> b = np.array(1.0, dtype=np.float64)
+        >>> np.add(a, b) # The spec says this should be float64
+        array([2.], dtype=float32)
+
+        To fix this, we add a dimension to the 0-dimension array before passing it
+        through. This works because a dimension would be added anyway from
+        broadcasting, so the resulting shape is the same, but this prevents NumPy
+        from not promoting the dtype.
+        """
+        # Another option would be to use signature=(x1.dtype, x2.dtype, None),
+        # but that only works for ufuncs, so we would have to call the ufuncs
+        # directly in the operator methods. One should also note that this
+        # sort of trick wouldn't work for functions like searchsorted, which
+        # don't do normal broadcasting, but there aren't any functions like
+        # that in the array API namespace.
+        if x1.ndim == 0 and x2.ndim != 0:
+            # The _array[None] workaround was chosen because it is relatively
+            # performant. broadcast_to(x1._array, x2.shape) is much slower. We
+            # could also manually type promote x2, but that is more complicated
+            # and about the same performance as this.
+            x1 = Array._new(x1._array[None])
+        elif x2.ndim == 0 and x1.ndim != 0:
+            x2 = Array._new(x2._array[None])
+        return (x1, x2)
 
     @classmethod
     def _new(cls, x: Union[Array, bool, int, float, complex, NestedSequence, SupportsBufferProtocol], /) -> Array:
@@ -132,6 +172,17 @@ class Array:
         if self.dtype not in numeric_dtypes:
             raise TypeError("Only numeric dtypes are allowed in __abs__")
         res = self._array.__abs__()
+        return self.__class__._new(res)
+
+    def __add__(self: Array, other: Union[int, float, Array], /) -> Array:
+        """
+        Performs the operation __add__.
+        """
+        other = self._check_allowed_dtypes(other, "numeric", "__add__")
+        if other is NotImplemented:
+            return other
+        self, other = self._normalize_two_args(self, other)
+        res = self._array.__add__(other._array)
         return self.__class__._new(res)
 
     def __and__(self: Array, other: Union[int, bool, Array], /) -> Array:
@@ -178,12 +229,12 @@ class Array:
         """
         return self._array.__dlpack__(stream=stream)
 
-    def __dlpack_device__(self: Array, /) -> Tuple[IntEnum, int]:
-        """
-        Performs the operation __dlpack_device__.
-        """
-        # Note: device support is required for this
-        return self._array.__dlpack_device__()
+    # def __dlpack_device__(self: Array, /) -> Tuple[IntEnum, int]:
+    #     """
+    #     Performs the operation __dlpack_device__.
+    #     """
+    #     # Note: device support is required for this
+    #     return self._array.__dlpack_device__()
 
     def __eq__(self: Array, other: Union[int, float, bool, Array], /) -> Array:
         """
@@ -205,7 +256,7 @@ class Array:
         # Note: This is an error here.
         if self._array.ndim != 0:
             raise TypeError("float is only allowed on arrays with 0 dimensions")
-        if self.dtype in _complex_floating_dtypes:
+        if self.dtype in complex_floating_dtypes:
             raise TypeError("float is not allowed on complex floating-point arrays")
         res = self._array.__float__()
         return res
@@ -232,22 +283,22 @@ class Array:
         res = self._array.__ge__(other._array)
         return self.__class__._new(res)
 
-    def __getitem__(
-        self: Array,
-        key: Union[int, slice, ellipsis, Tuple[Union[int, slice, ellipsis], ...], Array],
-        /,
-    ) -> Array:
-        """
-        Performs the operation __getitem__.
-        """
-        # Note: Only indices required by the spec are allowed. See the
-        # docstring of _validate_index
-        self._validate_index(key)
-        if isinstance(key, Array):
-            # Indexing self._array with array_api arrays can be erroneous
-            key = key._array
-        res = self._array.__getitem__(key)
-        return self._new(res)
+    # def __getitem__(
+    #     self: Array,
+    #     key: Union[int, slice, ellipsis, Tuple[Union[int, slice, ellipsis], ...], Array],
+    #     /,
+    # ) -> Array:
+    #     """
+    #     Performs the operation __getitem__.
+    #     """
+    #     # Note: Only indices required by the spec are allowed. See the
+    #     # docstring of _validate_index
+    #     self._validate_index(key)
+    #     if isinstance(key, Array):
+    #         # Indexing self._array with array_api arrays can be erroneous
+    #         key = key._array
+    #     res = self._array.__getitem__(key)
+    #     return self._new(res)
 
     def __gt__(self: Array, other: Union[int, float, Array], /) -> Array:
         """
@@ -267,7 +318,7 @@ class Array:
         # Note: This is an error here.
         if self._array.ndim != 0:
             raise TypeError("int is only allowed on arrays with 0 dimensions")
-        if self.dtype in _complex_floating_dtypes:
+        if self.dtype in complex_floating_dtypes:
             raise TypeError("int is not allowed on complex floating-point arrays")
         res = self._array.__int__()
         return res
@@ -283,7 +334,7 @@ class Array:
         """
         Performs the operation __invert__.
         """
-        if self.dtype not in _integer_or_boolean_dtypes:
+        if self.dtype not in integer_or_boolean_dtypes:
             raise TypeError("Only integer or boolean dtypes are allowed in __invert__")
         res = self._array.__invert__()
         return self.__class__._new(res)
@@ -370,7 +421,7 @@ class Array:
         """
         Performs the operation __neg__.
         """
-        if self.dtype not in _numeric_dtypes:
+        if self.dtype not in numeric_dtypes:
             raise TypeError("Only numeric dtypes are allowed in __neg__")
         res = self._array.__neg__()
         return self.__class__._new(res)
@@ -390,23 +441,23 @@ class Array:
         """
         Performs the operation __pos__.
         """
-        if self.dtype not in _numeric_dtypes:
+        if self.dtype not in numeric_dtypes:
             raise TypeError("Only numeric dtypes are allowed in __pos__")
         res = self._array.__pos__()
         return self.__class__._new(res)
 
-    def __pow__(self: Array, other: Union[int, float, Array], /) -> Array:
-        """
-        Performs the operation __pow__.
-        """
-        from ._elementwise_functions import pow
+    # def __pow__(self: Array, other: Union[int, float, Array], /) -> Array:
+    #     """
+    #     Performs the operation __pow__.
+    #     """
+    #     from ._elementwise_functions import pow
 
-        other = self._check_allowed_dtypes(other, "numeric", "__pow__")
-        if other is NotImplemented:
-            return other
-        # Note: NumPy's __pow__ does not follow type promotion rules for 0-d
-        # arrays, so we use pow() here instead.
-        return pow(self, other)
+    #     other = self._check_allowed_dtypes(other, "numeric", "__pow__")
+    #     if other is NotImplemented:
+    #         return other
+    #     # Note: NumPy's __pow__ does not follow type promotion rules for 0-d
+    #     # arrays, so we use pow() here instead.
+    #     return pow(self, other)
 
     def __rshift__(self: Array, other: Union[int, Array], /) -> Array:
         """
@@ -419,22 +470,22 @@ class Array:
         res = self._array.__rshift__(other._array)
         return self.__class__._new(res)
 
-    def __setitem__(
-        self,
-        key: Union[int, slice, ellipsis, Tuple[Union[int, slice, ellipsis], ...], Array],
-        value: Union[int, float, bool, Array],
-        /,
-    ) -> None:
-        """
-        Performs the operation __setitem__.
-        """
-        # Note: Only indices required by the spec are allowed. See the
-        # docstring of _validate_index
-        self._validate_index(key)
-        if isinstance(key, Array):
-            # Indexing self._array with array_api arrays can be erroneous
-            key = key._array
-        self._array.__setitem__(key, asarray(value)._array)
+    # def __setitem__(
+    #     self,
+    #     key: Union[int, slice, ellipsis, Tuple[Union[int, slice, ellipsis], ...], Array],
+    #     value: Union[int, float, bool, Array],
+    #     /,
+    # ) -> None:
+    #     """
+    #     Performs the operation __setitem__.
+    #     """
+    #     # Note: Only indices required by the spec are allowed. See the
+    #     # docstring of _validate_index
+    #     self._validate_index(key)
+    #     if isinstance(key, Array):
+    #         # Indexing self._array with array_api arrays can be erroneous
+    #         key = key._array
+    #     self._array.__setitem__(key, asarray(value)._array)
 
     def __sub__(self: Array, other: Union[int, float, Array], /) -> Array:
         """
@@ -762,15 +813,15 @@ class Array:
         """
         return self._array.dtype
 
-    @property
-    def device(self) -> Device:
-        return "cpu"
+    # @property
+    # def device(self) -> Device:
+    #     return "cpu"
 
-    @property
-    def mT(self) -> Array:
-        from .linalg import matrix_transpose
+    # @property
+    # def mT(self) -> Array:
+    #     from .linalg import matrix_transpose
 
-        return matrix_transpose(self)
+    #     return matrix_transpose(self)
 
     @property
     def ndim(self) -> int:
@@ -811,6 +862,7 @@ class Array:
         # https://data-apis.org/array-api/latest/API_specification/array_object.html#t
         if self.ndim != 2:
             raise ValueError(
-                "x.T requires x to have 2 dimensions. Use x.mT to transpose stacks of matrices and permute_dims() to permute dimensions."
+                "x.T requires x to have 2 dimensions. "
+                "Use x.mT to transpose stacks of matrices and permute_dims() to permute dimensions."
             )
         return self.__class__._new(self._array.T)
