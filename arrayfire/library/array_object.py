@@ -7,10 +7,10 @@ from typing import Any, List, Optional, Tuple, Union
 
 from .. import backend
 from ..backend import ArrayBuffer
-from ..backend.c_backend import unsorted
-from ..backend.c_backend.constant_array import create_constant_array
-from ..backend.c_backend.indexing import CIndexStructure, IndexStructure
-from ..backend.c_backend.reduction_operations import count_all
+from ..backend.c_library import unsorted
+from ..backend.c_library.constant_array import create_constant_array
+from ..backend.c_library.indexing import CIndexStructure, IndexStructure
+from ..backend.c_library.reduction_operations import count_all
 from ..dtypes import CType
 from ..dtypes import bool as af_bool
 from ..dtypes import float32 as af_float32

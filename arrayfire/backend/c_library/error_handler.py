@@ -1,7 +1,7 @@
 import ctypes
 from enum import Enum
 
-from arrayfire.backend.backend import backend_api
+from arrayfire.backend.api import backend_api
 from arrayfire.dtypes.helpers import c_dim_t, to_str
 
 

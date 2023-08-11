@@ -3,7 +3,7 @@ from __future__ import annotations
 import ctypes
 from typing import TYPE_CHECKING, Tuple, Union
 
-from arrayfire.backend.backend import backend_api
+from arrayfire.backend.api import backend_api
 from arrayfire.dtypes import Dtype, int64, uint64
 from arrayfire.dtypes.helpers import CShape, implicit_dtype
 

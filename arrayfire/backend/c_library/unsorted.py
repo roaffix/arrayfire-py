@@ -3,7 +3,7 @@ from __future__ import annotations
 import ctypes
 from typing import TYPE_CHECKING, Any, Tuple, Union, cast
 
-from arrayfire.backend.backend import backend_api
+from arrayfire.backend.api import backend_api
 from arrayfire.backend.constants import ArrayBuffer
 from arrayfire.dtypes import CType, Dtype
 from arrayfire.dtypes.helpers import CShape, c_dim_t, to_str

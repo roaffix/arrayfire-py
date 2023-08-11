@@ -20,13 +20,14 @@ __all__ = [
     "ge",
     "eq",
     "neq",
-    # Backend
+    # Backend API
     "BackendPlatform",
+    "get_backend",
+    # Backend Helpers
     "get_active_backend",  # DeprecationWarning
     "get_array_backend_name",
     "get_array_device_id",
     "get_available_backends",  # DeprecationWarning
-    "get_backend",
     "get_backend_count",
     "get_backend_id",  # DeprecationWarning
     "get_device_id",  # DeprecationWarning
@@ -36,12 +37,12 @@ __all__ = [
 ]
 
 # fmt: off
-from .backend import BackendPlatform
-from .c_backend.operators import (
+from .api import BackendPlatform, get_backend
+from .c_library.operators import (
     add, bitand, bitnot, bitor, bitshiftl, bitshiftr, bitxor, div, eq, ge, gt, le, lt, mod, mul, neq, pow, sub)
 from .constants import ArrayBuffer
 from .helpers import (
-    get_active_backend, get_array_backend_name, get_array_device_id, get_available_backends, get_backend,
-    get_backend_count, get_backend_id, get_device_id, get_dtype_size, get_size_of, set_backend)
+    get_active_backend, get_array_backend_name, get_array_device_id, get_available_backends, get_backend_count,
+    get_backend_id, get_device_id, get_dtype_size, get_size_of, set_backend)
 
 # fmt: on

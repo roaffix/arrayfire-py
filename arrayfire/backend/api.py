@@ -120,5 +120,18 @@ class Backend:
 # backend_api = ctypes.CDLL("/opt/arrayfire//lib/libafcpu.3.dylib")
 # HACK for windows
 # backend_api = ctypes.CDLL("C:/Program Files/ArrayFire/v3/lib/afcpu.dll")
-backend = Backend()
-backend_api = backend.library
+_backend = Backend()
+backend_api = _backend.library
+
+
+def get_backend() -> Backend:
+    """
+    Get the current active backend.
+
+    Returns
+    -------
+    value : Backend
+        Current active backend.
+    """
+
+    return _backend

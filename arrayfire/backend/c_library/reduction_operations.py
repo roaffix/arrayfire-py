@@ -3,7 +3,7 @@ from __future__ import annotations
 import ctypes
 from typing import TYPE_CHECKING, Callable, Union
 
-from arrayfire.backend.backend import backend_api
+from arrayfire.backend.api import backend_api
 
 from .error_handler import safe_call
 

@@ -3,12 +3,12 @@ from __future__ import annotations
 import warnings
 from typing import TYPE_CHECKING, Union
 
-from .backend import Backend, BackendPlatform, backend
-from .c_backend.unsorted import get_backend_count as c_get_backend_count
-from .c_backend.unsorted import get_backend_id as c_get_backend_id
-from .c_backend.unsorted import get_device_id as c_get_device_id
-from .c_backend.unsorted import get_size_of as c_get_size_of
-from .c_backend.unsorted import set_backend as c_set_backend
+from .api import Backend, BackendPlatform, get_backend
+from .c_library.unsorted import get_backend_count as c_get_backend_count
+from .c_library.unsorted import get_backend_id as c_get_backend_id
+from .c_library.unsorted import get_device_id as c_get_device_id
+from .c_library.unsorted import get_size_of as c_get_size_of
+from .c_library.unsorted import set_backend as c_set_backend
 
 if TYPE_CHECKING:
     from arrayfire import Array
@@ -35,7 +35,7 @@ def set_backend(platform: Union[BackendPlatform, str]) -> None:
     RuntimeError
         If the given platform could not be set as new backend platform.
     """
-
+    backend = get_backend()
     current_active_platform = backend.platform
 
     if isinstance(platform, str):
@@ -52,23 +52,12 @@ def set_backend(platform: Union[BackendPlatform, str]) -> None:
     if backend.platform == BackendPlatform.unified:
         c_set_backend(platform.value)
 
-    backend._load_backend_lib(platform)  # FIXME should not access private API
+    # NOTE keep in mind that this operation works in-place
+    # FIXME should not access private API
+    backend._load_backend_lib(platform)
 
     if current_active_platform == backend.platform:
         raise RuntimeError(f"Could not set {platform} as new backend platform. Consider checking logs.")
-
-
-def get_backend() -> Backend:
-    """
-    Get the current active backend.
-
-    Returns
-    -------
-    value : Backend
-        Current active backend.
-    """
-
-    return backend
 
 
 def get_array_backend_name(array: Array) -> str:

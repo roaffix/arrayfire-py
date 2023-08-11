@@ -4,7 +4,7 @@ import ctypes
 import math
 from typing import Any, Union
 
-from arrayfire.backend.backend import backend_api
+from arrayfire.backend.api import backend_api
 from arrayfire.library.broadcast import bcast_var
 
 from .error_handler import safe_call
