@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ._array_object import Array
-
 from arrayfire.library import operators
+
+from ._array_object import Array
 
 
 def abs(x: Array, /) -> Array:

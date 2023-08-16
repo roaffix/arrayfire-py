@@ -1,19 +1,18 @@
 from __future__ import annotations
 
 import array as py_array
-import ctypes
-import enum
 from dataclasses import dataclass
-from typing import Any, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
 from .backend import _clib_wrapper as wrapper
-from .backend._clib_wrapper._indexing import CIndexStructure, IndexStructure
 from .dtypes import CType, Dtype, c_api_value_to_dtype, float32, str_to_dtype
 from .library.device import PointerSource
 
-# TODO use int | float in operators -> remove bool | complex support
+if TYPE_CHECKING:
+    from ctypes import Array as CArray
+    from enum import Enum
 
-AFArrayType = ctypes.c_void_p
+# TODO use int | float in operators -> remove bool | complex support
 
 
 @dataclass(frozen=True)
@@ -25,10 +24,10 @@ class _ArrayBuffer:
 class Array:
     def __init__(
         self,
-        obj: Union[None, Array, py_array.array, int, AFArrayType, List[Union[int, float]]] = None,
+        obj: Union[None, Array, py_array.array, int, wrapper.AFArrayType, List[Union[int, float]]] = None,
         dtype: Union[None, Dtype, str] = None,
         shape: Tuple[int, ...] = (),
-        pointer_source: PointerSource = PointerSource.host,
+        to_device: bool = False,
         offset: Optional[CType] = None,
         strides: Optional[Tuple[int, ...]] = None,
     ) -> None:
@@ -62,8 +61,10 @@ class Array:
             _type_char = _array.typecode
             _array_buffer = _ArrayBuffer(*_array.buffer_info())
 
-        elif isinstance(obj, int) or isinstance(obj, AFArrayType):
-            _array_buffer = _ArrayBuffer(obj if not isinstance(obj, AFArrayType) else obj.value)  # type: ignore
+        elif isinstance(obj, int) or isinstance(obj, wrapper.AFArrayType):
+            _array_buffer = _ArrayBuffer(
+                obj if not isinstance(obj, wrapper.AFArrayType) else obj.value  # type: ignore[arg-type]
+            )
 
             if not shape:
                 raise TypeError("Expected to receive the initial shape due to the obj being a data pointer.")
@@ -86,7 +87,7 @@ class Array:
             raise TypeError("Can not create array of requested type from input data type")
 
         if not (offset or strides):
-            if pointer_source == PointerSource.host:
+            if not to_device:
                 self.arr = wrapper.create_array(shape, dtype, _array_buffer)
                 return
 
@@ -94,7 +95,7 @@ class Array:
             return
 
         self.arr = wrapper.create_strided_array(
-            shape, dtype, _array_buffer, offset, strides, pointer_source  # type: ignore[arg-type]
+            shape, dtype, _array_buffer, offset, strides, PointerSource.device  # type: ignore[arg-type]
         )
 
     # Arithmetic Operators
@@ -699,7 +700,7 @@ class Array:
         # TODO implementation and expected return type -> PyCapsule
         return NotImplemented
 
-    def __dlpack_device__(self) -> Tuple[enum.Enum, int]:
+    def __dlpack_device__(self) -> Tuple[Enum, int]:
         # TODO
         return NotImplemented
 
@@ -738,7 +739,7 @@ class Array:
                 return out
 
         # HACK known issue
-        out.arr = wrapper.index_gen(self.arr, ndims, key, _get_indices(key))  # type: ignore[arg-type]
+        out.arr = wrapper.index_gen(self.arr, ndims, key, wrapper.get_indices(key))  # type: ignore[arg-type]
         return out
 
     def __index__(self) -> int:
@@ -896,7 +897,7 @@ class Array:
             out.append(ctypes_array[tuple(sub_list)])  # type: ignore[call-overload]  # FIXME
         return out
 
-    def to_ctype_array(self, row_major: bool = False) -> ctypes.Array:
+    def to_ctype_array(self, row_major: bool = False) -> CArray:
         if self.is_empty():
             raise RuntimeError("Can not convert an empty array to ctype.")
 
@@ -916,7 +917,7 @@ class Array:
         return self
 
     @classmethod
-    def from_afarray(cls, array: AFArrayType) -> None:
+    def from_afarray(cls, array: wrapper.AFArrayType) -> None:
         cls.arr = array
 
 
@@ -957,15 +958,3 @@ def _process_c_function(lhs: Union[int, float, Array], rhs: Union[int, float, Ar
 
     out.arr = c_function(lhs_array, rhs_array)
     return out
-
-
-def _get_indices(key: IndexKey) -> CIndexStructure:
-    indices = CIndexStructure()
-
-    if isinstance(key, tuple):
-        for n in range(len(key)):
-            indices[n] = IndexStructure(key[n])
-    else:
-        indices[0] = IndexStructure(key)
-
-    return indices

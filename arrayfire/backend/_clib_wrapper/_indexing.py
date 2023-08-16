@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import ctypes
 import math
-from typing import Any, Union
+from typing import TYPE_CHECKING, Any, Tuple, Union
 
 from arrayfire.backend._backend import _backend
 from arrayfire.library.broadcast import bcast_var
 
 from ._error_handler import safe_call
+
+if TYPE_CHECKING:
+    from arrayfire import Array
 
 
 class _IndexSequence(ctypes.Structure):
@@ -246,3 +249,15 @@ class CIndexStructure:
     def __setitem__(self, idx: int, value: IndexStructure) -> None:
         self.array[idx] = value
         self.idxs[idx] = value
+
+
+def get_indices(key: Union[int, slice, Tuple[Union[int, slice], ...]]) -> CIndexStructure:
+    indices = CIndexStructure()
+
+    if isinstance(key, tuple):
+        for n in range(len(key)):
+            indices[n] = IndexStructure(key[n])
+    else:
+        indices[0] = IndexStructure(key)
+
+    return indices

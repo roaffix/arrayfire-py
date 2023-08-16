@@ -1,6 +1,10 @@
 # flake8: noqa
 
-__all__ = [
+__all__ = ["AFArrayType"]
+
+from ._base import AFArrayType
+
+__all__ += [
     "add",
     "sub",
     "mul",
@@ -109,3 +113,6 @@ from ._reduction_operations import count_all
 __all__ += ["create_constant_array"]
 
 from ._constant_array import create_constant_array
+
+__all__ += ["get_indices"]
+from ._indexing import get_indices

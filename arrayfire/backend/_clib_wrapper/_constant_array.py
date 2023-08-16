@@ -9,7 +9,7 @@ from arrayfire.dtypes import CShape, Dtype, implicit_dtype, int64, uint64
 from ._error_handler import safe_call
 
 if TYPE_CHECKING:
-    from arrayfire.array_object import AFArrayType
+    from ._base import AFArrayType
 
 
 def _constant_complex(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:

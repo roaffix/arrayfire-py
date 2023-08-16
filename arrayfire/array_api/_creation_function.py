@@ -38,17 +38,17 @@ def asarray(
         raise OverflowError("Integer out of bounds for array dtypes")
 
     if device == Device.cpu or device is None:
-        pointer_source = PointerSource.host
+        to_device = False
     elif device == Device.gpu:
-        pointer_source = PointerSource.device
+        to_device = True
     else:
         raise ValueError(f"Unsupported device {device!r}")
 
     if isinstance(obj, int | float):
-        afarray = AFArray([obj], dtype=dtype, shape=(1,), pointer_source=pointer_source)
+        afarray = AFArray([obj], dtype=dtype, shape=(1,), to_device=to_device)
         return Array._new(afarray)
 
-    afarray = AFArray(obj, dtype=dtype, pointer_source=pointer_source)
+    afarray = AFArray(obj, dtype=dtype, to_device=to_device)
     return Array._new(afarray)
 
 

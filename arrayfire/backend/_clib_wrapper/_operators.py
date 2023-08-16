@@ -9,7 +9,7 @@ from arrayfire.library.broadcast import bcast_var
 from ._error_handler import safe_call
 
 if TYPE_CHECKING:
-    from arrayfire.array_object import AFArrayType
+    from ._base import AFArrayType
 
 # Arithmetic Operators
 

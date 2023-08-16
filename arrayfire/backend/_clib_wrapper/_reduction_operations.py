@@ -8,7 +8,7 @@ from arrayfire.backend._backend import _backend
 from ._error_handler import safe_call
 
 if TYPE_CHECKING:
-    from arrayfire.array_object import AFArrayType
+    from ._base import AFArrayType
 
 
 def count_all(x: AFArrayType) -> Union[int, float, complex]:
