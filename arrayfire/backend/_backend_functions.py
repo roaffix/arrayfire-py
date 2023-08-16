@@ -3,25 +3,25 @@ from __future__ import annotations
 import warnings
 from typing import TYPE_CHECKING, Union
 
-from .api import Backend, BackendPlatform, get_backend
-from .c_library.unsorted import get_backend_count as c_get_backend_count
-from .c_library.unsorted import get_backend_id as c_get_backend_id
-from .c_library.unsorted import get_device_id as c_get_device_id
-from .c_library.unsorted import get_size_of as c_get_size_of
-from .c_library.unsorted import set_backend as c_set_backend
+from ._backend import Backend, BackendType, get_backend
+from ._clib_wrapper._unsorted import get_backend_count as c_get_backend_count
+from ._clib_wrapper._unsorted import get_backend_id as c_get_backend_id
+from ._clib_wrapper._unsorted import get_device_id as c_get_device_id
+from ._clib_wrapper._unsorted import get_size_of as c_get_size_of
+from ._clib_wrapper._unsorted import set_backend as c_set_backend
 
 if TYPE_CHECKING:
     from arrayfire import Array
     from arrayfire.dtypes import Dtype
 
 
-def set_backend(platform: Union[BackendPlatform, str]) -> None:
+def set_backend(platform: Union[BackendType, str]) -> None:
     """
     Set a specific backend by platform name.
 
     Parameters
     ----------
-    platform : Union[BackendPlatform, str]
+    platform : Union[BackendType, str]
         Name of the backend platform to set.
 
     Raises
@@ -39,17 +39,17 @@ def set_backend(platform: Union[BackendPlatform, str]) -> None:
     current_active_platform = backend.platform
 
     if isinstance(platform, str):
-        if platform not in [d.name for d in BackendPlatform]:
+        if platform not in [d.name for d in BackendType]:
             raise ValueError(f"{platform} is not a valid name for backend platform.")
-        platform = BackendPlatform[platform]
+        platform = BackendType[platform]
 
-    if not isinstance(platform, BackendPlatform):
+    if not isinstance(platform, BackendType):
         raise TypeError(f"{platform} is not a valid type for backend platform.")
 
     if current_active_platform == platform:
         raise RuntimeError(f"{platform} is already the active backend platform.")
 
-    if backend.platform == BackendPlatform.unified:
+    if backend.platform == BackendType.unified:
         c_set_backend(platform.value)
 
     # NOTE keep in mind that this operation works in-place
@@ -76,7 +76,7 @@ def get_array_backend_name(array: Array) -> str:
     """
 
     id_ = c_get_backend_id(array.arr)
-    return BackendPlatform(id_).name
+    return BackendType(id_).name
 
 
 def get_backend_id(array: Array) -> str:
@@ -106,6 +106,7 @@ def get_active_backend() -> Backend:
         Current active backend.
     """
 
+    # TODO do not deprecate
     warnings.warn("A user has access explicitly only to the active backend.", DeprecationWarning)
     return get_backend()
 
@@ -120,6 +121,7 @@ def get_available_backends() -> Backend:
         Current active backend.
     """
 
+    # TODO do not deprecate
     warnings.warn(
         "A user has access explicitly only to the active backend. Thus returning only active backend.",
         DeprecationWarning,

@@ -1,11 +1,9 @@
-from typing import Any
-
 from arrayfire import Array
 from arrayfire.library import operators
 
 
 class TestArithmeticOperators:
-    def setup_method(self, method: Any) -> None:
+    def setup_method(self) -> None:
         self.array1 = Array([1, 2, 3])
         self.array2 = Array([4, 5, 6])
 

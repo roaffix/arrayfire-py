@@ -57,8 +57,8 @@ __all__ += [
     "set_backend",
 ]
 
-from .backend.api import get_backend
-from .backend.helpers import (
+from .backend._backend import get_backend
+from .backend._backend_functions import (
     get_active_backend,
     get_array_backend_name,
     get_array_device_id,
@@ -70,3 +70,7 @@ from .backend.helpers import (
     get_size_of,
     set_backend,
 )
+
+__all__ += ["add", "sub"]
+
+from .library.operators import add, sub

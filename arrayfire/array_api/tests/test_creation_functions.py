@@ -1,8 +1,8 @@
 import pytest
 
 from arrayfire.array_api import asarray
-from arrayfire.array_api.array_object import Array
-from arrayfire.array_api.constants import Device
+from arrayfire.array_api._array_object import Array
+from arrayfire.array_api._constants import Device
 from arrayfire.dtypes import float16
 
 

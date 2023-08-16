@@ -3,10 +3,10 @@ from __future__ import annotations
 import ctypes
 from typing import TYPE_CHECKING, Tuple, Union
 
-from arrayfire.backend.api import backend_api
+from arrayfire.backend._backend import _backend
 from arrayfire.dtypes import CShape, Dtype, implicit_dtype, int64, uint64
 
-from .error_handler import safe_call
+from ._error_handler import safe_call
 
 if TYPE_CHECKING:
     from arrayfire.array_object import AFArrayType
@@ -20,7 +20,7 @@ def _constant_complex(number: Union[int, float], shape: Tuple[int, ...], dtype: 
     c_shape = CShape(*shape)
 
     safe_call(
-        backend_api.af_constant_complex(
+        _backend.clib.af_constant_complex(
             ctypes.pointer(out),
             ctypes.c_double(number.real),
             ctypes.c_double(number.imag),
@@ -40,7 +40,7 @@ def _constant_long(number: Union[int, float], shape: Tuple[int, ...], dtype: Dty
     c_shape = CShape(*shape)
 
     safe_call(
-        backend_api.af_constant_long(
+        _backend.clib.af_constant_long(
             ctypes.pointer(out), ctypes.c_longlong(int(number.real)), 4, ctypes.pointer(c_shape.c_array)
         )
     )
@@ -51,12 +51,12 @@ def _constant_ulong(number: Union[int, float], shape: Tuple[int, ...], dtype: Dt
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#ga67af670cc9314589f8134019f5e68809
     """
-    # return backend_api.af_constant_ulong(arr, val, ndims, dims)
+    # return _backend.clib.af_constant_ulong(arr, val, ndims, dims)
     out = ctypes.c_void_p(0)
     c_shape = CShape(*shape)
 
     safe_call(
-        backend_api.af_constant_ulong(
+        _backend.clib.af_constant_ulong(
             ctypes.pointer(out), ctypes.c_ulonglong(int(number.real)), 4, ctypes.pointer(c_shape.c_array)
         )
     )
@@ -71,7 +71,7 @@ def _constant(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /
     c_shape = CShape(*shape)
 
     safe_call(
-        backend_api.af_constant(
+        _backend.clib.af_constant(
             ctypes.pointer(out), ctypes.c_double(number), 4, ctypes.pointer(c_shape.c_array), dtype.c_api_value
         )
     )

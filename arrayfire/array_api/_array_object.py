@@ -4,8 +4,8 @@ import types
 from typing import Any, Optional, Tuple, Union
 
 from arrayfire import Array as AFArray
-from arrayfire.array_api.constants import Device, NestedSequence, PyCapsule, SupportsBufferProtocol
-from arrayfire.array_api.dtypes import (
+from arrayfire.array_api._constants import Device, NestedSequence, PyCapsule, SupportsBufferProtocol
+from arrayfire.array_api._dtypes import (
     all_dtypes,
     boolean_dtypes,
     complex_floating_dtypes,

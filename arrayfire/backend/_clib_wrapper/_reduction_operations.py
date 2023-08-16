@@ -3,9 +3,9 @@ from __future__ import annotations
 import ctypes
 from typing import TYPE_CHECKING, Callable, Union
 
-from arrayfire.backend.api import backend_api
+from arrayfire.backend._backend import _backend
 
-from .error_handler import safe_call
+from ._error_handler import safe_call
 
 if TYPE_CHECKING:
     from arrayfire.array_object import AFArrayType
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 def count_all(x: AFArrayType) -> Union[int, float, complex]:
     # TODO reconsider original arith.count
-    return _reduce_all(x, backend_api.af_count_all)
+    return _reduce_all(x, _backend.clib.af_count_all)
 
 
 def _reduce_all(arr: AFArrayType, c_func: Callable) -> Union[int, float, complex]:

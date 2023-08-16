@@ -3,17 +3,23 @@ from __future__ import annotations
 import array as py_array
 import ctypes
 import enum
+from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple, Union
 
-from .backend import c_library as wrapper
-from .backend.c_library.indexing import CIndexStructure, IndexStructure
-from .backend.constants import ArrayBuffer
+from .backend import _clib_wrapper as wrapper
+from .backend._clib_wrapper._indexing import CIndexStructure, IndexStructure
 from .dtypes import CType, Dtype, c_api_value_to_dtype, float32, str_to_dtype
 from .library.device import PointerSource
 
 # TODO use int | float in operators -> remove bool | complex support
 
 AFArrayType = ctypes.c_void_p
+
+
+@dataclass(frozen=True)
+class _ArrayBuffer:
+    address: int
+    length: int = 0
 
 
 class Array:
@@ -49,15 +55,15 @@ class Array:
 
         if isinstance(obj, py_array.array):
             _type_char: str = obj.typecode
-            _array_buffer = ArrayBuffer(*obj.buffer_info())
+            _array_buffer = _ArrayBuffer(*obj.buffer_info())
 
         elif isinstance(obj, list):
             _array = py_array.array("f", obj)  # BUG [True, False] -> dtype: f32   # TODO add int and float
             _type_char = _array.typecode
-            _array_buffer = ArrayBuffer(*_array.buffer_info())
+            _array_buffer = _ArrayBuffer(*_array.buffer_info())
 
         elif isinstance(obj, int) or isinstance(obj, AFArrayType):
-            _array_buffer = ArrayBuffer(obj if not isinstance(obj, AFArrayType) else obj.value)  # type: ignore
+            _array_buffer = _ArrayBuffer(obj if not isinstance(obj, AFArrayType) else obj.value)  # type: ignore
 
             if not shape:
                 raise TypeError("Expected to receive the initial shape due to the obj being a data pointer.")

@@ -4,10 +4,10 @@ import ctypes
 import math
 from typing import Any, Union
 
-from arrayfire.backend.api import backend_api
+from arrayfire.backend._backend import _backend
 from arrayfire.library.broadcast import bcast_var
 
-from .error_handler import safe_call
+from ._error_handler import safe_call
 
 
 class _IndexSequence(ctypes.Structure):
@@ -225,7 +225,7 @@ class IndexStructure(ctypes.Structure):
             # converted to basic C types so we have to
             # build the void_p from the value again.
             arr = ctypes.c_void_p(self.idx.arr)
-            safe_call(backend_api.af_release_array(arr))
+            safe_call(_backend.clib.af_release_array(arr))
 
 
 class CIndexStructure:

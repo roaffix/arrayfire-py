@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING, Iterator
 import pytest
 
 from arrayfire import bool, int8, int16, int32, int64, uint64
-from arrayfire.array_api.creation_function import asarray
-from arrayfire.array_api.data_type_functions import result_type
-from arrayfire.array_api.dtypes import (
+from arrayfire.array_api._creation_function import asarray
+from arrayfire.array_api._data_type_functions import result_type
+from arrayfire.array_api._dtypes import (
     boolean_dtypes,
     complex_floating_dtypes,
     floating_dtypes,
@@ -19,7 +19,7 @@ from arrayfire.array_api.dtypes import (
 )
 
 if TYPE_CHECKING:
-    from arrayfire.array_api.array_object import Array
+    from arrayfire.array_api._array_object import Array
 
 
 def test_operators() -> None:

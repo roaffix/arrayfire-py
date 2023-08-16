@@ -4,15 +4,15 @@ __array_api_version__ = "2022.12"
 
 __all__ = ["__array_api_version__"]
 
-from .constants import Device
+from ._constants import Device
 
 __all__ += ["Device"]
 
-from .creation_function import asarray
+from ._creation_function import asarray
 
 __all__ += ["asarray"]
 
-from .dtypes import (
+from ._dtypes import (
     bool,
     complex64,
     complex128,

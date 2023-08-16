@@ -21,7 +21,7 @@ __all__ = [
     "neq",
 ]
 
-from .operators import (
+from ._operators import (
     add,
     bitand,
     bitnot,
@@ -70,7 +70,7 @@ __all__ += [
     "get_backend_id",
 ]
 
-from .unsorted import (
+from ._unsorted import (
     array_as_str,
     copy_array,
     create_array,
@@ -100,12 +100,12 @@ from .unsorted import (
 
 __all__ += ["safe_call"]
 
-from .error_handler import safe_call
+from ._error_handler import safe_call
 
 __all__ += ["count_all"]
 
-from .reduction_operations import count_all
+from ._reduction_operations import count_all
 
 __all__ += ["create_constant_array"]
 
-from .constant_array import create_constant_array
+from ._constant_array import create_constant_array
