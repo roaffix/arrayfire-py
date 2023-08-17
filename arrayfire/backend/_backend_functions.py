@@ -15,49 +15,49 @@ if TYPE_CHECKING:
     from arrayfire.dtypes import Dtype
 
 
-def set_backend(platform: Union[BackendType, str]) -> None:
+def set_backend(backend_type: Union[BackendType, str]) -> None:
     """
-    Set a specific backend by platform name.
+    Set a specific backend by backend_type name.
 
     Parameters
     ----------
-    platform : Union[BackendType, str]
-        Name of the backend platform to set.
+    backend_type : Union[BackendType, str]
+        Name of the backend backend_type to set.
 
     Raises
     ------
     ValueError
-        If the given platform name is not a valid name for backend platform.
+        If the given backend_type name is not a valid name for backend backend_type.
     TypeError
-        If the given platform is not a valid type for backend platform.
+        If the given backend_type is not a valid type for backend backend_type.
     RuntimeError
-        If the given platform is already the active backend platform.
+        If the given backend_type is already the active backend backend_type.
     RuntimeError
-        If the given platform could not be set as new backend platform.
+        If the given backend_type could not be set as new backend backend_type.
     """
     backend = get_backend()
-    current_active_platform = backend.platform
+    current_active_backend_type = backend.backend_type
 
-    if isinstance(platform, str):
-        if platform not in [d.name for d in BackendType]:
-            raise ValueError(f"{platform} is not a valid name for backend platform.")
-        platform = BackendType[platform]
+    if isinstance(backend_type, str):
+        if backend_type not in [d.name for d in BackendType]:
+            raise ValueError(f"{backend_type} is not a valid name for backend backend_type.")
+        backend_type = BackendType[backend_type]
 
-    if not isinstance(platform, BackendType):
-        raise TypeError(f"{platform} is not a valid type for backend platform.")
+    if not isinstance(backend_type, BackendType):
+        raise TypeError(f"{backend_type} is not a valid type for backend backend_type.")
 
-    if current_active_platform == platform:
-        raise RuntimeError(f"{platform} is already the active backend platform.")
+    if current_active_backend_type == backend_type:
+        raise RuntimeError(f"{backend_type} is already the active backend backend_type.")
 
-    if backend.platform == BackendType.unified:
-        c_set_backend(platform.value)
+    if backend.backend_type == BackendType.unified:
+        c_set_backend(backend_type.value)
 
     # NOTE keep in mind that this operation works in-place
     # FIXME should not access private API
-    backend._load_backend_lib(platform)
+    backend._load_backend_lib(backend_type)
 
-    if current_active_platform == backend.platform:
-        raise RuntimeError(f"Could not set {platform} as new backend platform. Consider checking logs.")
+    if current_active_backend_type == backend.backend_type:
+        raise RuntimeError(f"Could not set {backend_type} as new backend backend_type. Consider checking logs.")
 
 
 def get_array_backend_name(array: Array) -> str:

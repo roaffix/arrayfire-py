@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import array as py_array
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Tuple, Union
 
 from .backend import _clib_wrapper as wrapper
 from .dtypes import CType, Dtype, c_api_value_to_dtype, float32, str_to_dtype
@@ -19,6 +19,18 @@ if TYPE_CHECKING:
 class _ArrayBuffer:
     address: int
     length: int = 0
+
+
+class return_copy:
+    # TODO merge with process_c_function in array_object
+    def __init__(self, func: Callable) -> None:
+        self.func = func
+
+    def __call__(self, *x: Array) -> Array:
+        out = Array()
+        # import ipdb; ipdb.set_trace()
+        out.arr = self.func(*[item.arr for item in x])
+        return out
 
 
 class Array:
@@ -904,7 +916,7 @@ class Array:
         array = _reorder(self) if row_major else self
         return wrapper.get_data_ptr(array.arr, array.size, array.dtype)
 
-    def copy(self) -> Array:  # BUG: this is not a deep copy
+    def copy(self) -> Array:
         """
         Performs a deep copy of the array.
 
@@ -913,8 +925,8 @@ class Array:
         out: af.Array()
              An identical copy of self.
         """
-        self.arr = wrapper.copy_array(self.arr)
-        return self
+
+        return return_copy(wrapper.copy_array)(self)  # type: ignore[return-value]
 
     @classmethod
     def from_afarray(cls, array: wrapper.AFArrayType) -> None:
@@ -935,7 +947,7 @@ def _reorder(array: Array) -> Array:
 
 
 def _metadata_string(dtype: Dtype, dims: Optional[Tuple[int, ...]] = None) -> str:
-    return "arrayfire.Array()\n" f"Type: {dtype.typename}\n" f"Dims: {str(dims) if dims else ''}"
+    return "arrayfire.Array()\n" f"Type: {dtype.name}\n" f"Dims: {str(dims) if dims else ''}"
 
 
 def _process_c_function(lhs: Union[int, float, Array], rhs: Union[int, float, Array], c_function: Any) -> Array:

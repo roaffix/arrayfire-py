@@ -22,7 +22,7 @@ from arrayfire.dtypes import Dtype, float32, int16
         (Array(shape=(2, 3)), float32, 2, 6, (2, 3), 2),
         (Array([1, 2, 3]), float32, 1, 3, (3,), 3),
         (Array(pyarray.array("f", [1, 2, 3])), float32, 1, 3, (3,), 3),
-        (Array([1], shape=(1,), dtype=float32), float32, 1, 1, (1,), 1),  # BUG
+        (Array([1], shape=(1,), dtype=float32), float32, 1, 1, (1,), 1),
         (Array(Array([1])), float32, 1, 1, (1,), 1),
     ],
 )

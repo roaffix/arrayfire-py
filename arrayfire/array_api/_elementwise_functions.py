@@ -6,7 +6,7 @@ from ._array_object import Array
 
 
 def abs(x: Array, /) -> Array:
-    return NotImplemented
+    return Array._new(operators.abs(x._array))
 
 
 def acos(x: Array, /) -> Array:
@@ -42,11 +42,11 @@ def atanh(x: Array, /) -> Array:
 
 
 def bitwise_and(x1: Array, x2: Array, /) -> Array:
-    return NotImplemented
+    return Array._new(operators.bitand(x1._array, x2._array))
 
 
 def bitwise_left_shift(x1: Array, x2: Array, /) -> Array:
-    return NotImplemented
+    return Array._new(operators.bitshiftl(x1._array, x2._array))
 
 
 def bitwise_invert(x: Array, /) -> Array:
@@ -189,9 +189,8 @@ def positive(x: Array, /) -> Array:
     return NotImplemented
 
 
-# Note: the function name is different here
 def pow(x1: Array, x2: Array, /) -> Array:
-    return NotImplemented
+    return Array._new(operators.pow(x1._array, x2._array))
 
 
 def real(x: Array, /) -> Array:

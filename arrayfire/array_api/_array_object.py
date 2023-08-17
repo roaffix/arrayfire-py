@@ -165,6 +165,25 @@ class Array:
         obj._array = x  # type: ignore[assignment]
         return obj
 
+    def __str__(self: Array, /) -> str:
+        """
+        Performs the operation __str__.
+        """
+        return self._array.__str__()#.replace("array", "Array")
+
+    # def __repr__(self: Array, /) -> str:
+    #     """
+    #     Performs the operation __repr__.
+    #     """
+    #     suffix = f", dtype={self.dtype.name})"
+    #     if 0 in self.shape:
+    #         prefix = "empty("
+    #         mid = str(self.shape)
+    #     else:
+    #         prefix = "Array("
+    #         mid = np.array2string(self._array, separator=', ', prefix=prefix, suffix=suffix)
+    #     return prefix + mid + suffix
+
     def __abs__(self: Array, /) -> Array:
         """
         Performs the operation __abs__.
