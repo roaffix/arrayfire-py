@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import ctypes
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Callable
 
 from arrayfire.backend._backend import _backend
 from arrayfire.library.broadcast import bcast_var
@@ -91,7 +91,7 @@ def bitshiftl(lhs: AFArrayType, rhs: AFArrayType, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__arith__func__shiftl.htm#ga3139645aafe6f045a5cab454e9c13137
     """
-    return _binary_op(_backend.clib.af_butshiftl, lhs, rhs)
+    return _binary_op(_backend.clib.af_bitshiftl, lhs, rhs)
 
 
 def bitshiftr(lhs: AFArrayType, rhs: AFArrayType, /) -> AFArrayType:
@@ -282,14 +282,18 @@ def atan2(lhs: AFArrayType, rhs: AFArrayType, /) -> AFArrayType:
     return _binary_op(_backend.clib.af_atan2, lhs, rhs)
 
 
-def cplx(lhs: AFArrayType, rhs: Optional[AFArrayType], /) -> AFArrayType:
+def cplx1(arr: AFArrayType, /) -> AFArrayType:
     """
     source:
     """
-    if rhs is None:
-        return _unary_op(_backend.clib.af_cplx, lhs)
-    else:
-        return _binary_op(_backend.clib.af_cplx2, lhs, rhs)
+    return _unary_op(_backend.clib.af_cplx, arr)
+
+
+def cplx2(lhs: AFArrayType, rhs: AFArrayType, /) -> AFArrayType:
+    """
+    source:
+    """
+    return _binary_op(_backend.clib.af_cplx2, lhs, rhs)
 
 
 def real(arr: AFArrayType, /) -> AFArrayType:

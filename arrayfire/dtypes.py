@@ -59,6 +59,10 @@ supported_dtypes = (
 )
 
 
+def is_complex_dtype(dtype: Dtype) -> _python_bool:
+    return dtype in {complex64, complex128}
+
+
 c_dim_t = ctypes.c_int if is_arch_x86() else ctypes.c_longlong
 ShapeType = Tuple[int, ...]
 

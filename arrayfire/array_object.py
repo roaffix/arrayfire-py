@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Tuple, Union
 
 from .backend import _clib_wrapper as wrapper
-from .dtypes import CType, Dtype, c_api_value_to_dtype, float32, str_to_dtype
+from .dtypes import CType, Dtype, c_api_value_to_dtype, float32, str_to_dtype, float64
 from .library.device import PointerSource
 
 if TYPE_CHECKING:
@@ -28,8 +28,7 @@ class return_copy:
 
     def __call__(self, *x: Array) -> Array:
         out = Array()
-        # import ipdb; ipdb.set_trace()
-        out.arr = self.func(*[item.arr for item in x])
+        out.arr = self.func(*x)
         return out
 
 
@@ -69,7 +68,15 @@ class Array:
             _array_buffer = _ArrayBuffer(*obj.buffer_info())
 
         elif isinstance(obj, list):
-            _array = py_array.array("f", obj)  # BUG [True, False] -> dtype: f32   # TODO add int and float
+            # TODO fix an issue when Array can not be created from float values to complex
+            if _no_initial_dtype:
+                arr_typecode = "f"
+            elif dtype.typecode in py_array.typecodes:
+                arr_typecode = dtype.typecode
+            else:
+                raise TypeError(f"Unsupported typecode. Can not create a python array from '{repr(dtype)}'")
+
+            _array = py_array.array(arr_typecode, obj)
             _type_char = _array.typecode
             _array_buffer = _ArrayBuffer(*_array.buffer_info())
 

@@ -44,9 +44,9 @@ def asarray(
     else:
         raise ValueError(f"Unsupported device {device!r}")
 
-    if isinstance(obj, int | float):
-        afarray = AFArray([obj], dtype=dtype, shape=(1,), to_device=to_device)
-        return Array._new(afarray)
+    # if isinstance(obj, int | float):
+    #     afarray = AFArray([obj], dtype=dtype, shape=(1,), to_device=to_device)
+    #     return Array._new(afarray)
 
     afarray = AFArray(obj, dtype=dtype, to_device=to_device)
     return Array._new(afarray)

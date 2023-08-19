@@ -4,7 +4,7 @@ import ctypes
 from typing import TYPE_CHECKING, Tuple, Union
 
 from arrayfire.backend._backend import _backend
-from arrayfire.dtypes import CShape, Dtype, implicit_dtype, int64, uint64
+from arrayfire.dtypes import CShape, Dtype, implicit_dtype, int64, uint64, is_complex_dtype, complex64, complex128
 
 from ._error_handler import safe_call
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ._base import AFArrayType
 
 
-def _constant_complex(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
+def _constant_complex(number: Union[int, float, complex], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#ga5a083b1f3cd8a72a41f151de3bdea1a2
     """
@@ -78,14 +78,11 @@ def _constant(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /
     return out
 
 
-def create_constant_array(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
+def create_constant_array(number: Union[int, float, complex], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     dtype = implicit_dtype(number, dtype)
 
-    # NOTE complex is not supported in Data API
-    # if isinstance(number, complex):
-    #     if dtype != complex64 and dtype != complex128:
-    #         dtype = complex64
-    #     return _constant_complex(number, shape, dtype)
+    if isinstance(number, complex):
+        return _constant_complex(number, shape, dtype if is_complex_dtype(dtype) else complex64)
 
     if dtype == int64:
         return _constant_long(number, shape, dtype)
