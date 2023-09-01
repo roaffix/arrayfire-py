@@ -1,4 +1,5 @@
 import ctypes
+from typing import Union
 
 import pytest
 
@@ -35,7 +36,7 @@ def test_dtype_inequality() -> None:
         (1 + 2j, complex128, complex128),
     ],
 )
-def test_implicit_dtype(number: int | float | bool | complex, array_dtype: Dtype, expected_dtype: Dtype) -> None:
+def test_implicit_dtype(number: Union[int, float, bool, complex], array_dtype: Dtype, expected_dtype: Dtype) -> None:
     result_dtype = implicit_dtype(number, array_dtype)
     assert result_dtype == expected_dtype
 

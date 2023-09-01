@@ -5,13 +5,9 @@ import pytest
 
 from arrayfire import Array
 from arrayfire.dtypes import bool as af_bool
+from tests._helpers import round_to
 
 Operator = Callable[[Union[int, float, Array], Union[int, float, Array]], Array]
-
-
-def _round(list_: List[Union[int, float]], symbols: int = 3) -> List[Union[int, float]]:
-    # HACK replace for e.g. abs(x1-x2) < 1e-6 ~ https://davidamos.dev/the-right-way-to-compare-floats-in-python/
-    return [round(x, symbols) for x in list_]
 
 
 def pytest_generate_tests(metafunc: Any) -> None:
@@ -77,8 +73,8 @@ def test_arithmetic_operators(
     ires = iop(array, operand)
     rres = op(operand, array)
 
-    assert _round(res.to_list()) == _round(ires.to_list()) == _round(ref)
-    assert _round(rres.to_list()) == _round(rref)
+    assert round_to(res.to_list()) == round_to(ires.to_list()) == round_to(ref)
+    assert round_to(rres.to_list()) == round_to(rref)
 
     assert res.dtype == ires.dtype == rres.dtype
     assert res.ndim == ires.ndim == rres.ndim

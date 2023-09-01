@@ -183,6 +183,7 @@ __all__ += [
     "get_device_id",
     "get_size_of",
     "get_backend_id",
+    "af_range"
 ]
 
 from ._unsorted import (
@@ -211,6 +212,7 @@ from ._unsorted import (
     set_backend,
     transpose,
     where,
+    af_range
 )
 
 __all__ += ["safe_call"]

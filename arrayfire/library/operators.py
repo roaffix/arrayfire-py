@@ -448,6 +448,6 @@ def _check_operands_fit_requirements(x1: Union[int, float, Array], x2: Union[int
 
 
 def _check_array_values_not_complex(x: Array) -> None:
-    # if is_complex_dtype(x.dtype):
-    #     raise TypeError("Values of an Array should not be the complex numbers.")
+    if is_complex_dtype(x.dtype):
+        raise TypeError("Values of an Array should not be the complex numbers.")
     pass

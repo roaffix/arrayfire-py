@@ -115,6 +115,7 @@ class BackendType(enum.Enum):  # TODO change name - avoid using _backend_type - 
     cpu = 1
     cuda = 2
     opencl = 4
+    oneapi = 8
 
     def __iter__(self) -> Iterator:
         # NOTE cpu comes last because we want to keep this order priorty during backend initialization

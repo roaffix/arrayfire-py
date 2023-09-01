@@ -27,7 +27,7 @@ class Array:
             "Use an array creation function, such as asarray(), instead."
         )
 
-    def _check_allowed_dtypes(self, other: bool | int | float | Array, dtype_category: str, op: str) -> Array:
+    def _check_allowed_dtypes(self, other: Union[bool, int, float, Array], dtype_category: str, op: str) -> Array:
         """
         Helper function for operators to only allow specific input dtypes
 
