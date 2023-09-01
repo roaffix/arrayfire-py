@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, cast
 
 from .backend import _clib_wrapper as wrapper
-from .dtypes import CType, Dtype, c_api_value_to_dtype, float32, float64, str_to_dtype
+from .dtypes import CType, Dtype, c_api_value_to_dtype, float32, str_to_dtype
 from .library.device import PointerSource
 
 if TYPE_CHECKING:

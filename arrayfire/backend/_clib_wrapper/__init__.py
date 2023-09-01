@@ -176,23 +176,26 @@ __all__ += [
     "reorder",
     "array_as_str",
     "where",
-    "randu",
     "get_last_error",
     "set_backend",
     "get_backend_count",
     "get_device_id",
     "get_size_of",
     "get_backend_id",
-    "af_range"
+    "af_range",
+    "identity",
+    "flat",
 ]
 
 from ._unsorted import (
+    af_range,
     array_as_str,
     copy_array,
     create_array,
     create_handle,
     create_strided_array,
     device_array,
+    flat,
     get_backend_count,
     get_backend_id,
     get_ctype,
@@ -204,15 +207,14 @@ from ._unsorted import (
     get_numdims,
     get_scalar,
     get_size_of,
+    identity,
     index_gen,
     is_empty,
-    randu,
     reorder,
     retain_array,
     set_backend,
     transpose,
     where,
-    af_range
 )
 
 __all__ += ["safe_call"]
@@ -229,3 +231,15 @@ from ._constant_array import create_constant_array
 
 __all__ += ["get_indices"]
 from ._indexing import get_indices
+
+__all__ += ["create_random_engine", "release_random_engine", "AFRandomEngine"]
+from ._random import (
+    AFRandomEngine,
+    create_random_engine,
+    random_engine_get_type,
+    random_engine_set_type,
+    release_random_engine,
+    random_engine_set_seed,
+    random_engine_get_seed,
+    randu, random_uniform
+)

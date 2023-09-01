@@ -268,16 +268,6 @@ def where(arr: AFArrayType) -> AFArrayType:
     return out
 
 
-def randu(shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
-    """
-    source: https://arrayfire.org/docs/group__random__func__randu.htm#ga412e2c2f5135bdda218c3487c487d3b5
-    """
-    out = ctypes.c_void_p(0)
-    c_shape = CShape(*shape)
-    safe_call(_backend.clib.af_randu(ctypes.pointer(out), *c_shape, dtype.c_api_value))
-    return out
-
-
 def af_range(shape: Tuple[int, ...], axis: int, dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__data__func__range.htm#gadd6c9b479692454670a51e00ea5b26d5
@@ -285,6 +275,25 @@ def af_range(shape: Tuple[int, ...], axis: int, dtype: Dtype, /) -> AFArrayType:
     out = ctypes.c_void_p(0)
     c_shape = CShape(*shape)
     safe_call(_backend.clib.af_range(ctypes.pointer(out), 4, c_shape.c_array, axis, dtype.c_api_value))
+    return out
+
+
+def identity(shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
+    """
+    source:
+    """
+    out = ctypes.c_void_p(0)
+    c_shape = CShape(*shape)
+    safe_call(_backend.clib.af_identity(ctypes.pointer(out), 4, c_shape.c_array, dtype.c_api_value))
+    return out
+
+
+def flat(arr: AFArrayType) -> AFArrayType:
+    """
+    source: https://arrayfire.org/docs/group__manip__func__flat.htm#gac6dfb22cbd3b151ddffb9a4ddf74455e
+    """
+    out = ctypes.c_void_p(0)
+    safe_call(_backend.clib.af_flat(ctypes.pointer(out), arr))
     return out
 
 

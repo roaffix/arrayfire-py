@@ -226,7 +226,9 @@ from .library.operators import (
 
 __all__ += [
     "constant",
-    "range"
+    "range",
+    "identity",
+    "flat"
 ]
 
-from arrayfire.library.data import constant, range
+from arrayfire.library.data import constant, range, identity, flat
