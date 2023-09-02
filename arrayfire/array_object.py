@@ -817,6 +817,7 @@ class Array:
 
         indices = wrapper.get_indices(key)
         out.arr = wrapper.assign_gen(self.arr, other_arr, ndims, indices)
+
         wrapper.release_array(self.arr)
         if del_other:
             wrapper.release_array(other_arr)
@@ -1070,7 +1071,9 @@ def _index_to_afindex(key: int | float | complex | bool | slice | wrapper.Parall
         out = _slice_to_length(key.S, dim)
     elif isinstance(key, Array):
         if key.dtype == afbool:
-            out = int(sum(key))  # FIXME af.sum
+            from arrayfire.library.vector_algorithms import sum as af_sum
+
+            out = int(af_sum(key))
         else:
             out = key.size
     else:

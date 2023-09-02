@@ -68,12 +68,38 @@ def any_true(array: Array, axis: int | None = None) -> bool | Array:
     return _reduce_to_array(wrapper.any_true, array, axis)
 
 
-def sum(array: Array, /, *, axis: int | None = None, nan_value: float | None = None) -> bool | Array:
+def sum(array: Array, /, *, axis: int | None = None, nan_value: float | None = None) -> int | float | complex | Array:
+    """
+    Calculate the sum of elements along a specified dimension or the entire array.
+
+    Parameters
+    ----------
+    array : Array
+        Multi-dimensional array to calculate the sum of.
+
+    axis : int or None, optional, default: None
+        The dimension along which the sum is calculated.
+        If None, the sum of all elements in the entire array is calculated.
+
+    nan_value : float or None, optional, default: None
+        The value to replace NaN (Not-a-Number) values in the array before summing. If None, NaN values are ignored.
+
+    Returns
+    -------
+    result : Array or bool or scalar
+        - If `axis` is None and `nan_value` is None, returns a boolean indicating if the sum contains NaN or Inf.
+        - If `axis` is None and `nan_value` is not None, returns a boolean indicating if the sum contains NaN or
+            Inf after replacing NaN values.
+        - If `axis` is not None, returns an Array containing the sum along the specified dimension.
+        - If `axis` is not None and `nan_value` is not None, returns an Array containing the sum along the specified
+            dimension after replacing NaN values.
+    """
+
     if axis is None:
         if nan_value is None:
-            return bool(wrapper.sum_all(array.arr))
+            return wrapper.sum_all(array.arr)
 
-        return bool(wrapper.sum_nan_all(array.arr, nan_value))
+        return wrapper.sum_nan_all(array.arr, nan_value)
 
     if nan_value is None:
         return _reduce_to_array(wrapper.sum, array, axis)

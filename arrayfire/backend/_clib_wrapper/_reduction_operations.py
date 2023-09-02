@@ -77,7 +77,7 @@ def sum_all(arr: AFArrayType, /) -> complex:
     """
     real = ctypes.c_double(0)
     imag = ctypes.c_double(0)
-    safe_call(_backend.clib.sum_all(ctypes.pointer(real), ctypes.pointer(imag), arr))
+    safe_call(_backend.clib.af_sum_all(ctypes.pointer(real), ctypes.pointer(imag), arr))
     return real.value  # NOTE imag is always set to 0 in C library
 
 
@@ -96,5 +96,5 @@ def sum_nan_all(arr: AFArrayType, nan_value: float, /) -> complex:
     """
     real = ctypes.c_double(0)
     imag = ctypes.c_double(0)
-    safe_call(_backend.clib.sum_all(ctypes.pointer(real), ctypes.pointer(imag), arr, ctypes.c_double(nan_value)))
+    safe_call(_backend.clib.af_sum_all(ctypes.pointer(real), ctypes.pointer(imag), arr, ctypes.c_double(nan_value)))
     return real.value  # NOTE imag is always set to 0 in C library
