@@ -80,7 +80,7 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Scientific/Engineering :: Information Analysis",
@@ -92,6 +92,6 @@ setup(
     install_requires=install_requirements,
     extras_require=extras,
     include_package_data=True,
-    python_requires=">=3.8.0",
+    python_requires=">=3.10.0",
     zip_safe=False,
 )

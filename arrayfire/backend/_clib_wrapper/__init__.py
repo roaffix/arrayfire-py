@@ -219,7 +219,7 @@ from ._unsorted import (
     retain_array,
     set_backend,
     transpose,
-    where,
+    where, get_device, sync
 )
 
 __all__ += ["safe_call"]

@@ -78,7 +78,8 @@ def _constant(number: int | float, shape: tuple[int, ...], dtype: Dtype, /) -> A
 
 
 def create_constant_array(number: int | float | complex, shape: tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
-    dtype = implicit_dtype(number, dtype)
+    if not dtype:
+        dtype = implicit_dtype(number, dtype)
 
     if isinstance(number, complex):
         return _constant_complex(number, shape, dtype if is_complex_dtype(dtype) else complex64)

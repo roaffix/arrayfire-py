@@ -122,7 +122,7 @@ def get_ctype(arr: AFArrayType) -> int:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga0dda6898e1c0d9a43efb56cd6a988c9b
     """
-    out = ctypes.c_int()
+    out = ctypes.c_int(0)
 
     safe_call(_backend.clib.af_get_type(ctypes.pointer(out), arr))
     return out.value
@@ -347,6 +347,26 @@ def get_last_error() -> ctypes.c_char_p:
     out = ctypes.c_char_p(0)
     _backend.clib.af_get_last_error(ctypes.pointer(out), ctypes.pointer(c_dim_t(0)))
     return out
+
+
+# Device
+
+
+# FIXME
+def sync(device_id: int) -> None:
+    """
+    source: https://arrayfire.org/docs/group__device__func__sync.htm#ga9dbc7f1e99d70170ad567c480b6ddbde
+    """
+    safe_call(_backend.clib.af_sync(device_id))
+
+
+def get_device() -> int:
+    """
+    source: https://arrayfire.org/docs/group__device__func__set.htm#ga54120b126cfcb1b0b3ee25e0fc66b8a4
+    """
+    out = ctypes.c_int(0)
+    safe_call(_backend.clib.af_get_device(ctypes.pointer(out)))
+    return out.value
 
 
 # Backend
