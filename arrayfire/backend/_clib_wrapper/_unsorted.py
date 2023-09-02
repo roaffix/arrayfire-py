@@ -288,13 +288,32 @@ def identity(shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     return out
 
 
-def flat(arr: AFArrayType) -> AFArrayType:
+def flat(arr: AFArrayType, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__manip__func__flat.htm#gac6dfb22cbd3b151ddffb9a4ddf74455e
     """
     out = ctypes.c_void_p(0)
     safe_call(_backend.clib.af_flat(ctypes.pointer(out), arr))
     return out
+
+
+def all_true(arr: AFArrayType, axis: int, /) -> AFArrayType:
+    """
+    source: https://arrayfire.org/docs/group__reduce__func__all__true.htm#ga068708be5177a0aa3788af140bb5ebd6
+    """
+    out = ctypes.c_void_p(0)
+    safe_call(_backend.clib.af_all_true(ctypes.pointer(out), arr, axis))
+    return out
+
+
+def all_true_all(arr: AFArrayType, /) -> complex:
+    """
+    source: https://arrayfire.org/docs/group__reduce__func__all__true.htm#ga068708be5177a0aa3788af140bb5ebd6
+    """
+    real = ctypes.c_double(0)
+    imag = ctypes.c_double(0)
+    safe_call(_backend.clib.af_all_true(ctypes.pointer(real), ctypes.pointer(imag), arr))
+    return real.value  # NOTE imag is always set to 0 in C library
 
 
 # Safe Call Wrapper

@@ -707,9 +707,9 @@ class Array:
         # TODO
         return NotImplemented
 
-    def __bool__(self) -> bool:
-        # TODO consider using scalar() and is_scalar()
-        return NotImplemented
+    # def __bool__(self) -> bool:
+    #     # TODO consider using scalar() and is_scalar()
+    #     return NotImplemented
 
     def __complex__(self) -> complex:
         # TODO

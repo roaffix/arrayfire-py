@@ -169,7 +169,7 @@ class Array:
         """
         Performs the operation __str__.
         """
-        return self._array.__str__()#.replace("array", "Array")
+        return self._array.__str__()  # .replace("array", "Array")
 
     # def __repr__(self: Array, /) -> str:
     #     """

@@ -1,13 +1,12 @@
 from inspect import getfullargspec
-from typing import Callable, Iterator, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Iterator
 
 import pytest
 
 from .. import _elementwise_functions, asarray
-from .._dtypes import boolean_dtypes, dtype_categories, floating_dtypes, integer_dtypes, int8, real_floating_dtypes, int8
-from .._elementwise_functions import bitwise_left_shift, bitwise_right_shift
 from .._array_object import Array
-
+from .._dtypes import boolean_dtypes, dtype_categories, floating_dtypes, int8, integer_dtypes, real_floating_dtypes
+from .._elementwise_functions import bitwise_left_shift, bitwise_right_shift
 
 
 def nargs(func: Callable) -> int:

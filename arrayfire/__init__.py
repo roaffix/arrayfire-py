@@ -223,12 +223,6 @@ from .library.operators import (
     trunc,
 )
 
+__all__ += ["constant", "range", "identity", "flat"]
 
-__all__ += [
-    "constant",
-    "range",
-    "identity",
-    "flat"
-]
-
-from arrayfire.library.data import constant, range, identity, flat
+from arrayfire.library.data import constant, flat, identity, range

@@ -55,7 +55,7 @@ supported_dtypes = (
     complex64,
     complex128,
     bool,
-    int8  # BUG if place on top of the list
+    int8,  # BUG if place on top of the list
 )
 
 

@@ -4,7 +4,7 @@ import ctypes
 from typing import TYPE_CHECKING, Tuple, Union
 
 from arrayfire.backend._backend import _backend
-from arrayfire.dtypes import CShape, Dtype, implicit_dtype, int64, uint64, is_complex_dtype, complex64, complex128
+from arrayfire.dtypes import CShape, Dtype, complex64, implicit_dtype, int64, is_complex_dtype, uint64
 
 from ._error_handler import safe_call
 
@@ -51,7 +51,6 @@ def _constant_ulong(number: Union[int, float], shape: Tuple[int, ...], dtype: Dt
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#ga67af670cc9314589f8134019f5e68809
     """
-    # return _backend.clib.af_constant_ulong(arr, val, ndims, dims)
     out = ctypes.c_void_p(0)
     c_shape = CShape(*shape)
 

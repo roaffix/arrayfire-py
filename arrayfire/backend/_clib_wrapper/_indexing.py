@@ -2,15 +2,12 @@ from __future__ import annotations
 
 import ctypes
 import math
-from typing import TYPE_CHECKING, Any, Tuple, Union
+from typing import Any, Tuple, Union
 
 from arrayfire.backend._backend import _backend
 from arrayfire.library.broadcast import bcast_var
 
 from ._error_handler import safe_call
-
-if TYPE_CHECKING:
-    from arrayfire import Array
 
 
 class _IndexSequence(ctypes.Structure):
