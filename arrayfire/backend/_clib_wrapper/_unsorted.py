@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import ctypes
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
+from typing import cast as typing_cast
 
 from arrayfire.backend._backend import _backend
 from arrayfire.dtypes import CShape, CType, Dtype, c_dim_t, to_str
@@ -162,13 +163,29 @@ def get_dims(arr: AFArrayType) -> tuple[int, ...]:
     return (d0.value, d1.value, d2.value, d3.value)
 
 
+def get_strides(arr: AFArrayType) -> tuple[int, ...]:
+    """
+    source: https://arrayfire.org/docs/group__internal__func__strides.htm#gaff91b376156ce0ad7180af6e68faab51
+    """
+    s0 = c_dim_t(0)
+    s1 = c_dim_t(0)
+    s2 = c_dim_t(0)
+    s3 = c_dim_t(0)
+    safe_call(
+        _backend.clib.af_get_strides(
+            ctypes.pointer(s0), ctypes.pointer(s1), ctypes.pointer(s2), ctypes.pointer(s3), arr
+        )
+    )
+    return (s0.value, s1.value, s2.value, s3.value)
+
+
 def get_scalar(arr: AFArrayType, dtype: Dtype, /) -> int | float | complex | bool | None:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#gaefe2e343a74a84bd43b588218ecc09a3
     """
     out = dtype.c_type()
     safe_call(_backend.clib.af_get_scalar(ctypes.pointer(out), arr))
-    return cast(int | float | complex | bool | None, out.value)
+    return typing_cast(int | float | complex | bool | None, out.value)
 
 
 def is_empty(arr: AFArrayType) -> bool:
@@ -199,13 +216,21 @@ def copy_array(arr: AFArrayType) -> AFArrayType:
     return out
 
 
+def cast(arr: AFArrayType, dtype: Dtype, /) -> AFArrayType:
+    """
+    source: https://arrayfire.org/docs/group__arith__func__cast.htm#gab0cb307d6f9019ac8cbbbe9b8a4d6b9b
+    """
+    out = ctypes.c_void_p(0)
+    safe_call(_backend.clib.af_cast(ctypes.pointer(out), arr, dtype.c_api_value))
+    return out
+
+
 # Arrayfire Functions
 
 
 def index_gen(
     arr: AFArrayType,
     ndims: int,
-    key: int | slice | tuple[int | slice, ...],
     indices: Any,
     /,
 ) -> AFArrayType:
@@ -287,23 +312,29 @@ def flat(arr: AFArrayType, /) -> AFArrayType:
     return out
 
 
-def all_true(arr: AFArrayType, axis: int, /) -> AFArrayType:
+def assign_gen(lhs: AFArrayType, rhs: AFArrayType, ndims: int, indices: Any, /) -> AFArrayType:
     """
-    source: https://arrayfire.org/docs/group__reduce__func__all__true.htm#ga068708be5177a0aa3788af140bb5ebd6
+    source: https://arrayfire.org/docs/group__index__func__assign.htm#ga93cd5199c647dce0e3b823f063b352ae
     """
     out = ctypes.c_void_p(0)
-    safe_call(_backend.clib.af_all_true(ctypes.pointer(out), arr, axis))
+    safe_call(_backend.clib.af_assign_gen(ctypes.pointer(out), lhs, ndims, indices.pointer, rhs))
     return out
 
 
-def all_true_all(arr: AFArrayType, /) -> complex:
+def release_array(arr: AFArrayType, /) -> None:
     """
-    source: https://arrayfire.org/docs/group__reduce__func__all__true.htm#ga068708be5177a0aa3788af140bb5ebd6
+    source: https://arrayfire.org/docs/group__c__api__mat.htm#gad6c58648ed0db398e170dabf045e8309
     """
-    real = ctypes.c_double(0)
-    imag = ctypes.c_double(0)
-    safe_call(_backend.clib.af_all_true(ctypes.pointer(real), ctypes.pointer(imag), arr))
-    return real.value  # NOTE imag is always set to 0 in C library
+    safe_call(_backend.clib.af_release_array(arr))
+
+
+def get_offset(arr: AFArrayType, /) -> int:
+    """
+    source: https://arrayfire.org/docs/group__internal__func__offset.htm#ga303cb334026bdb5cab86e038951d6a5a
+    """
+    out = c_dim_t(0)
+    safe_call(_backend.clib.af_get_offset(ctypes.pointer(out), arr))
+    return out.value
 
 
 # Safe Call Wrapper

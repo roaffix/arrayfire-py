@@ -189,9 +189,9 @@ __all__ += [
 
 from ._unsorted import (
     af_range,
-    all_true,
-    all_true_all,
     array_as_str,
+    assign_gen,
+    cast,
     copy_array,
     create_array,
     create_handle,
@@ -207,11 +207,14 @@ from ._unsorted import (
     get_elements,
     get_last_error,
     get_numdims,
+    get_offset,
     get_scalar,
     get_size_of,
+    get_strides,
     identity,
     index_gen,
     is_empty,
+    release_array,
     reorder,
     retain_array,
     set_backend,
@@ -225,14 +228,24 @@ from ._error_handler import safe_call
 
 __all__ += ["count_all"]
 
-from ._reduction_operations import count_all
+from ._reduction_operations import (
+    all_true,
+    all_true_all,
+    any_true,
+    any_true_all,
+    count_all,
+    sum,
+    sum_all,
+    sum_nan,
+    sum_nan_all,
+)
 
 __all__ += ["create_constant_array"]
 
 from ._constant_array import create_constant_array
 
 __all__ += ["get_indices"]
-from ._indexing import get_indices
+from ._indexing import ParallelRange, get_indices
 
 __all__ += ["create_random_engine", "release_random_engine", "AFRandomEngine"]
 from ._random import (

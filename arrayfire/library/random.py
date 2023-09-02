@@ -4,7 +4,7 @@ from enum import Enum
 from typing import cast
 
 from arrayfire import Array
-from arrayfire._array_helpers import afarray_as_array
+from arrayfire.array_object import afarray_as_array
 from arrayfire.backend import _clib_wrapper as wrapper
 from arrayfire.dtypes import Dtype, float32
 

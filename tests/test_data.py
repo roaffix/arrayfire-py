@@ -3,7 +3,7 @@ import pytest
 from arrayfire import Array
 from arrayfire.dtypes import int64
 from arrayfire.library import data, random
-from arrayfire.library.utils import all_true
+from arrayfire.library.vector_algorithms import all_true
 
 # Test cases for the constant function
 

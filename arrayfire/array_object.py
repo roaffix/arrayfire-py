@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import array as py_array
+import ctypes
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ParamSpec, cast
 
 from .backend import _clib_wrapper as wrapper
-from .dtypes import CType, Dtype, c_api_value_to_dtype, float32, str_to_dtype
+from .dtypes import CType, Dtype
+from .dtypes import bool as afbool
+from .dtypes import c_api_value_to_dtype, float32, str_to_dtype
 from .library.device import PointerSource
 
 if TYPE_CHECKING:
@@ -22,15 +25,31 @@ class _ArrayBuffer:
     length: int = 0
 
 
-class return_copy:
-    # TODO merge with process_c_function in array_object
-    def __init__(self, func: Callable) -> None:
-        self.func = func
+P = ParamSpec("P")
 
-    def __call__(self, *x: Array) -> Array:
+
+def afarray_as_array(func: Callable[P, Array]) -> Callable[P, Array]:
+    """
+    Decorator that converts a function returning an array to return an ArrayFire Array.
+
+    Parameters
+    ----------
+    func : Callable[P, Array]
+        The original function that returns an array.
+
+    Returns
+    -------
+    Callable[P, Array]
+        A decorated function that returns an ArrayFire Array.
+    """
+
+    def decorated(*args: P.args, **kwargs: P.kwargs) -> Array:
         out = Array()
-        out.arr = self.func(*x)
+        result = func(*args, **kwargs)
+        out.arr = result  # type: ignore[assignment]
         return out
+
+    return decorated
 
 
 class Array:
@@ -43,6 +62,7 @@ class Array:
         offset: CType | None = None,
         strides: tuple[int, ...] | None = None,
     ) -> None:
+        self.arr = ctypes.c_void_p(0)  # FIXME
         _no_initial_dtype = False  # HACK, FIXME
 
         if isinstance(dtype, str):
@@ -744,22 +764,19 @@ class Array:
         out : Array
             An array containing the accessed value(s). The returned array must have the same data type as self.
         """
-
-        from .dtypes import bool
-
         # TODO
         # API Specification - key: Union[int, slice, ellipsis, tuple[Union[int, slice, ellipsis], ...], array].
         # consider using af.span to replace ellipsis during refactoring
         out = Array()
         ndims = self.ndim
 
-        if isinstance(key, Array) and key == bool.c_api_value:
+        if isinstance(key, Array) and key == afbool.c_api_value:
             ndims = 1
             if wrapper.count_all(key.arr) == 0:  # HACK was count() method before
                 return out
 
         # HACK known issue
-        out.arr = wrapper.index_gen(self.arr, ndims, key, wrapper.get_indices(key))  # type: ignore[arg-type]
+        out.arr = wrapper.index_gen(self.arr, ndims, wrapper.get_indices(key))  # type: ignore[arg-type]
         return out
 
     def __index__(self) -> int:
@@ -773,9 +790,37 @@ class Array:
     def __len__(self) -> int:
         return self.shape[0] if self.shape else 0
 
+    # BUG
     def __setitem__(self, key: IndexKey, value: int | float | bool | Array, /) -> None:
-        # TODO
-        return NotImplemented  # type: ignore[return-value]  # FIXME
+        out = Array()
+        ndims = self.ndim
+
+        is_array_with_bool = isinstance(key, Array) and type(key) == afbool
+
+        if is_array_with_bool:
+            ndims = 1
+            num = wrapper.count_all(key.arr)
+            if num == 0:
+                return
+
+        if isinstance(value, int | float | complex | bool):
+            dims = _get_processed_index(key, self.shape)
+            if is_array_with_bool:
+                ndims = 1
+                other_arr = wrapper.create_constant_array(value, (int(num),), self.dtype)
+            else:
+                other_arr = wrapper.create_constant_array(value, dims, self.dtype)
+            del_other = True
+        else:
+            other_arr = value.arr
+            del_other = False
+
+        indices = wrapper.get_indices(key)
+        out.arr = wrapper.assign_gen(self.arr, other_arr, ndims, indices)
+        wrapper.release_array(self.arr)
+        if del_other:
+            wrapper.release_array(other_arr)
+        self.arr = out.arr
 
     def __str__(self) -> str:
         # TODO change the look of array str. E.g., like np.array
@@ -787,6 +832,13 @@ class Array:
         # return _metadata_string(self.dtype, self.shape)
         # TODO change the look of array representation. E.g., like np.array
         return wrapper.array_as_str(self.arr)
+
+    def __del__(self) -> None:
+        if not self.arr.value:
+            return
+
+        wrapper.release_array(self.arr)
+        self.arr.value = 0
 
     def to_device(self, device: Any, /, *, stream: int | Any = None) -> Array:
         # TODO implementation and change device type from Any to Device
@@ -812,18 +864,14 @@ class Array:
         return NotImplemented
 
     @property
-    def mT(self) -> Array:
-        # TODO
-        return NotImplemented
-
-    @property
+    @afarray_as_array
     def T(self) -> Array:
         """
         Transpose of the array.
 
         Returns
         -------
-        out : Array
+        Array
             Two-dimensional array whose first and last dimensions (axes) are permuted in reverse order relative to
             original array. The returned array must have the same data type as the original array.
 
@@ -836,9 +884,12 @@ class Array:
             raise TypeError(f"Array should be at least 2-dimensional. Got {self.ndim}-dimensional array")
 
         # TODO add check if out.dtype == self.dtype
-        out = Array()
-        out.arr = wrapper.transpose(self.arr, False)
-        return out
+        return cast(Array, wrapper.transpose(self.arr, False))
+
+    @property
+    @afarray_as_array
+    def H(self) -> Array:
+        return cast(Array, wrapper.transpose(self.arr, True))
 
     @property
     def size(self) -> int:
@@ -847,7 +898,7 @@ class Array:
 
         Returns
         -------
-        out : int
+        int
             Number of elements in an array
 
         Note
@@ -862,7 +913,7 @@ class Array:
         """
         Number of array dimensions (axes).
 
-        out : int
+        int
             Number of array dimensions (axes).
         """
         return wrapper.get_numdims(self.arr)
@@ -874,13 +925,37 @@ class Array:
 
         Returns
         -------
-        out : tuple[int, ...]
+        tuple[int, ...]
             Array dimensions.
         """
         # NOTE skipping passing any None values
         return wrapper.get_dims(self.arr)[: self.ndim]
 
-    def scalar(self) -> int | float | bool | complex | None:
+    @property
+    def offset(self) -> int:
+        """
+        Return the offset of the first element relative to the raw pointer.
+
+        Returns
+        -------
+        int
+            The offset in number of elements.
+        """
+        return wrapper.get_offset(self.arr)
+
+    @property
+    def strides(self) -> tuple[int, ...]:
+        """
+        Return the distance in bytes between consecutive elements for each dimension.
+
+        Returns
+        -------
+        tuple[int, ...]
+            The strides for each dimension.
+        """
+        return wrapper.get_strides(self.arr)[: self.ndim]
+
+    def scalar(self) -> int | float | bool | complex | None:  # FIXME
         """
         Return the first element of the array
         """
@@ -924,6 +999,7 @@ class Array:
         array = _reorder(self) if row_major else self
         return wrapper.get_data_ptr(array.arr, array.size, array.dtype)
 
+    @afarray_as_array
     def copy(self) -> Array:
         """
         Performs a deep copy of the array.
@@ -934,14 +1010,14 @@ class Array:
              An identical copy of self.
         """
 
-        return return_copy(wrapper.copy_array)(self)  # type: ignore[return-value]
+        return cast(Array, wrapper.copy_array(self.arr))
 
     @classmethod
     def from_afarray(cls, array: wrapper.AFArrayType) -> None:
         cls.arr = array
 
 
-IndexKey = int | slice | tuple[int | slice, ...] | Array
+IndexKey = int | float | complex | bool | wrapper.ParallelRange | slice | tuple[int | slice, ...] | Array
 
 
 def _reorder(array: Array) -> Array:
@@ -958,9 +1034,8 @@ def _metadata_string(dtype: Dtype, dims: tuple[int, ...] | None = None) -> str:
     return "arrayfire.Array()\n" f"Type: {dtype.name}\n" f"Dims: {str(dims) if dims else ''}"
 
 
+@afarray_as_array
 def _process_c_function(lhs: int | float | Array, rhs: int | float | Array, c_function: Any) -> Array:
-    out = Array()
-
     if isinstance(lhs, Array) and isinstance(rhs, Array):
         lhs_array = lhs.arr
         rhs_array = rhs.arr
@@ -976,5 +1051,46 @@ def _process_c_function(lhs: int | float | Array, rhs: int | float | Array, c_fu
     else:
         raise TypeError(f"{type(rhs)} is not supported and can not be passed to C binary function.")
 
-    out.arr = c_function(lhs_array, rhs_array)
+    return cast(Array, c_function(lhs_array, rhs_array))
+
+
+def _get_processed_index(key: IndexKey, shape: tuple[int, ...]) -> tuple[int, ...]:
+    if isinstance(key, tuple):
+        return tuple(_index_to_afindex(key[i], shape[i]) for i in range(len(key)))
+
+    return (_index_to_afindex(key, shape[0]),) + shape[1:]
+
+
+def _index_to_afindex(key: int | float | complex | bool | slice | wrapper.ParallelRange | Array, dim: int) -> int:
+    if isinstance(key, int | float | complex | bool):
+        out = 1
+    elif isinstance(key, slice):
+        out = _slice_to_length(key, dim)
+    elif isinstance(key, wrapper.ParallelRange):
+        out = _slice_to_length(key.S, dim)
+    elif isinstance(key, Array):
+        if key.dtype == afbool:
+            out = int(sum(key))  # FIXME af.sum
+        else:
+            out = key.size
+    else:
+        raise IndexError(f"Invalid key type {type(key)}.")
+
     return out
+
+
+def _slice_to_length(key: slice, dim: int) -> int:
+    if key.start is None:
+        start = 0
+    elif key.start < 0:
+        start = dim - key.start
+
+    if key.stop is None:
+        stop = dim
+    elif key.stop < 0:
+        stop = dim - key.stop
+
+    if key.step is None:
+        step = 1
+
+    return int(((stop - start - 1) / step) + 1)

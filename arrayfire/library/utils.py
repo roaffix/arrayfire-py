@@ -1,46 +1,43 @@
-from typing import cast
+from typing import cast as typing_cast
 
-from arrayfire import Array
-from arrayfire._array_helpers import afarray_as_array
+from arrayfire.array_object import Array, afarray_as_array
 from arrayfire.backend import _clib_wrapper as wrapper
+from arrayfire.dtypes import Dtype
 
 
 @afarray_as_array
-def _all_true(array: Array, axis: int, /) -> Array:
-    result = wrapper.all_true(array.arr, axis)
-    return cast(Array, result)
-
-
-def all_true(array: Array, axis: int | None = None) -> bool | Array:
+def cast(array: Array, dtype: Dtype, /) -> Array:
     """
-    Check if all the elements along a specified dimension are true.
+    Cast an array to a specified type.
 
     Parameters
     ----------
     array : Array
-        Multi-dimensional ArrayFire array.
-
-    axis : int, optional, default: None
-        Dimension along which the product is required.
+        Multi-dimensional arrayfire array to be cast.
+    dtype : Dtype
+        The target data type to which the array will be cast. Must be one of the following:
+        - Dtype.int8 for signed 8-bit integer
+        - Dtype.int16 for signed 16-bit integer
+        - Dtype.int32 for signed 32-bit integer
+        - Dtype.int64 for signed 64-bit integer
+        - Dtype.uint8 for unsigned 8-bit integer
+        - Dtype.uint16 for unsigned 16-bit integer
+        - Dtype.uint32 for unsigned 32-bit integer
+        - Dtype.uint64 for unsigned 64-bit integer
+        - Dtype.float16 for 16-bit floating-point
+        - Dtype.float32 for 32-bit floating-point
+        - Dtype.float64 for 64-bit floating-point
+        - Dtype.complex64 for 64-bit complex number
+        - Dtype.complex128 for 128-bit complex number
+        - Dtype.bool for boolean
 
     Returns
     -------
-    bool | Array
-        An ArrayFire array containing True if all elements in `array` along the specified dimension are True.
-        If `axis` is `None`, the output is True if `array` does not have any zeros, else False.
-
-    Note
-    ----
-    If `axis` is `None`, output is True if the array does not have any zeros, else False.
+    Array
+        An array containing the values from `array` after conversion to the specified `dtype`.
     """
-    if axis is None:
-        return wrapper.all_true_all(array.arr)
+    return typing_cast(Array, wrapper.cast(array.arr, dtype))
 
-    return _all_true(array, axis)
-
-
-# from time import time
-# import math
 
 # def timeit(af_func, *args):
 #     """

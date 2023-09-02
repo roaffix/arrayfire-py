@@ -7,8 +7,8 @@ __version__ = VERSION
 __all__ += ["__arrayfire_version__"]
 __arrayfire_version__ = ARRAYFIRE_VERSION
 
-__all__ += ["Array", "return_copy"]
-from .array_object import Array, return_copy
+__all__ += ["Array"]
+from .array_object import Array
 
 __all__ += [
     "int8",
@@ -226,3 +226,11 @@ from .library.operators import (
 __all__ += ["constant", "range", "identity", "flat"]
 
 from arrayfire.library.data import constant, flat, identity, range
+
+__all__ += ["randu"]
+
+from arrayfire.library.random import randu
+
+__all__ += ["all_true", "any_true"]
+
+from arrayfire.library.vector_algorithms import all_true, any_true

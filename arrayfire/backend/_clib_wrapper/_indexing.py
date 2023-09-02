@@ -246,7 +246,7 @@ class CIndexStructure:
         self.idxs[idx] = value
 
 
-def get_indices(key: int | slice | tuple[int | slice, ...]) -> CIndexStructure:
+def get_indices(key: int | slice | tuple[int | slice, ...]) -> CIndexStructure:  # BUG
     indices = CIndexStructure()
 
     if isinstance(key, tuple):
