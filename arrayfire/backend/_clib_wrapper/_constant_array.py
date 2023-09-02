@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import ctypes
-from typing import TYPE_CHECKING, Tuple, Union
+from typing import TYPE_CHECKING
 
 from arrayfire.backend._backend import _backend
 from arrayfire.dtypes import CShape, Dtype, complex64, implicit_dtype, int64, is_complex_dtype, uint64
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ._base import AFArrayType
 
 
-def _constant_complex(number: Union[int, float, complex], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
+def _constant_complex(number: int | float | complex, shape: tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#ga5a083b1f3cd8a72a41f151de3bdea1a2
     """
@@ -32,7 +32,7 @@ def _constant_complex(number: Union[int, float, complex], shape: Tuple[int, ...]
     return out
 
 
-def _constant_long(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
+def _constant_long(number: int | float, shape: tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#ga10f1c9fad1ce9e9fefd885d5a1d1fd49
     """
@@ -47,7 +47,7 @@ def _constant_long(number: Union[int, float], shape: Tuple[int, ...], dtype: Dty
     return out
 
 
-def _constant_ulong(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
+def _constant_ulong(number: int | float, shape: tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#ga67af670cc9314589f8134019f5e68809
     """
@@ -62,7 +62,7 @@ def _constant_ulong(number: Union[int, float], shape: Tuple[int, ...], dtype: Dt
     return out
 
 
-def _constant(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
+def _constant(number: int | float, shape: tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#gafc51b6a98765dd24cd4139f3bde00670
     """
@@ -77,7 +77,7 @@ def _constant(number: Union[int, float], shape: Tuple[int, ...], dtype: Dtype, /
     return out
 
 
-def create_constant_array(number: Union[int, float, complex], shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
+def create_constant_array(number: int | float | complex, shape: tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     dtype = implicit_dtype(number, dtype)
 
     if isinstance(number, complex):

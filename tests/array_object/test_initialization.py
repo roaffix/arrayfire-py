@@ -1,6 +1,6 @@
 import array as pyarray
 import math
-from typing import Any, Optional, Tuple
+from typing import Any
 
 import pytest
 
@@ -27,7 +27,7 @@ from arrayfire.dtypes import Dtype, float32, int16
     ],
 )
 def test_initialization_with_different_arguments(
-    array: Array, res_dtype: Dtype, res_ndim: int, res_size: int, res_shape: Tuple[int, ...], res_len: int
+    array: Array, res_dtype: Dtype, res_ndim: int, res_size: int, res_shape: tuple[int, ...], res_len: int
 ) -> None:
     assert array.dtype == res_dtype
     assert array.ndim == res_ndim
@@ -51,7 +51,7 @@ def test_initialization_with_different_arguments(
     ],
 )
 def test_initalization_with_unsupported_argument_types(
-    array_object: Any, dtype: Optional[Dtype], shape: Tuple[int, ...]
+    array_object: Any, dtype: Dtype | None, shape: tuple[int, ...]
 ) -> None:
     with pytest.raises(TypeError):
         Array(obj=array_object, dtype=dtype, shape=shape)

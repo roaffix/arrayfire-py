@@ -1,4 +1,4 @@
-from typing import Tuple, Union, cast
+from typing import cast
 
 from arrayfire import Array
 from arrayfire._array_helpers import afarray_as_array
@@ -7,18 +7,20 @@ from arrayfire.dtypes import Dtype, float32
 
 _pyrange = range
 
+# TODO add more error handles
+
 
 @afarray_as_array
-def constant(scalar: Union[int, float, complex], shape: Tuple[int, ...] = (1,), dtype: Dtype = float32) -> Array:
+def constant(scalar: int | float | complex, shape: tuple[int, ...] = (1,), dtype: Dtype = float32) -> Array:
     """
     Create a multi-dimensional array filled with a constant value.
 
     Parameters
     ----------
-    scalar : Union[int, float, complex]
+    scalar : int | float | complex
         The value to fill each element of the constant array with.
 
-    shape : Tuple[int, ...], optional, default: (1,)
+    shape : tuple[int, ...], optional, default: (1,)
         The shape of the constant array.
 
     dtype : Dtype, optional, default: float32
@@ -42,13 +44,13 @@ def constant(scalar: Union[int, float, complex], shape: Tuple[int, ...] = (1,), 
 
 
 @afarray_as_array
-def range(shape: Tuple[int, ...], axis: int = 0, dtype: Dtype = float32) -> Array:
+def range(shape: tuple[int, ...], axis: int = 0, dtype: Dtype = float32) -> Array:
     """
     Create a multi-dimensional array using the length of a dimension as a range.
 
     Parameters
     ----------
-    shape : Tuple[int, ...]
+    shape : tuple[int, ...]
         The shape of the resulting array. Each element represents the length
         of a corresponding dimension.
 
@@ -170,13 +172,13 @@ def range(shape: Tuple[int, ...], axis: int = 0, dtype: Dtype = float32) -> Arra
 
 
 @afarray_as_array
-def identity(shape: Tuple[int, ...], dtype: Dtype = float32) -> Array:
+def identity(shape: tuple[int, ...], dtype: Dtype = float32) -> Array:
     """
     Create an identity matrix or batch of identity matrices.
 
     Parameters
     ----------
-    shape : Tuple[int, ...]
+    shape : tuple[int, ...]
         The shape of the resulting identity array or batch of arrays.
         Must have at least 2 values.
 

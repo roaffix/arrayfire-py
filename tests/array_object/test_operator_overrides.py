@@ -1,5 +1,6 @@
 import operator
-from typing import Any, Callable, List, Union
+from collections.abc import Callable
+from typing import Any
 
 import pytest
 
@@ -7,7 +8,7 @@ from arrayfire import Array
 from arrayfire.dtypes import bool as af_bool
 from tests._helpers import round_to
 
-Operator = Callable[[Union[int, float, Array], Union[int, float, Array]], Array]
+Operator = Callable[[int | float | Array, int | float | Array], Array]
 
 
 def pytest_generate_tests(metafunc: Any) -> None:
@@ -52,9 +53,9 @@ def pytest_generate_tests(metafunc: Any) -> None:
 
 
 def test_arithmetic_operators(
-    array_origin: List[Union[int, float]],
+    array_origin: list[int | float],
     arithmetic_operator: str,
-    operand: Union[int, float, List[Union[int, float]]],
+    operand: int | float | list[int | float],
 ) -> None:
     op = getattr(operator, arithmetic_operator)
     iop = getattr(operator, "i" + arithmetic_operator)
@@ -84,7 +85,7 @@ def test_arithmetic_operators(
 
 
 def test_arithmetic_operators_expected_to_raise_error(
-    array_origin: List[Union[int, float]], arithmetic_operator: str, false_operand: Any
+    array_origin: list[int | float], arithmetic_operator: str, false_operand: Any
 ) -> None:
     array = Array(array_origin)
     op = getattr(operator, arithmetic_operator)
@@ -93,9 +94,9 @@ def test_arithmetic_operators_expected_to_raise_error(
 
 
 def test_comparison_operators(
-    array_origin: List[Union[int, float]],
+    array_origin: list[int | float],
     comparison_operator: Operator,
-    operand: Union[int, float, List[Union[int, float]]],
+    operand: int | float | list[int | float],
 ) -> None:
     if isinstance(operand, list):
         ref = [comparison_operator(x, y) for x, y in zip(array_origin, operand)]
@@ -111,7 +112,7 @@ def test_comparison_operators(
 
 
 def test_comparison_operators_expected_to_raise_error(
-    array_origin: List[Union[int, float]], comparison_operator: Operator, false_operand: Any
+    array_origin: list[int | float], comparison_operator: Operator, false_operand: Any
 ) -> None:
     array = Array(array_origin)
 

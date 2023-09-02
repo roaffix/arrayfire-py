@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import ctypes
-from typing import TYPE_CHECKING, Any, Tuple, Union, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from arrayfire.backend._backend import _backend
 from arrayfire.dtypes import CShape, CType, Dtype, c_dim_t, to_str
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 # Array management
 
 
-def create_handle(shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
+def create_handle(shape: tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga3b8f5cf6fce69aa1574544bc2d44d7d0
     """
@@ -40,7 +40,7 @@ def retain_array(arr: AFArrayType) -> AFArrayType:
     return out
 
 
-def create_array(shape: Tuple[int, ...], dtype: Dtype, array_buffer: _ArrayBuffer, /) -> AFArrayType:
+def create_array(shape: tuple[int, ...], dtype: Dtype, array_buffer: _ArrayBuffer, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga834be32357616d8ab735087c6f681858
     """
@@ -59,7 +59,7 @@ def create_array(shape: Tuple[int, ...], dtype: Dtype, array_buffer: _ArrayBuffe
     return out
 
 
-def device_array(shape: Tuple[int, ...], dtype: Dtype, array_buffer: _ArrayBuffer, /) -> AFArrayType:
+def device_array(shape: tuple[int, ...], dtype: Dtype, array_buffer: _ArrayBuffer, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#gaad4fc77f872217e7337cb53bfb623cf5
     """
@@ -79,11 +79,11 @@ def device_array(shape: Tuple[int, ...], dtype: Dtype, array_buffer: _ArrayBuffe
 
 
 def create_strided_array(
-    shape: Tuple[int, ...],
+    shape: tuple[int, ...],
     dtype: Dtype,
     array_buffer: _ArrayBuffer,
     offset: CType,
-    strides: Tuple[int, ...],
+    strides: tuple[int, ...],
     pointer_source: PointerSource,
     /,
 ) -> AFArrayType:
@@ -147,7 +147,7 @@ def get_numdims(arr: AFArrayType) -> int:
     return out.value
 
 
-def get_dims(arr: AFArrayType) -> Tuple[int, ...]:
+def get_dims(arr: AFArrayType) -> tuple[int, ...]:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#ga8b90da50a532837d9763e301b2267348
     """
@@ -162,13 +162,13 @@ def get_dims(arr: AFArrayType) -> Tuple[int, ...]:
     return (d0.value, d1.value, d2.value, d3.value)
 
 
-def get_scalar(arr: AFArrayType, dtype: Dtype, /) -> Union[None, int, float, bool, complex]:
+def get_scalar(arr: AFArrayType, dtype: Dtype, /) -> int | float | complex | bool | None:
     """
     source: https://arrayfire.org/docs/group__c__api__mat.htm#gaefe2e343a74a84bd43b588218ecc09a3
     """
     out = dtype.c_type()
     safe_call(_backend.clib.af_get_scalar(ctypes.pointer(out), arr))
-    return cast(Union[None, int, float, bool, complex], out.value)
+    return cast(int | float | complex | bool | None, out.value)
 
 
 def is_empty(arr: AFArrayType) -> bool:
@@ -205,17 +205,7 @@ def copy_array(arr: AFArrayType) -> AFArrayType:
 def index_gen(
     arr: AFArrayType,
     ndims: int,
-    key: Union[
-        int,
-        slice,
-        Tuple[
-            Union[
-                int,
-                slice,
-            ],
-            ...,
-        ],
-    ],
+    key: int | slice | tuple[int | slice, ...],
     indices: Any,
     /,
 ) -> AFArrayType:
@@ -268,7 +258,7 @@ def where(arr: AFArrayType) -> AFArrayType:
     return out
 
 
-def af_range(shape: Tuple[int, ...], axis: int, dtype: Dtype, /) -> AFArrayType:
+def af_range(shape: tuple[int, ...], axis: int, dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__data__func__range.htm#gadd6c9b479692454670a51e00ea5b26d5
     """
@@ -278,7 +268,7 @@ def af_range(shape: Tuple[int, ...], axis: int, dtype: Dtype, /) -> AFArrayType:
     return out
 
 
-def identity(shape: Tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
+def identity(shape: tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source:
     """

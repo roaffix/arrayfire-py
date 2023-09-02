@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Union, cast
+from typing import cast
 
 from arrayfire import Array
 from arrayfire._array_helpers import afarray_as_array
@@ -29,15 +29,15 @@ def div(x1: Array, x2: Array, /) -> Array:
 
 
 @afarray_as_array
-def mod(x1: Union[int, float, Array], x2: Union[int, float, Array], /) -> Array:
+def mod(x1: int | float | Array, x2: int | float | Array, /) -> Array:
     """
     Calculate the modulus of two arrays or a scalar and an array.
 
     Parameters
     ----------
-    x1 : Union[int, float, Array]
+    x1 : int |float |Array
         The first array or scalar operand.
-    x2 : Union[int, float, Array]
+    x2 : int |float |Array
         The second array or scalar operand.
 
     Returns
@@ -61,7 +61,7 @@ def mod(x1: Union[int, float, Array], x2: Union[int, float, Array], /) -> Array:
 
 
 @afarray_as_array
-def pow(x1: Union[int, float, Array], x2: Union[int, float, Array], /) -> Array:
+def pow(x1: int | float | Array, x2: int | float | Array, /) -> Array:
     _check_operands_fit_requirements(x1, x2)
 
     return wrapper.pow(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
@@ -142,21 +142,21 @@ def neq(x1: Array, x2: Array, /) -> Array:
 
 
 @afarray_as_array
-def minof(x1: Union[int, float, Array], x2: Union[int, float, Array], /) -> Array:
+def minof(x1: int | float | Array, x2: int | float | Array, /) -> Array:
     _check_operands_fit_requirements(x1, x2)
 
     return wrapper.minof(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
-def maxof(x1: Union[int, float, Array], x2: Union[int, float, Array], /) -> Array:
+def maxof(x1: int | float | Array, x2: int | float | Array, /) -> Array:
     _check_operands_fit_requirements(x1, x2)
 
     return wrapper.maxof(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
-def rem(x1: Union[int, float, Array], x2: Union[int, float, Array], /) -> Array:
+def rem(x1: int | float | Array, x2: int | float | Array, /) -> Array:
     _check_operands_fit_requirements(x1, x2)
 
     return wrapper.rem(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
@@ -198,7 +198,7 @@ def ceil(x: Array, /) -> Array:
 
 
 @afarray_as_array
-def hypot(x1: Union[int, float, Array], x2: Union[int, float, Array], /) -> Array:
+def hypot(x1: int | float | Array, x2: int | float | Array, /) -> Array:
     _check_operands_fit_requirements(x1, x2)
 
     return wrapper.hypot(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
@@ -242,13 +242,13 @@ def atan(x: Array, /) -> Array:
 
 
 @afarray_as_array
-def atan2(x1: Union[int, float, Array], x2: Union[int, float, Array], /) -> Array:
+def atan2(x1: int | float | Array, x2: int | float | Array, /) -> Array:
     _check_operands_fit_requirements(x1, x2)
     return wrapper.atan2(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
-def cplx(x1: Union[int, float, Array], x2: Union[int, float, Array, None], /) -> Array:
+def cplx(x1: int | float | Array, x2: int | float | Array | None, /) -> Array:
     if x2 is None:
         return wrapper.cplx1(x1)  # type: ignore[arg-type, return-value]
     else:
@@ -307,7 +307,7 @@ def atanh(x: Array, /) -> Array:
 
 
 @afarray_as_array
-def root(x1: Union[int, float, Array], x2: Union[int, float, Array], /) -> Array:
+def root(x1: int | float | Array, x2: int | float | Array, /) -> Array:
     _check_operands_fit_requirements(x1, x2)
     return wrapper.root(x1.arr, x2.arr)
 
@@ -441,7 +441,7 @@ def lnot(x: Array, /) -> Array:
     return wrapper.lnot(x.arr)  # type: ignore[arg-type, return-value]
 
 
-def _check_operands_fit_requirements(x1: Union[int, float, Array], x2: Union[int, float, Array]) -> None:
+def _check_operands_fit_requirements(x1: int | float | Array, x2: int | float | Array) -> None:
     if isinstance(x1, Array) and isinstance(x2, Array):
         if x1.shape != x2.shape:
             raise ValueError("Array shapes must match.")

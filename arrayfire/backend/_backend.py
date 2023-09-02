@@ -8,7 +8,7 @@ import sys
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Iterator, List, Optional
+from typing import Iterator
 
 from arrayfire.logger import logger
 from arrayfire.version import ARRAYFIRE_VER_MAJOR
@@ -187,7 +187,7 @@ class Backend:
         else:
             logger.warning("Could not find local nvrtc-builtins library")
 
-    def _lib_names(self, name: str, lib: _LibPrefixes, ver_major: Optional[str] = None) -> List[Path]:
+    def _lib_names(self, name: str, lib: _LibPrefixes, ver_major: str | None = None) -> list[Path]:
         post = self._backend_path_config.lib_postfix if ver_major is None else ver_major
         lib_name = self._backend_path_config.lib_prefix + lib.value + name + post
 
@@ -208,7 +208,7 @@ class Backend:
             lib_paths.insert(2, Path(str(search_path), lib_name))
             return lib_paths
 
-    def _find_nvrtc_builtins_lib_name(self, search_path: Path) -> Optional[str]:
+    def _find_nvrtc_builtins_lib_name(self, search_path: Path) -> str | None:
         for f in search_path.iterdir():
             if "nvrtc-builtins" in f.name:
                 return f.name

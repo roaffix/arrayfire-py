@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import array as py_array
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from .backend import _clib_wrapper as wrapper
 from .dtypes import CType, Dtype, c_api_value_to_dtype, float32, str_to_dtype

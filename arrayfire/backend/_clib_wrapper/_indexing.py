@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import ctypes
 import math
-from typing import Any, Tuple, Union
+from typing import Any
 
 from arrayfire.backend._backend import _backend
 from arrayfire.library.broadcast import bcast_var
@@ -36,7 +36,7 @@ class _IndexSequence(ctypes.Structure):
     # More about _fields_ purpose: https://docs.python.org/3/library/ctypes.html#structures-and-unions
     _fields_ = [("begin", ctypes.c_double), ("end", ctypes.c_double), ("step", ctypes.c_double)]
 
-    def __init__(self, chunk: Union[int, slice]):
+    def __init__(self, chunk: int | slice):
         self.begin = ctypes.c_double(0)
         self.end = ctypes.c_double(-1)
         self.step = ctypes.c_double(1)
@@ -128,9 +128,7 @@ class ParallelRange(_IndexSequence):
 
     """
 
-    def __init__(
-        self, start: Union[int, float], stop: Union[int, float, None] = None, step: Union[int, float, None] = None
-    ) -> None:
+    def __init__(self, start: int | float, stop: int | float | None = None, step: int | float | None = None) -> None:
         if not stop:
             stop = start
             start = 0
@@ -248,7 +246,7 @@ class CIndexStructure:
         self.idxs[idx] = value
 
 
-def get_indices(key: Union[int, slice, Tuple[Union[int, slice], ...]]) -> CIndexStructure:
+def get_indices(key: int | slice | tuple[int | slice, ...]) -> CIndexStructure:
     indices = CIndexStructure()
 
     if isinstance(key, tuple):

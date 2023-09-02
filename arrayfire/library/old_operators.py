@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 from arrayfire import Array
 from arrayfire.backend import _clib_wrapper as wrapper

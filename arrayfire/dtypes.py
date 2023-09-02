@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import ctypes
 from dataclasses import dataclass
-from typing import Tuple, Type, Union
+from typing import Type
 
 from arrayfire.backend._backend import is_arch_x86
 
@@ -64,7 +64,7 @@ def is_complex_dtype(dtype: Dtype) -> _python_bool:
 
 
 c_dim_t = ctypes.c_int if is_arch_x86() else ctypes.c_longlong
-ShapeType = Tuple[int, ...]
+ShapeType = tuple[int, ...]
 
 
 class CShape(tuple):
@@ -91,7 +91,7 @@ def to_str(c_str: ctypes.c_char_p) -> str:
     return str(c_str.value.decode("utf-8"))  # type: ignore[union-attr]
 
 
-def implicit_dtype(number: Union[int, float, _python_bool, complex], array_dtype: Dtype) -> Dtype:
+def implicit_dtype(number: int | float | _python_bool | complex, array_dtype: Dtype) -> Dtype:
     if isinstance(number, _python_bool):
         number_dtype = bool
     elif isinstance(number, int):

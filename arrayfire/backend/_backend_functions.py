@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from enum import Enum
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from ._backend import Backend, BackendType, get_backend
 from ._clib_wrapper._unsorted import cublas_set_math_mode
@@ -25,13 +25,13 @@ class CublasMathMode(Enum):
     tensor_op = 1
 
 
-def set_backend(backend_type: Union[BackendType, str]) -> None:
+def set_backend(backend_type: BackendType | str) -> None:
     """
     Set a specific backend by backend_type name.
 
     Parameters
     ----------
-    backend_type : Union[BackendType, str]
+    backend_type : BackendType | str
         Name of the backend type to set.
 
     Raises
@@ -278,13 +278,13 @@ def set_native_cuda_id(index: int) -> None:
     return c_set_native_id(index)
 
 
-def set_cublas_mode(mode: Union[CublasMathMode, int] = CublasMathMode.default) -> None:
+def set_cublas_mode(mode: CublasMathMode | int = CublasMathMode.default) -> None:
     """
     Set cuBLAS math mode for CUDA backend. It enables the Tensor Core usage if available on CUDA backend GPUs.
 
     Parameters
     ----------
-    mode : Union[CublasMathMode, int]
+    mode : CublasMathMode | int
         Specify the mode available within CublasMathMode enum.
 
     Raises

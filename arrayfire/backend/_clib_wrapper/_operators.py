@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import ctypes
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from arrayfire.backend._backend import _backend
 from arrayfire.library.broadcast import bcast_var
