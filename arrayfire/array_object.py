@@ -1073,7 +1073,7 @@ def _index_to_afindex(key: int | float | complex | bool | slice | wrapper.Parall
         if key.dtype == afbool:
             from arrayfire.library.vector_algorithms import sum as af_sum
 
-            out = int(af_sum(key))
+            out = int(af_sum(key))  # type: ignore[arg-type]
         else:
             out = key.size
     else:
