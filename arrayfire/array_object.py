@@ -790,16 +790,14 @@ class Array:
     def __len__(self) -> int:
         return self.shape[0] if self.shape else 0
 
-    # BUG
     def __setitem__(self, key: IndexKey, value: int | float | bool | Array, /) -> None:
-        out = Array()
         ndims = self.ndim
 
         is_array_with_bool = isinstance(key, Array) and type(key) == afbool
 
         if is_array_with_bool:
             ndims = 1
-            num = wrapper.count_all(key.arr)
+            num = wrapper.count_all(key.arr)  # type: ignore[union-attr]
             if num == 0:
                 return
 
@@ -816,12 +814,12 @@ class Array:
             del_other = False
 
         indices = wrapper.get_indices(key)
-        out.arr = wrapper.assign_gen(self.arr, other_arr, ndims, indices)
+        out = wrapper.assign_gen(self.arr, other_arr, ndims, indices)
 
         wrapper.release_array(self.arr)
         if del_other:
             wrapper.release_array(other_arr)
-        self.arr = out.arr
+        self.arr = out
 
     def __str__(self) -> str:
         # TODO change the look of array str. E.g., like np.array

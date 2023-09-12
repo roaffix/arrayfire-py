@@ -202,6 +202,7 @@ from ._unsorted import (
     get_backend_id,
     get_ctype,
     get_data_ptr,
+    get_device,
     get_device_id,
     get_dims,
     get_elements,
@@ -218,8 +219,9 @@ from ._unsorted import (
     reorder,
     retain_array,
     set_backend,
+    sync,
     transpose,
-    where, get_device, sync
+    where,
 )
 
 __all__ += ["safe_call"]
