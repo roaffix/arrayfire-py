@@ -90,7 +90,7 @@ def get_array_backend_name(array: Array) -> str:
 
 
 def get_backend_id(array: Array) -> str:
-    warnings.warn("Was renamed due to unintuitive function name. Now get_array_backend_name().", DeprecationWarning)
+    warnings.warn("Was renamed. Now get_array_backend_name() in main repo.", DeprecationWarning)
     return get_array_backend_name(array)
 
 

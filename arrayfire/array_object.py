@@ -954,6 +954,7 @@ class Array:
         """
         return wrapper.get_strides(self.arr)[: self.ndim]
 
+    # TODO rename front_to_host or smth. Extend doc: move first element of array from gpu to cpu
     def scalar(self) -> int | float | bool | complex | None:  # FIXME
         """
         Return the first element of the array

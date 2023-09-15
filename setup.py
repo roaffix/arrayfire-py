@@ -87,7 +87,7 @@ setup(
         "Topic :: Scientific/Engineering :: Mathematics",
         "Topic :: Software Development :: Libraries",
     ],
-    keywords="arrayfire parallel computing gpu cpu opencl",
+    keywords="arrayfire parallel computing gpu cpu opencl oneapi",
     packages=find_packages(),
     install_requires=install_requirements,
     extras_require=extras,
