@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import ctypes
 import math
-from typing import Any, Union
+from typing import Any
 
+from arrayfire.backend._backend import _backend
 from arrayfire.library.broadcast import bcast_var
 
-from ..backend import backend_api, safe_call
-from . import constants
+from ._error_handler import safe_call
 
 
 class _IndexSequence(ctypes.Structure):
@@ -36,7 +36,7 @@ class _IndexSequence(ctypes.Structure):
     # More about _fields_ purpose: https://docs.python.org/3/library/ctypes.html#structures-and-unions
     _fields_ = [("begin", ctypes.c_double), ("end", ctypes.c_double), ("step", ctypes.c_double)]
 
-    def __init__(self, chunk: Union[int, slice]):
+    def __init__(self, chunk: int | slice):
         self.begin = ctypes.c_double(0)
         self.end = ctypes.c_double(-1)
         self.step = ctypes.c_double(1)
@@ -63,13 +63,13 @@ class _IndexSequence(ctypes.Structure):
                 self.end.value = 1
                 self.step.value = 1
 
-            elif 0 > self.end >= self.begin and self.step <= 0:  # type: ignore[operator]
+            elif self.begin <= self.end < 0 and self.step <= 0:  # type: ignore[operator]
                 self.begin.value = -2
                 self.end.value = -2
                 self.step.value = -1
 
             if chunk.stop:
-                self.end.value = self.end.value - math.copysign(1, self.step.value)
+                self.end -= math.copysign(1, self.step)  # type: ignore[operator, assignment, arg-type]  # FIXME
         else:
             raise IndexError("Invalid type while indexing arrayfire.array")
 
@@ -128,9 +128,7 @@ class ParallelRange(_IndexSequence):
 
     """
 
-    def __init__(
-        self, start: Union[int, float], stop: Union[int, float, None] = None, step: Union[int, float, None] = None
-    ) -> None:
+    def __init__(self, start: int | float, stop: int | float | None = None, step: int | float | None = None) -> None:
         if not stop:
             stop = start
             start = 0
@@ -225,7 +223,7 @@ class IndexStructure(ctypes.Structure):
             # converted to basic C types so we have to
             # build the void_p from the value again.
             arr = ctypes.c_void_p(self.idx.arr)
-            safe_call(backend_api.af_release_array(arr))
+            safe_call(_backend.clib.af_release_array(arr))
 
 
 class CIndexStructure:
@@ -237,7 +235,7 @@ class CIndexStructure:
         self.array = index_vec(*self.idxs)
 
     @property
-    def pointer(self) -> constants.AFArrayPointerType:
+    def pointer(self) -> ctypes._Pointer:
         return ctypes.pointer(self.array)
 
     def __getitem__(self, idx: int) -> IndexStructure:
@@ -246,3 +244,15 @@ class CIndexStructure:
     def __setitem__(self, idx: int, value: IndexStructure) -> None:
         self.array[idx] = value
         self.idxs[idx] = value
+
+
+def get_indices(key: int | slice | tuple[int | slice, ...]) -> CIndexStructure:  # BUG
+    indices = CIndexStructure()
+
+    if isinstance(key, tuple):
+        for n in range(len(key)):
+            indices[n] = IndexStructure(key[n])
+    else:
+        indices[0] = IndexStructure(key)
+
+    return indices
