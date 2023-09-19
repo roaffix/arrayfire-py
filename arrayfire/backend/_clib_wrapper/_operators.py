@@ -152,7 +152,7 @@ def clamp(arr: AFArrayType, /, lo: float, hi: float) -> AFArrayType:
     source: https://arrayfire.org/docs/group__arith__func__clamp.htm#gac4e785c5c877c7905e56f44ef0cb5e61
     """
     # TODO: check if lo and hi are of type float. Can be ArrayFire array as well
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     safe_call(_backend.clib.af_clamp(ctypes.pointer(out), arr, lo, hi))
     return out
 
@@ -522,12 +522,12 @@ def lnot(arr: AFArrayType, /) -> AFArrayType:
 
 
 def _binary_op(c_func: Callable, lhs: AFArrayType, rhs: AFArrayType, /) -> AFArrayType:
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     safe_call(c_func(ctypes.pointer(out), lhs, rhs, bcast_var.get()))
     return out
 
 
 def _unary_op(c_func: Callable, arr: AFArrayType, /) -> AFArrayType:
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     safe_call(c_func(ctypes.pointer(out), arr))
     return out

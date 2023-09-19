@@ -1,22 +1,19 @@
 from __future__ import annotations
 
 import ctypes
-from typing import TYPE_CHECKING
 
 from arrayfire.backend._backend import _backend
 from arrayfire.dtypes import CShape, Dtype, complex64, implicit_dtype, int64, is_complex_dtype, uint64
 
+from ._base import AFArrayType
 from ._error_handler import safe_call
-
-if TYPE_CHECKING:
-    from ._base import AFArrayType
 
 
 def _constant_complex(number: int | float | complex, shape: tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#ga5a083b1f3cd8a72a41f151de3bdea1a2
     """
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     c_shape = CShape(*shape)
 
     safe_call(
@@ -36,7 +33,7 @@ def _constant_long(number: int | float, shape: tuple[int, ...], dtype: Dtype, /)
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#ga10f1c9fad1ce9e9fefd885d5a1d1fd49
     """
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     c_shape = CShape(*shape)
 
     safe_call(
@@ -51,7 +48,7 @@ def _constant_ulong(number: int | float, shape: tuple[int, ...], dtype: Dtype, /
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#ga67af670cc9314589f8134019f5e68809
     """
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     c_shape = CShape(*shape)
 
     safe_call(
@@ -66,7 +63,7 @@ def _constant(number: int | float, shape: tuple[int, ...], dtype: Dtype, /) -> A
     """
     source: https://arrayfire.org/docs/group__data__func__constant.htm#gafc51b6a98765dd24cd4139f3bde00670
     """
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     c_shape = CShape(*shape)
 
     safe_call(

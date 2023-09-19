@@ -28,7 +28,7 @@ def all_true(arr: AFArrayType, axis: int, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__reduce__func__all__true.htm#ga068708be5177a0aa3788af140bb5ebd6
     """
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     safe_call(_backend.clib.af_all_true(ctypes.pointer(out), arr, axis))
     return out
 
@@ -47,12 +47,12 @@ def any_true(arr: AFArrayType, axis: int, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__reduce__func__any__true.htm#ga7c275cda2cfc8eb0bd20ea86472ca0d5
     """
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     safe_call(_backend.clib.af_all_true(ctypes.pointer(out), arr, axis))
     return out
 
 
-def any_true_all(arr: AFArrayType, /) -> complex:
+def any_true_all(arr: AFArrayType, /) -> int | float | bool | complex:
     """
     source: https://arrayfire.org/docs/group__reduce__func__any__true.htm#ga47d991276bb5bf8cdba8340e8751e536
     """
@@ -66,7 +66,7 @@ def sum(arr: AFArrayType, axis: int, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__reduce__func__sum.htm#gacd4917c2e916870ebdf54afc2f61d533
     """
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     safe_call(_backend.clib.af_sum(ctypes.pointer(out), arr, axis))
     return out
 
@@ -85,7 +85,7 @@ def sum_nan(arr: AFArrayType, axis: int, nan_value: float, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__reduce__func__sum.htm#ga52461231e2d9995f689b7f23eea0e798
     """
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     safe_call(_backend.clib.af_sum_nan(ctypes.pointer(out), arr, axis, ctypes.c_double(nan_value)))
     return out
 

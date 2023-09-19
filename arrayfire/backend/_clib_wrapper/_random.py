@@ -10,7 +10,7 @@ AFRandomEngine = ctypes.c_void_p
 
 
 def create_random_engine(engine_type: int, seed: int, /) -> AFRandomEngine:
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     safe_call(_backend.clib.af_create_random_engine(ctypes.pointer(out), engine_type, ctypes.c_longlong(seed)))
     return out
 
@@ -46,7 +46,7 @@ def randu(shape: tuple[int, ...], dtype: Dtype, /) -> AFArrayType:
     """
     source: https://arrayfire.org/docs/group__random__func__randu.htm#ga412e2c2f5135bdda218c3487c487d3b5
     """
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     c_shape = CShape(*shape)
     safe_call(_backend.clib.af_randu(ctypes.pointer(out), 4, c_shape.c_array, dtype.c_api_value))
     return out
@@ -56,7 +56,7 @@ def random_uniform(shape: tuple[int, ...], dtype: Dtype, engine: AFRandomEngine,
     """
     source: https://arrayfire.org/docs/group__random__func__randu.htm#ga2ca76d970cfac076f9006755582a4a4c
     """
-    out = ctypes.c_void_p(0)
+    out = AFArrayType.create_pointer()
     c_shape = CShape(*shape)
     safe_call(_backend.clib.af_random_uniform(ctypes.pointer(out), 4, c_shape.c_array, dtype.c_api_value, engine))
     return out

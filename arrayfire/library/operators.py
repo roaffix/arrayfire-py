@@ -136,7 +136,7 @@ def neq(x1: Array, x2: Array, /) -> Array:
 # #     source: https://arrayfire.org/docs/group__arith__func__clamp.htm#gac4e785c5c877c7905e56f44ef0cb5e61
 # #     """
 # #     # TODO: check if lo and hi are of type float. Can be ArrayFire array as well
-# #     out = ctypes.c_void_p(0)
+# #     out = AFArrayType.create_pointer()
 # #     safe_call(_backend.clib.af_clamp(ctypes.pointer(out), arr, lo, hi))
 # #     return out
 

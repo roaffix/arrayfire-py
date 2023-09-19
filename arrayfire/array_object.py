@@ -62,7 +62,7 @@ class Array:
         offset: CType | None = None,
         strides: tuple[int, ...] | None = None,
     ) -> None:
-        self.arr = ctypes.c_void_p(0)  # FIXME
+        self.arr = wrapper.AFArrayType.create_pointer()  # FIXME
         _no_initial_dtype = False  # HACK, FIXME
 
         if isinstance(dtype, str):
