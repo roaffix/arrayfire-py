@@ -1,7 +1,9 @@
 from typing import cast as typing_cast
 
+import arrayfire_wrapper.lib as wrapper
+from arrayfire_wrapper import AFArray
+
 from arrayfire.array_object import Array, afarray_as_array
-from arrayfire.backend import _clib_wrapper as wrapper
 from arrayfire.dtypes import Dtype
 
 
@@ -37,6 +39,10 @@ def cast(array: Array, dtype: Dtype, /) -> Array:
         An array containing the values from `array` after conversion to the specified `dtype`.
     """
     return typing_cast(Array, wrapper.cast(array.arr, dtype))
+
+
+# def array_as_str(arr: AFArray) -> str:
+#     return wrapper.array_to_string("", arr, 4, True)
 
 
 # def timeit(af_func, *args):

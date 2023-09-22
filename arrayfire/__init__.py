@@ -11,66 +11,88 @@ __all__ += ["Array"]
 from .array_object import Array
 
 __all__ += [
-    "int8",
+    "b8",
+    "bool",
+    "c32",
+    "c64",
+    "complex32",
+    "complex64",
+    "f16",
+    "f32",
+    "f64",
+    "float16",
+    "float32",
+    "float64",
     "int16",
     "int32",
     "int64",
+    "s16",
+    "s32",
+    "s64",
+    "u8",
+    "u16",
+    "u32",
+    "u64",
     "uint8",
     "uint16",
     "uint32",
     "uint64",
-    "float16",
-    "float32",
-    "float64",
-    "complex64",
-    "complex128",
-    "bool",
 ]
 
 from .dtypes import (
+    b8,
     bool,
+    c32,
+    c64,
+    complex32,
     complex64,
-    complex128,
+    f16,
+    f32,
+    f64,
     float16,
     float32,
     float64,
-    int8,
     int16,
     int32,
     int64,
+    s16,
+    s32,
+    s64,
+    u8,
+    u16,
+    u32,
+    u64,
     uint8,
     uint16,
     uint32,
     uint64,
 )
 
-__all__ += [
-    "get_backend",
-    "get_active_backend",  # DeprecationWarning
-    "get_array_backend_name",
-    "get_array_device_id",
-    "get_available_backends",  # DeprecationWarning
-    "get_backend_count",
-    "get_backend_id",  # DeprecationWarning
-    "get_device_id",  # DeprecationWarning
-    "get_dtype_size",
-    "get_size_of",  # DeprecationWarning
-    "set_backend",
-]
+# __all__ += [
+#     "get_active_backend",  # DeprecationWarning
+#     "get_array_backend_name",
+#     "get_array_device_id",
+#     "get_available_backends",  # DeprecationWarning
+#     "get_backend_count",
+#     "get_backend_id",  # DeprecationWarning
+#     "get_device_id",  # DeprecationWarning
+#     "get_dtype_size",
+#     "get_size_of",  # DeprecationWarning
+#     "set_backend",
+# ]
 
-from .backend._backend import get_backend
-from .backend._backend_functions import (
-    get_active_backend,
-    get_array_backend_name,
-    get_array_device_id,
-    get_available_backends,
-    get_backend_count,
-    get_backend_id,
-    get_device_id,
-    get_dtype_size,
-    get_size_of,
-    set_backend,
-)
+# from .library._backend_functions import (
+#     get_active_backend,
+#     get_array_backend_name,
+#     get_array_device_id,
+#     get_available_backends,
+#     get_backend_count,
+#     get_backend_id,
+#     get_device_id,
+#     get_dtype_size,
+#     get_size_of,
+#     set_backend,
+# )
 
 __all__ += [
     "add",
@@ -145,9 +167,9 @@ __all__ += [
     "root",
     "rsqrt",
     "sigmoid",
-    "land",
-    "lor",
-    "lnot",
+    "and_",
+    "or_",
+    "not_",
 ]
 
 
@@ -156,6 +178,7 @@ from .library.operators import (
     acos,
     acosh,
     add,
+    and_,
     arg,
     asin,
     asinh,
@@ -189,21 +212,20 @@ from .library.operators import (
     isinf,
     isnan,
     iszero,
-    land,
     le,
     lgamma,
-    lnot,
     log,
     log1p,
     log2,
     log10,
-    lor,
     lt,
     maxof,
     minof,
     mod,
     mul,
     neq,
+    not_,
+    or_,
     pow,
     pow2,
     real,

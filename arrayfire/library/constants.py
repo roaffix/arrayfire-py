@@ -1,6 +1,7 @@
+__all__ = ["pi"]
+
 import math
 
-from arrayfire.backend._clib_wrapper._error_handler import constant
-from arrayfire.dtypes import float64
+import arrayfire_wrapper as afw
 
-pi = constant(math.pi, (1,), float64)
+pi = afw.lib.constant(math.pi, (1,), afw.float64)

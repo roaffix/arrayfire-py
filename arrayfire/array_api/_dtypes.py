@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import ctypes
+
 __all__ = [
     "all_dtypes",
     "boolean_dtypes",
@@ -29,26 +31,16 @@ __all__ = [
     "uint64",
 ]
 
-from typing import TYPE_CHECKING
 
-from arrayfire import (
-    bool,
-    complex64,
-    complex128,
-    float32,
-    float64,
-    int8,
-    int16,
-    int32,
-    int64,
-    uint8,
-    uint16,
-    uint32,
-    uint64,
-)
+from arrayfire import bool
+from arrayfire import complex32 as afcomplex32
+from arrayfire import complex64 as afcomplex64
+from arrayfire import float32, float64, int16, int32, int64, uint8, uint16, uint32, uint64
+from arrayfire.dtypes import Dtype
 
-if TYPE_CHECKING:
-    from arrayfire.dtypes import Dtype
+int8 = Dtype("int8", "b8", ctypes.c_char, "int8", 4)  # HACK int8 - not supported in AF -> same as b8
+complex64 = afcomplex32
+complex128 = afcomplex64
 
 all_dtypes = (
     int8,

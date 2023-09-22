@@ -3,9 +3,10 @@ from __future__ import annotations
 from enum import Enum
 from typing import cast
 
+import arrayfire_wrapper.lib as wrapper
+
 from arrayfire import Array
 from arrayfire.array_object import afarray_as_array
-from arrayfire.backend import _clib_wrapper as wrapper
 from arrayfire.dtypes import Dtype, float32
 
 
@@ -99,25 +100,25 @@ class RandomEngine:
         """
         return wrapper.random_engine_get_seed(self._engine)
 
-    def get_engine(self) -> wrapper.AFRandomEngine:
+    def get_engine(self) -> wrapper.AFRandomEngineHandle:
         """
         Get the ArrayFire random engine handle.
 
         Returns
         -------
-        wrapper.AFRandomEngine
+        wrapper.AFRandomEngineHandle
             The ArrayFire random engine handle associated with this RandomEngine instance.
         """
         return self._engine
 
     @classmethod
-    def from_engine(cls, engine: wrapper.AFRandomEngine) -> RandomEngine:
+    def from_engine(cls, engine: wrapper.AFRandomEngineHandle) -> RandomEngine:
         """
         Create a RandomEngine instance from an existing RandomEngine handle.
 
         Parameters
         ----------
-        engine : wrapper.AFRandomEngine
+        engine : wrapper.AFRandomEngineHandle
             The existing RandomEngine handle.
 
         Returns

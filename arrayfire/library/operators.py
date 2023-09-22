@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from typing import cast
 
+import arrayfire_wrapper.lib as wrapper
+
 from arrayfire import Array
 from arrayfire.array_object import afarray_as_array
-from arrayfire.backend import _clib_wrapper as wrapper
+
+# from arrayfire._backup_backend import _clib_wrapper as wrapper
 from arrayfire.dtypes import is_complex_dtype
 
 
@@ -64,7 +67,7 @@ def mod(x1: int | float | Array, x2: int | float | Array, /) -> Array:
 def pow(x1: int | float | Array, x2: int | float | Array, /) -> Array:
     _check_operands_fit_requirements(x1, x2)
 
-    return wrapper.pow(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
+    return wrapper.pow(x1.arr, x2.arr)
 
 
 @afarray_as_array
@@ -321,7 +324,7 @@ def pow2(x: Array, /) -> Array:
 @afarray_as_array
 def sigmoid(x: Array, /) -> Array:
     _check_array_values_not_complex(x)
-    return wrapper.sigmoid(x.arr)  # type: ignore[arg-type, return-value]
+    return wrapper.sigmoid(x.arr)
 
 
 @afarray_as_array
@@ -427,18 +430,18 @@ def isnan(x: Array, /) -> Array:
 
 
 @afarray_as_array
-def land(x1: Array, x2: Array, /) -> Array:
-    return wrapper.land(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
+def and_(x1: Array, x2: Array, /) -> Array:
+    return wrapper.and_(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
-def lor(x1: Array, x2: Array, /) -> Array:
-    return wrapper.lor(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
+def or_(x1: Array, x2: Array, /) -> Array:
+    return wrapper.or_(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
-def lnot(x: Array, /) -> Array:
-    return wrapper.lnot(x.arr)  # type: ignore[arg-type, return-value]
+def not_(x: Array, /) -> Array:
+    return wrapper.not_(x.arr)  # type: ignore[arg-type, return-value]
 
 
 def _check_operands_fit_requirements(x1: int | float | Array, x2: int | float | Array) -> None:

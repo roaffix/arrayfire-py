@@ -1,29 +1,21 @@
 from __future__ import annotations
 
-import array as py_array
-import ctypes
+import array as _pyarray
 from collections.abc import Callable
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, ParamSpec, cast
 
-from .backend import _clib_wrapper as wrapper
-from .dtypes import CType, Dtype
+import arrayfire_wrapper.lib as wrapper
+from arrayfire_wrapper.defines import AFArray, ArrayBuffer, CType
+
+from .dtypes import Dtype
 from .dtypes import bool as afbool
 from .dtypes import c_api_value_to_dtype, float32, str_to_dtype
+from .library.constant_array import create_constant_array
 from .library.device import PointerSource
 
 if TYPE_CHECKING:
     from ctypes import Array as CArray
     from enum import Enum
-
-# TODO use int | float in operators -> remove bool | complex support
-
-
-@dataclass(frozen=True)
-class _ArrayBuffer:
-    address: int
-    length: int = 0
-
 
 P = ParamSpec("P")
 
@@ -55,14 +47,14 @@ def afarray_as_array(func: Callable[P, Array]) -> Callable[P, Array]:
 class Array:
     def __init__(
         self,
-        obj: None | Array | py_array.array | int | wrapper.AFArrayType | list[int | float] = None,
+        obj: None | Array | _pyarray.array | int | AFArray | list[int | float] = None,
         dtype: None | Dtype | str = None,
         shape: tuple[int, ...] = (),
         to_device: bool = False,
         offset: CType | None = None,
         strides: tuple[int, ...] | None = None,
     ) -> None:
-        self.arr = wrapper.AFArrayType.create_pointer()  # FIXME
+        self.arr = AFArray.create_null_pointer()
         _no_initial_dtype = False  # HACK, FIXME
 
         if isinstance(dtype, str):
@@ -84,27 +76,25 @@ class Array:
             self.arr = wrapper.retain_array(obj.arr)
             return
 
-        if isinstance(obj, py_array.array):
+        if isinstance(obj, _pyarray.array):
             _type_char: str = obj.typecode
-            _array_buffer = _ArrayBuffer(*obj.buffer_info())
+            _array_buffer = ArrayBuffer(*obj.buffer_info())
 
         elif isinstance(obj, list):
             # TODO fix an issue when Array can not be created from float values to complex
             if _no_initial_dtype:
                 arr_typecode = "f"
-            elif dtype.typecode in py_array.typecodes:
+            elif dtype.typecode in _pyarray.typecodes:
                 arr_typecode = dtype.typecode
             else:
                 raise TypeError(f"Unsupported typecode. Can not create a python array from '{repr(dtype)}'")
 
-            _array = py_array.array(arr_typecode, obj)
+            _array = _pyarray.array(arr_typecode, obj)
             _type_char = _array.typecode
-            _array_buffer = _ArrayBuffer(*_array.buffer_info())
+            _array_buffer = ArrayBuffer(*_array.buffer_info())
 
-        elif isinstance(obj, int) or isinstance(obj, wrapper.AFArrayType):
-            _array_buffer = _ArrayBuffer(
-                obj if not isinstance(obj, wrapper.AFArrayType) else obj.value  # type: ignore[arg-type]
-            )
+        elif isinstance(obj, int) or isinstance(obj, AFArray):
+            _array_buffer = ArrayBuffer(obj if not isinstance(obj, AFArray) else obj.value)  # type: ignore[arg-type]
 
             if not shape:
                 raise TypeError("Expected to receive the initial shape due to the obj being a data pointer.")
@@ -805,15 +795,16 @@ class Array:
             dims = _get_processed_index(key, self.shape)
             if is_array_with_bool:
                 ndims = 1
-                other_arr = wrapper.create_constant_array(value, (int(num),), self.dtype)
+                # FIXME
+                other_arr = create_constant_array(value, (int(num),), self.dtype)  # type: ignore[call-overload]
             else:
-                other_arr = wrapper.create_constant_array(value, dims, self.dtype)
+                other_arr = create_constant_array(value, dims, self.dtype)
             del_other = True
         else:
             other_arr = value.arr
             del_other = False
 
-        indices = wrapper.get_indices(key)
+        indices = wrapper.get_indices(key)  # type: ignore[arg-type]  # FIXME
         out = wrapper.assign_gen(self.arr, other_arr, ndims, indices)
 
         wrapper.release_array(self.arr)
@@ -825,12 +816,12 @@ class Array:
         # TODO change the look of array str. E.g., like np.array
         # if not _in_display_dims_limit(self.shape):
         #     return _metadata_string(self.dtype, self.shape)
-        return _metadata_string(self.dtype) + wrapper.array_as_str(self.arr)
+        return _metadata_string(self.dtype) + _array_as_str(self)
 
     def __repr__(self) -> str:
         # return _metadata_string(self.dtype, self.shape)
         # TODO change the look of array representation. E.g., like np.array
-        return wrapper.array_as_str(self.arr)
+        return _array_as_str(self)
 
     def __del__(self) -> None:
         if not self.arr.value:
@@ -855,7 +846,7 @@ class Array:
         out : Dtype
             Array data type.
         """
-        return c_api_value_to_dtype(wrapper.get_ctype(self.arr))
+        return c_api_value_to_dtype(wrapper.get_type(self.arr))
 
     @property
     def device(self) -> Any:
@@ -1012,9 +1003,9 @@ class Array:
 
         return cast(Array, wrapper.copy_array(self.arr))
 
-    @classmethod
-    def from_afarray(cls, array: wrapper.AFArrayType) -> None:
-        cls.arr = array
+    # @classmethod
+    # def from_afarray(cls, array: wrapper.AFArrayType) -> None:
+    #     cls.arr = array
 
 
 IndexKey = int | float | complex | bool | wrapper.ParallelRange | slice | tuple[int | slice, ...] | Array
@@ -1042,10 +1033,10 @@ def _process_c_function(lhs: int | float | Array, rhs: int | float | Array, c_fu
 
     elif isinstance(lhs, Array) and isinstance(rhs, (int, float)):
         lhs_array = lhs.arr
-        rhs_array = wrapper.create_constant_array(rhs, lhs.shape, lhs.dtype)
+        rhs_array = create_constant_array(rhs, lhs.shape, lhs.dtype)
 
     elif isinstance(lhs, (int, float)) and isinstance(rhs, Array):
-        lhs_array = wrapper.create_constant_array(lhs, rhs.shape, rhs.dtype)
+        lhs_array = create_constant_array(lhs, rhs.shape, rhs.dtype)
         rhs_array = rhs.arr
 
     else:
@@ -1096,3 +1087,7 @@ def _slice_to_length(key: slice, dim: int) -> int:
         step = 1
 
     return int(((stop - start - 1) / step) + 1)
+
+
+def _array_as_str(array: Array) -> str:
+    return wrapper.array_to_string("", array.arr, 4, True)
