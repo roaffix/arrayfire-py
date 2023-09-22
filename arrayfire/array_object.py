@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import array as _pyarray
 from collections.abc import Callable
+from functools import wraps
 from typing import TYPE_CHECKING, Any, ParamSpec, cast
 
 import arrayfire_wrapper.lib as wrapper
@@ -35,6 +36,7 @@ def afarray_as_array(func: Callable[P, Array]) -> Callable[P, Array]:
         A decorated function that returns an ArrayFire Array.
     """
 
+    @wraps(func)
     def decorated(*args: P.args, **kwargs: P.kwargs) -> Array:
         out = Array()
         result = func(*args, **kwargs)
