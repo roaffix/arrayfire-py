@@ -33,6 +33,36 @@ class finfo_object:
     dtype: Dtype
 
 
+# TODO fix and add complex support
+# float32 : finfo(32, 1.19209290 * 10^-7, 3.4028234 * 10^38, -3.4028234 * 10^38, 1.1754943 *10^−38, float32)
+# float64 : finfo(64, 2.2204460492503131*10^-16, 1.7976931348623157 · 10^308, -1.7976931348623157 · 10^308, 2.2250738585072014 * 10^−308 , float64)
+# float16 : finfo(16, 0.00097656, 65504, -65504, 0.00006103515625, float16)
+
+
+# TODO separate API supported dtypes, add aliases
+# Common
+# int16 = Dtype("int16", "h", ctypes.c_short, "short int", 10) == s16
+# int32 = Dtype("int32", "i", ctypes.c_int, "int", 5) == s32
+# int64 = Dtype("int64", "l", ctypes.c_longlong, "long int", 8) == s64
+# uint8 = Dtype("uint8", "B", ctypes.c_ubyte, "unsigned_char", 7) == u8
+# uint16 = Dtype("uint16", "H", ctypes.c_ushort, "unsigned short int", 11) == u16
+# uint32 = Dtype("uint32", "I", ctypes.c_uint, "unsigned int", 6) == u32
+# uint64 = Dtype("uint64", "L", ctypes.c_ulonglong, "unsigned long int", 9) == u64
+# float16 = Dtype("float16", "e", ctypes.c_uint16, "half", 12) == f16
+# float32 = Dtype("float32", "f", ctypes.c_float, "float", 0) == f32
+# float64 = Dtype("float64", "d", ctypes.c_double, "double", 2) == f64
+# bool = Dtype("bool", "b", ctypes.c_char, "bool", 4) == b8
+
+# AF API
+# complex32 = Dtype("complex32", "F", ctypes.c_float * 2, "float complex", 1) == c32
+# complex64 = Dtype("complex64", "D", ctypes.c_double * 2, "double complex", 3) == c64
+
+# Array API
+# int8 = Dtype("int8", "b8", ctypes.c_char, "int8", 4)  # HACK int8 - not supported in AF -> same as b8
+# complex64 = Dtype("complex64", "F", ctypes.c_float * 2, "float complex", 1)  # type: ignore[arg-type]
+# complex128 = Dtype("complex128", "D", ctypes.c_double * 2, "double complex", 3)  # type: ignore[arg-type]
+
+
 @dataclass
 class iinfo_object:
     bits: int
@@ -45,8 +75,26 @@ def finfo(type: Union[Dtype, Array], /) -> finfo_object:
     return NotImplemented
 
 
-def iinfo(type: Union[Dtype, Array], /) -> iinfo_object:
-    return NotImplemented
+# TODO fix bug
+# def iinfo(type: Union[Dtype, Array], /) -> iinfo_object:
+#     # Reference: https://en.cppreference.com/w/cpp/language/types
+
+#     if isinstance(type, Dtype):
+#         type_ = type
+#     elif isinstance(type, Array):
+#         type_ = Array.dtype
+#     else:
+#         raise ValueError("Wrong type.")
+
+#     match type_:
+#         case int32:
+#             return iinfo_object(32, 2147483648, -2147483647, int32)
+#         case int16:
+#             return iinfo_object(16,32767, -32768, int16)
+#         case int8:
+#             return iinfo_object(8, 127, -128, int8)
+#         case int64:
+#             return iinfo_object(64, 9223372036854775807, -9223372036854775808, int64)
 
 
 def isdtype(dtype: Dtype, kind: Union[Dtype, str, Tuple[Union[Dtype, str], ...]]) -> bool:

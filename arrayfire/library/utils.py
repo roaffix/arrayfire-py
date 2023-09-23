@@ -1,7 +1,8 @@
 from typing import cast as typing_cast
 
+import arrayfire_wrapper.lib as wrapper
+
 from arrayfire.array_object import Array, afarray_as_array
-from arrayfire.backend import _clib_wrapper as wrapper
 from arrayfire.dtypes import Dtype
 
 

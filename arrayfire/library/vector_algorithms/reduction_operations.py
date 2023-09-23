@@ -1,9 +1,10 @@
 from collections.abc import Callable
 from typing import Any, cast
 
+from arrayfire_wrapper import lib as wrapper
+
 from arrayfire import Array
 from arrayfire.array_object import afarray_as_array
-from arrayfire.backend import _clib_wrapper as wrapper
 
 
 @afarray_as_array

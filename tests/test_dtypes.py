@@ -4,7 +4,18 @@ import pytest
 
 from arrayfire.dtypes import Dtype
 from arrayfire.dtypes import bool as af_bool
-from arrayfire.dtypes import complex128, float32, float64, implicit_dtype, int8, int32, int64, str_to_dtype, uint16
+from arrayfire.dtypes import (
+    complex64,
+    float32,
+    float64,
+    implicit_dtype,
+    int16,
+    int32,
+    int64,
+    s16,
+    str_to_dtype,
+    uint16,
+)
 
 
 def test_dtype_str_representation() -> None:
@@ -22,7 +33,7 @@ def test_dtype_equality() -> None:
 
 
 def test_dtype_inequality() -> None:
-    assert float32 != int8
+    assert float32 != int16
 
 
 @pytest.mark.parametrize(
@@ -32,7 +43,7 @@ def test_dtype_inequality() -> None:
         (1.0, float64, float64),
         (1.0, float32, float32),
         (True, float32, af_bool),
-        (1 + 2j, complex128, complex128),
+        (1 + 2j, complex64, complex64),
     ],
 )
 def test_implicit_dtype(number: int | float | bool | complex, array_dtype: Dtype, expected_dtype: Dtype) -> None:
@@ -58,7 +69,7 @@ def test_implicit_dtype_raises_error_invalid_combination() -> None:
 @pytest.mark.parametrize(
     "value,expected_dtype",
     [
-        ("i8", int8),
+        ("short int", s16),
         ("int", int32),
         ("uint16", uint16),
         ("float", float32),

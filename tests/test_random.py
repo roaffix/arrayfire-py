@@ -1,7 +1,7 @@
 import pytest
+from arrayfire_wrapper.lib import create_random_engine
 
 from arrayfire import Array
-from arrayfire.backend import _clib_wrapper as wrapper
 from arrayfire.library import random
 from arrayfire.library.random import RandomEngine, RandomEngineType
 
@@ -21,7 +21,7 @@ def test_random_engine_creation() -> None:
 
 def test_random_engine_from_handle() -> None:
     # Test creating a random engine from an existing handle
-    handle = wrapper.create_random_engine(RandomEngineType.MERSENNE.value, 1232)
+    handle = create_random_engine(RandomEngineType.MERSENNE.value, 1232)
     engine = RandomEngine.from_engine(handle)
     assert engine.get_type() == RandomEngineType.MERSENNE
     assert engine.get_seed() == 1232

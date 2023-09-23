@@ -1,6 +1,6 @@
 import enum
 
-from arrayfire.backend import _clib_wrapper as wrapper
+import arrayfire_wrapper.lib as wrapper
 
 
 class PointerSource(enum.Enum):
@@ -18,6 +18,3 @@ def get_device() -> int:  # FIXME
 
 def sync(device_id: int) -> None:  # FIXME
     return wrapper.sync(device_id)
-
-
-supported_devices = []

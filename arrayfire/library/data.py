@@ -1,9 +1,11 @@
 from typing import cast
 
+import arrayfire_wrapper.lib as wrapper
+
 from arrayfire import Array
 from arrayfire.array_object import afarray_as_array
-from arrayfire.backend import _clib_wrapper as wrapper
 from arrayfire.dtypes import Dtype, float32
+from arrayfire.library.constant_array import create_constant_array
 
 _pyrange = range
 
@@ -39,7 +41,7 @@ def constant(scalar: int | float | complex, shape: tuple[int, ...] = (1,), dtype
     - If shape is (x1, x2, x3), the output is a 3D array of size (x1, x2, x3).
     - If shape is (x1, x2, x3, x4), the output is a 4D array of size (x1, x2, x3, x4).
     """
-    result = wrapper.create_constant_array(scalar, shape, dtype)
+    result = create_constant_array(scalar, shape, dtype)
     return cast(Array, result)  # HACK actually it return AFArrayType, but decorator makes it an ArrayFire Array.
 
 
@@ -101,7 +103,7 @@ def range(shape: tuple[int, ...], axis: int = 0, dtype: Dtype = float32) -> Arra
             f"Can not calculate along {axis} dimension. The resulting Array is set to has {len(shape)} dimensions."
         )
 
-    result = wrapper.af_range(shape, axis, dtype)
+    result = wrapper.range(shape, axis, dtype)
     return cast(Array, result)  # HACK actually it return AFArrayType, but decorator makes it an ArrayFire Array.
 
 

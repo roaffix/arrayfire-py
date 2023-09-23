@@ -1,13 +1,8 @@
-from typing import TYPE_CHECKING
-
 import pytest
 
 from arrayfire import Array
 from arrayfire.library import data
 from arrayfire.library import vector_algorithms as va
-
-# if TYPE_CHECKING:
-#     from arrayfire import Array
 
 
 @pytest.fixture
