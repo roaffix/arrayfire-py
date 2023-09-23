@@ -130,18 +130,9 @@ def neq(x1: Array, x2: Array, /) -> Array:
     return wrapper.neq(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
 
 
-# @afarray_as_array
-# def clamp(x: Array, /, lo: float, hi: float) -> Array:
-#     return NotImplemented
-
-
-# #     """
-# #     source: https://arrayfire.org/docs/group__arith__func__clamp.htm#gac4e785c5c877c7905e56f44ef0cb5e61
-# #     """
-# #     # TODO: check if lo and hi are of type float. Can be ArrayFire array as well
-# #     out = AFArrayType.create_pointer()
-# #     safe_call(_backend.clib.af_clamp(ctypes.pointer(out), arr, lo, hi))
-# #     return out
+@afarray_as_array
+def clamp(x: Array, /, lo: float, hi: float) -> Array:
+    return NotImplemented
 
 
 @afarray_as_array
