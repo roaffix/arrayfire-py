@@ -4,6 +4,7 @@ import arrayfire_wrapper.lib as wrapper
 
 from arrayfire import Array
 from arrayfire.array_object import afarray_as_array
+from arrayfire.library.constants import Match
 
 
 def gloh(
@@ -83,3 +84,41 @@ def fast(
     edge: int = 3,
 ) -> Array:
     return cast(Array, wrapper.fast(image.arr, fast_threshold, arc_length, non_max, feature_ratio, edge))
+
+
+@afarray_as_array
+def harris(
+    image: Array,
+    /,
+    max_corners: int = 500,
+    min_response: float = 1e5,
+    sigma: float = 1.0,
+    block_size: int = 0,
+    k_threshold: float = 0,
+) -> Array:
+    return cast(Array, wrapper.harris(image.arr, max_corners, min_response, sigma, block_size, k_threshold))
+
+
+@afarray_as_array
+def susan(
+    image: Array,
+    /,
+    radius: int = 500,
+    diff_threshold: float = 1e5,
+    geom_threshold: float = 1.0,
+    feature_ratio: float = 0.05,
+    edge: int = 3,
+) -> Array:
+    return cast(Array, wrapper.susan(image.arr, radius, diff_threshold, geom_threshold, feature_ratio, edge))
+
+
+def hamming_matcher(query: Array, train: Array, /, axis: int = 0, n_nearest: int = 1) -> tuple[Array, Array]:
+    indices, distance = wrapper.hamming_matcher(query.arr, train.arr, axis, n_nearest)
+    return Array.from_afarray(indices), Array.from_afarray(distance)
+
+
+def nearest_neighbour(
+    query: Array, train: Array, /, axis: int = 0, n_nearest: int = 1, match_type: Match = Match.SSD
+) -> tuple[Array, Array]:
+    indices, distance = wrapper.nearest_neighbour(query.arr, train.arr, axis, n_nearest, match_type)
+    return Array.from_afarray(indices), Array.from_afarray(distance)

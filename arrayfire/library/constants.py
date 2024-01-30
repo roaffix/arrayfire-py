@@ -15,3 +15,4 @@ Scalar = int | float | complex | bool
 # Wrapper constants
 
 BinaryOperator = wrapper.BinaryOperator
+Match = wrapper.Match

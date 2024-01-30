@@ -253,6 +253,46 @@ __all__ += ["randu"]
 
 from arrayfire.library.random import randu
 
-__all__ += ["all_true", "any_true"]
+__all__ += [
+    "accum",
+    "scan",
+    "where",
+    "all_true",
+    "any_true",
+    "sum",
+    "product",
+    "count",
+    "imax",
+    "max",
+    "imin",
+    "min",
+    "diff1",
+    "diff2",
+    "gradient",
+    "set_intersect",
+    "set_union",
+    "set_unique",
+    "sort",
+]
 
-from arrayfire.library.vector_algorithms import all_true, any_true
+from arrayfire.library.vector_algorithms import (
+    accum,
+    all_true,
+    any_true,
+    count,
+    diff1,
+    diff2,
+    gradient,
+    imax,
+    imin,
+    max,
+    min,
+    product,
+    scan,
+    set_intersect,
+    set_union,
+    set_unique,
+    sort,
+    sum,
+    where,
+)

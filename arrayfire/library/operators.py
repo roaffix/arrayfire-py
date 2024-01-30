@@ -6,8 +6,6 @@ import arrayfire_wrapper.lib as wrapper
 
 from arrayfire import Array
 from arrayfire.array_object import afarray_as_array
-
-# from arrayfire._backup_backend import _clib_wrapper as wrapper
 from arrayfire.dtypes import is_complex_dtype
 
 
