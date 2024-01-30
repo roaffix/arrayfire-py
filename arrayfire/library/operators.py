@@ -67,7 +67,10 @@ def mod(x1: int | float | Array, x2: int | float | Array, /) -> Array:
 def pow(x1: int | float | Array, x2: int | float | Array, /) -> Array:
     _check_operands_fit_requirements(x1, x2)
 
-    return wrapper.pow(x1.arr, x2.arr)
+    x1_ = x1.arr if isinstance(x1, Array) else x1
+    x2_ = x2.arr if isinstance(x2, Array) else x2
+
+    return cast(Array, wrapper.pow(x1_, x2_))
 
 
 @afarray_as_array
@@ -139,7 +142,7 @@ def clamp(x: Array, /, lo: float, hi: float) -> Array:
 def minof(x1: int | float | Array, x2: int | float | Array, /) -> Array:
     _check_operands_fit_requirements(x1, x2)
 
-    return wrapper.minof(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
+    return cast(Array, wrapper.minof(x1.arr, x2.arr))
 
 
 @afarray_as_array

@@ -70,13 +70,14 @@ def any_true(array: Array, axis: int | None = None) -> bool | Array:
 
 
 def sum(array: Array, /, *, axis: int | None = None, nan_value: float | None = None) -> int | float | complex | Array:
+    # FIXME documentation issues
     """
     Calculate the sum of elements along a specified dimension or the entire array.
 
     Parameters
     ----------
     array : Array
-        Multi-dimensional array to calculate the sum of.
+        The multi-dimensional array to calculate the sum of.
 
     axis : int or None, optional, default: None
         The dimension along which the sum is calculated.
@@ -87,13 +88,13 @@ def sum(array: Array, /, *, axis: int | None = None, nan_value: float | None = N
 
     Returns
     -------
-    result : Array or bool or scalar
+    Array or bool or scalar
         - If `axis` is None and `nan_value` is None, returns a boolean indicating if the sum contains NaN or Inf.
         - If `axis` is None and `nan_value` is not None, returns a boolean indicating if the sum contains NaN or
-            Inf after replacing NaN values.
+          Inf after replacing NaN values.
         - If `axis` is not None, returns an Array containing the sum along the specified dimension.
         - If `axis` is not None and `nan_value` is not None, returns an Array containing the sum along the specified
-            dimension after replacing NaN values.
+          dimension after replacing NaN values.
     """
 
     if axis is None:
@@ -106,3 +107,41 @@ def sum(array: Array, /, *, axis: int | None = None, nan_value: float | None = N
         return _reduce_to_array(wrapper.sum, array, axis)
 
     return _reduce_to_array(wrapper.sum_nan, array, axis, nan_value=nan_value)
+
+
+def product(
+    array: Array, /, *, axis: int | None = None, nan_value: float | None = None
+) -> int | float | complex | Array:
+    # FIXME documentation issues
+    """
+    Calculate the product of all the elements along a specified dimension.
+
+    Parameters
+    ----------
+    array : Array
+        The multi-dimensional array to calculate the product of.
+
+    axis : int or None, optional, default: None
+        The dimension along which the product is calculated.
+        If None, the product of all elements in the entire array is returned.
+
+    nan_value : float or None, optional, default: None
+        The value to replace NaN (Not-a-Number) values in the array before computing the product.
+        If None, NaN values are ignored.
+
+    Returns
+    -------
+    Array or scalar number
+        The product of all elements in `array` along dimension `axis`.
+        If `axis` is `None`, the product of the entire array is returned.
+    """
+    if axis is None:
+        if nan_value is None:
+            return wrapper.product_all(array.arr)
+
+        return wrapper.product_nan_all(array.arr, nan_value)
+
+    if nan_value is None:
+        return _reduce_to_array(wrapper.product, array, axis)
+
+    return _reduce_to_array(wrapper.product_nan, array, axis, nan_value=nan_value)

@@ -38,10 +38,8 @@ def afarray_as_array(func: Callable[P, Array]) -> Callable[P, Array]:
 
     @wraps(func)
     def decorated(*args: P.args, **kwargs: P.kwargs) -> Array:
-        out = Array()
         result = func(*args, **kwargs)
-        out.arr = result  # type: ignore[assignment]
-        return out
+        return Array.from_afarray(result)
 
     return decorated
 
@@ -56,7 +54,7 @@ class Array:
         offset: CType | None = None,
         strides: tuple[int, ...] | None = None,
     ) -> None:
-        self.arr = AFArray.create_null_pointer()
+        self._arr = AFArray.create_null_pointer()
         _no_initial_dtype = False  # HACK, FIXME
 
         if isinstance(dtype, str):
@@ -68,14 +66,14 @@ class Array:
 
         if obj is None:
             if not shape:  # shape is None or empty tuple
-                self.arr = wrapper.create_handle((), dtype)
+                self._arr = wrapper.create_handle((), dtype)
                 return
 
-            self.arr = wrapper.create_handle(shape, dtype)
+            self._arr = wrapper.create_handle(shape, dtype)
             return
 
         if isinstance(obj, Array):
-            self.arr = wrapper.retain_array(obj.arr)
+            self._arr = wrapper.retain_array(obj.arr)
             return
 
         if isinstance(obj, _pyarray.array):
@@ -120,13 +118,13 @@ class Array:
 
         if not (offset or strides):
             if not to_device:
-                self.arr = wrapper.create_array(shape, dtype, _array_buffer)
+                self._arr = wrapper.create_array(shape, dtype, _array_buffer)
                 return
 
-            self.arr = wrapper.device_array(shape, dtype, _array_buffer)
+            self._arr = wrapper.device_array(shape, dtype, _array_buffer)
             return
 
-        self.arr = wrapper.create_strided_array(
+        self._arr = wrapper.create_strided_array(
             shape, dtype, _array_buffer, offset, strides, PointerSource.device  # type: ignore[arg-type]
         )
 
@@ -328,10 +326,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have the same data type as self.
         """
-        # FIXME
-        out = Array()
-        out.arr = wrapper.bitnot(self.arr)
-        return out
+        return Array.from_afarray(wrapper.bitnot(self._arr))
 
     def __and__(self, other: int | bool | Array, /) -> Array:
         """
@@ -768,7 +763,7 @@ class Array:
                 return out
 
         # HACK known issue
-        out.arr = wrapper.index_gen(self.arr, ndims, wrapper.get_indices(key))  # type: ignore[arg-type]
+        out._arr = wrapper.index_gen(self._arr, ndims, wrapper.get_indices(key))  # type: ignore[arg-type]
         return out
 
     def __index__(self) -> int:
@@ -785,7 +780,7 @@ class Array:
     def __setitem__(self, key: IndexKey, value: int | float | bool | Array, /) -> None:
         ndims = self.ndim
 
-        is_array_with_bool = isinstance(key, Array) and type(key) == afbool
+        is_array_with_bool = isinstance(key, Array) and type(key) is afbool
 
         if is_array_with_bool:
             ndims = 1
@@ -807,12 +802,12 @@ class Array:
             del_other = False
 
         indices = wrapper.get_indices(key)  # type: ignore[arg-type]  # FIXME
-        out = wrapper.assign_gen(self.arr, other_arr, ndims, indices)
+        out = wrapper.assign_gen(self._arr, other_arr, ndims, indices)
 
-        wrapper.release_array(self.arr)
+        wrapper.release_array(self._arr)
         if del_other:
             wrapper.release_array(other_arr)
-        self.arr = out
+        self._arr = out
 
     def __str__(self) -> str:
         # TODO change the look of array str. E.g., like np.array
@@ -826,11 +821,11 @@ class Array:
         return _array_as_str(self)
 
     def __del__(self) -> None:
-        if not self.arr.value:
+        if not self._arr.value:
             return
 
-        wrapper.release_array(self.arr)
-        self.arr.value = 0
+        wrapper.release_array(self._arr)
+        self._arr.value = 0
 
     def to_device(self, device: Any, /, *, stream: int | Any = None) -> Array:
         # TODO implementation and change device type from Any to Device
@@ -848,7 +843,7 @@ class Array:
         out : Dtype
             Array data type.
         """
-        return c_api_value_to_dtype(wrapper.get_type(self.arr))
+        return c_api_value_to_dtype(wrapper.get_type(self._arr))
 
     @property
     def device(self) -> Any:
@@ -876,12 +871,12 @@ class Array:
             raise TypeError(f"Array should be at least 2-dimensional. Got {self.ndim}-dimensional array")
 
         # TODO add check if out.dtype == self.dtype
-        return cast(Array, wrapper.transpose(self.arr, False))
+        return cast(Array, wrapper.transpose(self._arr, False))
 
     @property
     @afarray_as_array
     def H(self) -> Array:
-        return cast(Array, wrapper.transpose(self.arr, True))
+        return cast(Array, wrapper.transpose(self._arr, True))
 
     @property
     def size(self) -> int:
@@ -898,7 +893,7 @@ class Array:
         - This must equal the product of the array's dimensions.
         """
         # NOTE previously - elements()
-        return wrapper.get_elements(self.arr)
+        return wrapper.get_elements(self._arr)
 
     @property
     def ndim(self) -> int:
@@ -908,7 +903,7 @@ class Array:
         int
             Number of array dimensions (axes).
         """
-        return wrapper.get_numdims(self.arr)
+        return wrapper.get_numdims(self._arr)
 
     @property
     def shape(self) -> tuple[int, ...]:
@@ -921,7 +916,7 @@ class Array:
             Array dimensions.
         """
         # NOTE skipping passing any None values
-        return wrapper.get_dims(self.arr)[: self.ndim]
+        return wrapper.get_dims(self._arr)[: self.ndim]
 
     @property
     def offset(self) -> int:
@@ -933,7 +928,7 @@ class Array:
         int
             The offset in number of elements.
         """
-        return wrapper.get_offset(self.arr)
+        return wrapper.get_offset(self._arr)
 
     @property
     def strides(self) -> tuple[int, ...]:
@@ -945,7 +940,7 @@ class Array:
         tuple[int, ...]
             The strides for each dimension.
         """
-        return wrapper.get_strides(self.arr)[: self.ndim]
+        return wrapper.get_strides(self._arr)[: self.ndim]
 
     # TODO rename front_to_host or smth. Extend doc: move first element of array from gpu to cpu
     def scalar(self) -> int | float | bool | complex | None:  # FIXME
@@ -956,13 +951,13 @@ class Array:
         if self.is_empty():
             return None
 
-        return wrapper.get_scalar(self.arr, self.dtype)
+        return wrapper.get_scalar(self._arr, self.dtype)
 
     def is_empty(self) -> bool:
         """
         Check if the array is empty i.e. it has no elements.
         """
-        return wrapper.is_empty(self.arr)
+        return wrapper.is_empty(self._arr)
 
     def to_list(self, row_major: bool = False) -> list[int | float | bool | complex]:
         if self.is_empty():
@@ -1003,11 +998,30 @@ class Array:
              An identical copy of self.
         """
 
-        return cast(Array, wrapper.copy_array(self.arr))
+        return cast(Array, wrapper.copy_array(self._arr))
 
-    # @classmethod
-    # def from_afarray(cls, array: wrapper.AFArrayType) -> None:
-    #     cls.arr = array
+    @property
+    def arr(self) -> AFArray:
+        return self._arr
+
+    @classmethod
+    def from_afarray(cls, array: wrapper.AFArray) -> Array:
+        """
+        Creates an instance of Array from an AFArray object.
+
+        Parameters
+        ----------
+        array: AFArray
+            The array object to wrap in the Array instance.
+
+        Returns
+        -------
+        Array
+            An instance of Array wrapping the given array.
+        """
+        out = cls()
+        out._arr = array
+        return out
 
 
 IndexKey = int | float | complex | bool | wrapper.ParallelRange | slice | tuple[int | slice, ...] | Array
