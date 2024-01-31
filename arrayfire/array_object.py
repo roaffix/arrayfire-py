@@ -1068,13 +1068,13 @@ def _get_processed_index(key: IndexKey, shape: tuple[int, ...]) -> tuple[int, ..
     return (_index_to_afindex(key, shape[0]),) + shape[1:]
 
 
-def _index_to_afindex(key: int | float | complex | bool | slice | wrapper.ParallelRange | Array, dim: int) -> int:
+def _index_to_afindex(key: int | float | complex | bool | slice | wrapper.ParallelRange | Array, axis: int) -> int:
     if isinstance(key, int | float | complex | bool):
         out = 1
     elif isinstance(key, slice):
-        out = _slice_to_length(key, dim)
+        out = _slice_to_length(key, axis)
     elif isinstance(key, wrapper.ParallelRange):
-        out = _slice_to_length(key.S, dim)
+        out = _slice_to_length(key.S, axis)
     elif isinstance(key, Array):
         if key.dtype == afbool:
             from arrayfire.library.vector_algorithms import sum as af_sum
@@ -1088,16 +1088,16 @@ def _index_to_afindex(key: int | float | complex | bool | slice | wrapper.Parall
     return out
 
 
-def _slice_to_length(key: slice, dim: int) -> int:
+def _slice_to_length(key: slice, axis: int) -> int:
     if key.start is None:
         start = 0
     elif key.start < 0:
-        start = dim - key.start
+        start = axis - key.start
 
     if key.stop is None:
-        stop = dim
+        stop = axis
     elif key.stop < 0:
-        stop = dim - key.stop
+        stop = axis - key.stop
 
     if key.step is None:
         step = 1

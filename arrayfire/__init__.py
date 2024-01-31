@@ -173,7 +173,7 @@ __all__ += [
 ]
 
 
-from .library.operators import (
+from .library.mathematical_functions import (
     abs,
     acos,
     acosh,
