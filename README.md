@@ -6,8 +6,8 @@ Arrayfire python wrapper
 
 - [x] Computer Vision
 - [] Events
-- [] Functions to Create and Modify Arrays
-- [] Functions to Work with Internal Array Layout
+- [x] Functions to Create and Modify Arrays
+- [x] Functions to Work with Internal Array Layout
 - [x] Image Processing
   - [x] Features
 - [x] Input and Output Functions

@@ -5,7 +5,7 @@ import arrayfire_wrapper.lib as wrapper
 from arrayfire import Array
 from arrayfire.array_object import afarray_as_array
 from arrayfire.dtypes import Dtype, float32
-from arrayfire.library.constant_array import create_constant_array
+from arrayfire.library.array_management.creation import create_constant_array
 
 _pyrange = range
 
@@ -42,68 +42,6 @@ def constant(scalar: int | float | complex, shape: tuple[int, ...] = (1,), dtype
     - If shape is (x1, x2, x3, x4), the output is a 4D array of size (x1, x2, x3, x4).
     """
     result = create_constant_array(scalar, shape, dtype)
-    return cast(Array, result)  # HACK actually it return AFArrayType, but decorator makes it an ArrayFire Array.
-
-
-@afarray_as_array
-def range(shape: tuple[int, ...], axis: int = 0, dtype: Dtype = float32) -> Array:
-    """
-    Create a multi-dimensional array using the length of a dimension as a range.
-
-    Parameters
-    ----------
-    shape : tuple[int, ...]
-        The shape of the resulting array. Each element represents the length
-        of a corresponding dimension.
-
-    axis : int, optional, default: 0
-        The dimension along which the range is calculated.
-
-    dtype : Dtype, optional, default: float32
-        Data type of the array.
-
-    Returns
-    -------
-    Array
-        A multi-dimensional ArrayFire array whose elements along `axis` fall
-        between [0, self.ndims[axis]-1].
-
-    Raises
-    ------
-    ValueError
-        If axis value is greater than the number of axes in resulting Array.
-
-    Notes
-    -----
-    The `shape` parameter determines the dimensions of the resulting array:
-    - If shape is (x1,), the output is a 1D array of size (x1,).
-    - If shape is (x1, x2), the output is a 2D array of size (x1, x2).
-    - If shape is (x1, x2, x3), the output is a 3D array of size (x1, x2, x3).
-    - If shape is (x1, x2, x3, x4), the output is a 4D array of size (x1, x2, x3, x4).
-
-    Examples
-    --------
-    >>> import arrayfire as af
-    >>> a = af.range((3, 2))  # axis is not specified, range is along the first dimension.
-    >>> af.display(a)  # The data ranges from [0 - 2] (3 elements along the first dimension)
-    [3 2 1 1]
-        0.0000     0.0000
-        1.0000     1.0000
-        2.0000     2.0000
-
-    >>> a = af.range((3, 2), axis=1)  # axis is 1, range is along the second dimension.
-    >>> af.display(a)  # The data ranges from [0 - 1] (2 elements along the second dimension)
-    [3 2 1 1]
-        0.0000     1.0000
-        0.0000     1.0000
-        0.0000     1.0000
-    """
-    if axis > len(shape):
-        raise ValueError(
-            f"Can not calculate along {axis} dimension. The resulting Array is set to has {len(shape)} dimensions."
-        )
-
-    result = wrapper.range(shape, axis, dtype)
     return cast(Array, result)  # HACK actually it return AFArrayType, but decorator makes it an ArrayFire Array.
 
 
@@ -171,62 +109,6 @@ def range(shape: tuple[int, ...], axis: int = 0, dtype: Dtype = float32) -> Arra
 #     safe_call(backend.get().af_iota(c_pointer(out.arr), 4, c_pointer(dims),
 #                                     4, c_pointer(tdims), dtype.value))
 #     return out
-
-
-@afarray_as_array
-def identity(shape: tuple[int, ...], dtype: Dtype = float32) -> Array:
-    """
-    Create an identity matrix or batch of identity matrices.
-
-    Parameters
-    ----------
-    shape : tuple[int, ...]
-        The shape of the resulting identity array or batch of arrays.
-        Must have at least 2 values.
-
-    dtype : Dtype, optional, default: float32
-        Data type of the array.
-
-    Returns
-    -------
-    Array
-        A multi-dimensional ArrayFire array where the first two dimensions
-        form an identity matrix or batch of matrices.
-
-    Notes
-    -----
-    The `shape` parameter determines the dimensions of the resulting array:
-    - If shape is (x1, x2), the output is a 2D array of size (x1, x2).
-    - If shape is (x1, x2, x3), the output is a 3D array of size (x1, x2, x3).
-    - If shape is (x1, x2, x3, x4), the output is a 4D array of size (x1, x2, x3, x4).
-
-    Raises
-    ------
-    ValueError
-        If shape is not a tuple or has less than two values.
-
-    Examples
-    --------
-    >>> import arrayfire as af
-    >>> identity_matrix = af.identity((3, 3))  # Create a 3x3 identity matrix
-    >>> af.display(identity_matrix)
-    [3 3 1 1]
-        1.0000     0.0000     0.0000
-        0.0000     1.0000     0.0000
-        0.0000     0.0000     1.0000
-
-    >>> identity_batch = af.identity((2, 2, 3))  # Create a batch of 3 identity 2x2 matrices
-    >>> af.display(identity_batch)
-    [2 2 3 1]
-        1.0000     0.0000     1.0000     0.0000     1.0000     0.0000
-        0.0000     1.0000     0.0000     1.0000     0.0000     1.0000
-    """
-
-    if not isinstance(shape, tuple) or len(shape) < 2:
-        raise ValueError("Argument shape must be a tuple with at least 2 values.")
-
-    result = wrapper.identity(shape, dtype)
-    return cast(Array, result)
 
 
 # def diag(a, num=0, extract=True):
@@ -579,39 +461,6 @@ def identity(shape: tuple[int, ...], dtype: Dtype = float32) -> Array:
 #     dims = dim4(d0, d1, d2, d3)
 #     safe_call(backend.get().af_moddims(c_pointer(out.arr), a.arr, 4, c_pointer(dims)))
 #     return out
-
-
-@afarray_as_array
-def flat(array: Array) -> Array:
-    """
-    Flatten the input multi-dimensional array into a 1D array.
-
-    Parameters
-    ----------
-    array : Array
-        The input multi-dimensional array to be flattened.
-
-    Returns
-    -------
-    Array
-        A 1D array containing all the elements from the input array.
-
-    Examples
-    --------
-    >>> import arrayfire as af
-    >>> arr = af.randu(3, 2)  # Create a 3x2 random array
-    >>> flattened = af.flat(arr)  # Flatten the array
-    >>> af.display(flattened)
-    [6 1 1 1]
-        0.8364
-        0.5604
-        0.6352
-        0.0062
-        0.7052
-        0.1676
-    """
-    result = wrapper.flat(array.arr)
-    return cast(Array, result)
 
 
 # def flip(a, dim=0):

@@ -11,7 +11,7 @@ from arrayfire_wrapper.defines import AFArray, ArrayBuffer, CType
 from .dtypes import Dtype
 from .dtypes import bool as afbool
 from .dtypes import c_api_value_to_dtype, float32, str_to_dtype
-from .library.constant_array import create_constant_array
+from .library.array_management.creation import create_constant_array
 from .library.device import PointerSource
 
 if TYPE_CHECKING:
@@ -1022,6 +1022,74 @@ class Array:
         out = cls()
         out._arr = array
         return out
+
+    @property
+    def is_linear(self) -> bool:
+        return wrapper.is_linear(self._arr)
+
+    @property
+    def is_owner(self) -> bool:
+        return wrapper.is_owner(self._arr)
+
+    @property
+    def is_bool(self) -> bool:
+        return wrapper.is_bool(self._arr)
+
+    @property
+    def is_column(self) -> bool:
+        return wrapper.is_column(self._arr)
+
+    @property
+    def is_row(self) -> bool:
+        return wrapper.is_row(self._arr)
+
+    @property
+    def is_complex(self) -> bool:
+        return wrapper.is_complex(self._arr)
+
+    @property
+    def is_double(self) -> bool:
+        return wrapper.is_double(self._arr)
+
+    @property
+    def is_floating(self) -> bool:
+        return wrapper.is_floating(self._arr)
+
+    @property
+    def is_half(self) -> bool:
+        return wrapper.is_half(self._arr)
+
+    @property
+    def is_integer(self) -> bool:
+        return wrapper.is_integer(self._arr)
+
+    @property
+    def is_real(self) -> bool:
+        return wrapper.is_real(self._arr)
+
+    @property
+    def is_real_floating(self) -> bool:
+        return wrapper.is_realfloating(self._arr)
+
+    @property
+    def is_single(self) -> bool:
+        return wrapper.is_single(self._arr)
+
+    @property
+    def is_sparse(self) -> bool:
+        return wrapper.is_sparse(self._arr)
+
+    @property
+    def is_vector(self) -> bool:
+        return wrapper.is_vector(self._arr)
+
+    @property
+    def device_pointer(self) -> int:
+        return wrapper.get_device_ptr(self._arr)
+
+    @property
+    def is_locked(self) -> bool:
+        return wrapper.is_locked_array(self._arr)
 
 
 IndexKey = int | float | complex | bool | wrapper.ParallelRange | slice | tuple[int | slice, ...] | Array
