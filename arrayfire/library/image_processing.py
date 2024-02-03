@@ -40,10 +40,10 @@ __all__ = [
 from typing import cast
 
 import arrayfire_wrapper.lib as wrapper
-from dtypes import Dtype, float32
 
 from arrayfire import Array
 from arrayfire.array_object import afarray_as_array
+from arrayfire.dtypes import Dtype, float32
 from arrayfire.library.constants import (
     CannyThreshold,
     Connectivity,

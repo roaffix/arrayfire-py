@@ -1,1 +1,1 @@
-arrayfire-python-wrapper~=0.4.0+af3.9.0
+arrayfire-python-wrapper~=0.4.0

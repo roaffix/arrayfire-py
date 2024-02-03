@@ -1,4 +1,15 @@
-__all__ = ["is_image_io_available", "read_array", "save_array"]
+__all__ = [
+    "is_image_io_available",
+    "read_array",
+    "save_array",
+    "load_image",
+    "load_image_native",
+    "load_image_memory",
+    "delete_image_memory",
+    "save_image",
+    "save_image_native",
+    "save_image_memory",
+]
 
 from pathlib import Path
 from typing import cast

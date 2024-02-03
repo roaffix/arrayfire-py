@@ -1,11 +1,11 @@
 # flake8: noqa
-from .version import ARRAYFIRE_VERSION, VERSION
+from .version import VERSION
 
 __all__ = ["__version__"]
 __version__ = VERSION
 
-__all__ += ["__arrayfire_version__"]
-__arrayfire_version__ = ARRAYFIRE_VERSION
+# TODO
+# add __arrayfire_version__
 
 __all__ += ["Array"]
 from .array_object import Array
@@ -70,31 +70,247 @@ from .dtypes import (
     uint64,
 )
 
-# __all__ += [
-#     "get_active_backend",  # DeprecationWarning
-#     "get_array_backend_name",
-#     "get_array_device_id",
-#     "get_available_backends",  # DeprecationWarning
-#     "get_backend_count",
-#     "get_backend_id",  # DeprecationWarning
-#     "get_device_id",  # DeprecationWarning
-#     "get_dtype_size",
-#     "get_size_of",  # DeprecationWarning
-#     "set_backend",
-# ]
+__all__ += [
+    "Match",
+    "MatProp",
+    "BinaryOperator",
+    "Norm",
+    "ConvGradient",
+    "VarianceBias",
+    "TopK",
+    "ImageFormat",
+    "CSpace",
+    "YCCStd",
+    "Flux",
+    "Diffusion",
+    "CannyThreshold",
+    "Connectivity",
+    "ConvDomain",
+    "ConvMode",
+    "Interp",
+    "IterativeDeconv",
+    "Pad",
+    "pi",
+]
 
-# from .library._backend_functions import (
-#     get_active_backend,
-#     get_array_backend_name,
-#     get_array_device_id,
-#     get_available_backends,
-#     get_backend_count,
-#     get_backend_id,
-#     get_device_id,
-#     get_dtype_size,
-#     get_size_of,
-#     set_backend,
-# )
+from arrayfire.library.constants import (
+    BinaryOperator,
+    CannyThreshold,
+    Connectivity,
+    ConvDomain,
+    ConvGradient,
+    ConvMode,
+    CSpace,
+    Diffusion,
+    Flux,
+    ImageFormat,
+    Interp,
+    IterativeDeconv,
+    Match,
+    MatProp,
+    Norm,
+    Pad,
+    TopK,
+    VarianceBias,
+    YCCStd,
+    pi,
+)
+
+__all__ = [
+    "alloc_device",
+    "alloc_host",
+    "alloc_pinned",
+    "device_gc",
+    "device_info",
+    "device_mem_info",
+    "free_device",
+    "free_host",
+    "free_pinned",
+    "get_dbl_support",
+    "get_device",
+    "get_device_count",
+    "get_half_support",
+    "get_kernel_cache_directory",
+    "get_mem_step_size",
+    "info",
+    "info_string",
+    "init",
+    "print_mem_info",
+    "set_device",
+    "sync",
+    "set_kernel_cache_directory",
+    "set_mem_step_size",
+]
+
+from arrayfire.library.device import (
+    alloc_device,
+    alloc_host,
+    alloc_pinned,
+    device_gc,
+    device_info,
+    device_mem_info,
+    free_device,
+    free_host,
+    free_pinned,
+    get_dbl_support,
+    get_device,
+    get_device_count,
+    get_half_support,
+    get_kernel_cache_directory,
+    get_mem_step_size,
+    info,
+    info_string,
+    init,
+    print_mem_info,
+    set_device,
+    set_kernel_cache_directory,
+    set_mem_step_size,
+    sync,
+)
+
+__all__ += [
+    "color_space",
+    "gray2rgb",
+    "hsv2rgb",
+    "rgb2gray",
+    "rgb2hsv",
+    "rgb2ycbcr",
+    "anisotropic_diffusion",
+    "bilateral",
+    "canny",
+    "inverse_deconv",
+    "iterative_deconv",
+    "maxfilt",
+    "mean_shift",
+    "medfilt",
+    "medfilt1",
+    "medfilt2",
+    "minfilt",
+    "sat",
+    "sobel_operator",
+    "gaussian_kernel",
+    "hist_equal",
+    "histogram",
+    "resize",
+    "rotate",
+    "scale",
+    "skew",
+    "transform",
+    "transform_coordinates",
+    "translate",
+    "confidence_cc",
+    "regions",
+    "dilate",
+    "erode",
+    "wrap",
+    "unwrap",
+]
+
+from arrayfire.library.image_processing import (
+    anisotropic_diffusion,
+    bilateral,
+    canny,
+    color_space,
+    confidence_cc,
+    dilate,
+    erode,
+    gaussian_kernel,
+    gray2rgb,
+    hist_equal,
+    histogram,
+    hsv2rgb,
+    inverse_deconv,
+    iterative_deconv,
+    maxfilt,
+    mean_shift,
+    medfilt,
+    medfilt1,
+    medfilt2,
+    minfilt,
+    regions,
+    resize,
+    rgb2gray,
+    rgb2hsv,
+    rgb2ycbcr,
+    rotate,
+    sat,
+    scale,
+    skew,
+    sobel_operator,
+    transform,
+    transform_coordinates,
+    translate,
+    unwrap,
+    wrap,
+)
+
+__all__ += [
+    "is_image_io_available",
+    "read_array",
+    "save_array",
+    "load_image",
+    "load_image_native",
+    "load_image_memory",
+    "delete_image_memory",
+    "save_image",
+    "save_image_native",
+    "save_image_memory",
+]
+
+from arrayfire.library.input_and_output import (
+    delete_image_memory,
+    is_image_io_available,
+    load_image,
+    load_image_memory,
+    load_image_native,
+    read_array,
+    save_array,
+    save_image,
+    save_image_memory,
+    save_image_native,
+)
+
+__all__ += ["cublas_set_math_mode", "get_native_id", "get_stream", "set_native_id"]
+
+from arrayfire.library.interface_functions import cublas_set_math_mode, get_native_id, get_stream, set_native_id
+
+__all__ += [
+    "dot",
+    "gemm",
+    "matmul",
+    "is_lapack_available",
+    "cholesky",
+    "lu",
+    "qr",
+    "svd",
+    "det",
+    "inverse",
+    "norm",
+    "pinverse",
+    "rank",
+    "solve",
+]
+
+from arrayfire.library.linear_algebra import (
+    cholesky,
+    det,
+    dot,
+    gemm,
+    inverse,
+    is_lapack_available,
+    lu,
+    matmul,
+    norm,
+    pinverse,
+    qr,
+    rank,
+    solve,
+    svd,
+)
+
+__all__ += ["convolve2_gradient_nn"]
+
+from arrayfire.library.machine_learning import convolve2_gradient_nn
 
 __all__ += [
     "add",
@@ -250,6 +466,56 @@ from .library.mathematical_functions import (
 __all__ += ["randu"]
 
 from arrayfire.library.random import randu
+
+__all__ += [
+    "fft",
+    "fft2",
+    "fft2_c2r",
+    "fft2_r2c",
+    "fft3",
+    "fft3_c2r",
+    "fft3_r2c",
+    "fft_c2r",
+    "fft_r2c",
+    "fft_convolve1",
+    "fft_convolve2",
+    "fft_convolve3",
+    "ifft",
+    "ifft2",
+    "ifft3",
+    "set_fft_plan_cache_size",
+    "fir",
+    "iir",
+    "approx1",
+    "approx1_uniform",
+    "approx2",
+    "approx2_uniform",
+]
+
+from arrayfire.library.signal_processing import (
+    approx1,
+    approx1_uniform,
+    approx2,
+    approx2_uniform,
+    fft,
+    fft2,
+    fft2_c2r,
+    fft2_r2c,
+    fft3,
+    fft3_c2r,
+    fft3_r2c,
+    fft_c2r,
+    fft_convolve1,
+    fft_convolve2,
+    fft_convolve3,
+    fft_r2c,
+    fir,
+    ifft,
+    ifft2,
+    ifft3,
+    iir,
+    set_fft_plan_cache_size,
+)
 
 __all__ += ["corrcoef", "cov", "mean", "median", "stdev", "topk", "var"]
 

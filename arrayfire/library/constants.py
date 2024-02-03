@@ -37,6 +37,13 @@ __all__ += [
     "YCCStd",
     "Flux",
     "Diffusion",
+    "CannyThreshold",
+    "Connectivity",
+    "ConvDomain",
+    "ConvMode",
+    "Interp",
+    "IterativeDeconv",
+    "Pad",
 ]
 
 import math
