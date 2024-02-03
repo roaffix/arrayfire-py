@@ -1,1 +1,1 @@
-git+https://github.com/roaffix/arrayfire-python-wrapper  # TODO fix versioning dependency
+arrayfire-python-wrapper~=0.4.0+af3.9.0

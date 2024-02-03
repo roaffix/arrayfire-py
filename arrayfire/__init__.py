@@ -11,6 +11,7 @@ __all__ += ["Array"]
 from .array_object import Array
 
 __all__ += [
+    "Dtype",
     "b8",
     "bool",
     "c32",
@@ -40,6 +41,7 @@ __all__ += [
 ]
 
 from .dtypes import (
+    Dtype,
     b8,
     bool,
     c32,
@@ -248,6 +250,28 @@ from .library.mathematical_functions import (
 __all__ += ["randu"]
 
 from arrayfire.library.random import randu
+
+__all__ += ["corrcoef", "cov", "mean", "median", "stdev", "topk", "var"]
+
+from arrayfire.library.statistics import corrcoef, cov, mean, median, stdev, topk, var
+
+__all__ += [
+    "get_active_backend",
+    "get_available_backends",
+    "get_backend_count",
+    "get_backend_id",
+    "get_device_id",
+    "set_backend",
+]
+
+from arrayfire.library.unified_api_functions import (
+    get_active_backend,
+    get_available_backends,
+    get_backend_count,
+    get_backend_id,
+    get_device_id,
+    set_backend,
+)
 
 __all__ += [
     "accum",

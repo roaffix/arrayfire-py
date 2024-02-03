@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+__all__ = ["Array"]
+
 import array as _pyarray
 from collections.abc import Callable
 from functools import wraps
