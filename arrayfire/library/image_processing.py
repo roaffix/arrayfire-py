@@ -56,7 +56,7 @@ from arrayfire.library.constants import (
     YCCStd,
 )
 
-from .data import constant
+from .array_management.creation import constant
 from .vector_algorithms import max as afmax
 from .vector_algorithms import min as afmin
 
@@ -96,7 +96,7 @@ def rgb2ycbcr(image: Array, /, *, standard: YCCStd = YCCStd.YCC_601) -> Array:
 
 
 @afarray_as_array
-def ycbcr2rgb(image: Array, /, *, standard: YCCStd.YCC_601) -> Array:
+def ycbcr2rgb(image: Array, /, *, standard: YCCStd = YCCStd.YCC_601) -> Array:
     return cast(Array, wrapper.ycbcr2rgb(image.arr, standard))
 
 

@@ -11,7 +11,7 @@ from arrayfire_wrapper.defines import AFArray, ArrayBuffer, CType
 from .dtypes import Dtype
 from .dtypes import bool as afbool
 from .dtypes import c_api_value_to_dtype, float32, str_to_dtype
-from .library.array_management.creation import create_constant_array
+from .library.array_management._constant import create_constant_array
 from .library.device import PointerSource
 
 if TYPE_CHECKING:
@@ -39,7 +39,7 @@ def afarray_as_array(func: Callable[P, Array]) -> Callable[P, Array]:
     @wraps(func)
     def decorated(*args: P.args, **kwargs: P.kwargs) -> Array:
         result = func(*args, **kwargs)
-        return Array.from_afarray(result)
+        return Array.from_afarray(result)  # type: ignore[arg-type]  # FIXME
 
     return decorated
 
@@ -1005,7 +1005,7 @@ class Array:
         return self._arr
 
     @classmethod
-    def from_afarray(cls, array: wrapper.AFArray) -> Array:
+    def from_afarray(cls, arr: AFArray) -> Array:
         """
         Creates an instance of Array from an AFArray object.
 
@@ -1020,7 +1020,7 @@ class Array:
             An instance of Array wrapping the given array.
         """
         out = cls()
-        out._arr = array
+        out._arr = arr
         return out
 
     @property
@@ -1088,8 +1088,14 @@ class Array:
         return wrapper.get_device_ptr(self._arr)
 
     @property
-    def is_locked(self) -> bool:
+    def is_locked_array(self) -> bool:
         return wrapper.is_locked_array(self._arr)
+
+    def lock_array(self) -> None:
+        return wrapper.lock_array(self._arr)
+
+    def unlock_array(self) -> None:
+        return wrapper.unlock_array(self._arr)
 
 
 IndexKey = int | float | complex | bool | wrapper.ParallelRange | slice | tuple[int | slice, ...] | Array

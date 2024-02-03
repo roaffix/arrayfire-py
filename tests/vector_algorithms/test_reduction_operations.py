@@ -1,18 +1,18 @@
 import pytest
 
 from arrayfire import Array
-from arrayfire.library import data
 from arrayfire.library import vector_algorithms as va
+from arrayfire.library.array_management.creation import constant
 
 
 @pytest.fixture
 def true_array() -> Array:
-    return data.constant(1, (5, 5))
+    return constant(1, (5, 5))
 
 
 @pytest.fixture
 def false_array() -> Array:
-    arr = data.constant(1, (5, 5))
+    arr = constant(1, (5, 5))
     arr[2, 2] = 0  # Set one element to False
     return arr
 

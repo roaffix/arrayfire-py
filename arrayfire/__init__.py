@@ -167,9 +167,9 @@ __all__ += [
     "root",
     "rsqrt",
     "sigmoid",
-    "and_",
-    "or_",
-    "not_",
+    "logical_and",
+    "logical_or",
+    "logical_not",
 ]
 
 
@@ -178,7 +178,6 @@ from .library.mathematical_functions import (
     acos,
     acosh,
     add,
-    and_,
     arg,
     asin,
     asinh,
@@ -218,14 +217,15 @@ from .library.mathematical_functions import (
     log1p,
     log2,
     log10,
+    logical_and,
+    logical_not,
+    logical_or,
     lt,
     maxof,
     minof,
     mod,
     mul,
     neq,
-    not_,
-    or_,
     pow,
     pow2,
     real,
@@ -244,10 +244,6 @@ from .library.mathematical_functions import (
     tgamma,
     trunc,
 )
-
-__all__ += ["constant", "range", "identity", "flat"]
-
-from arrayfire.library.data import constant, flat, identity, range
 
 __all__ += ["randu"]
 

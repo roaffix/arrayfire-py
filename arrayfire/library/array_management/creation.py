@@ -1,27 +1,44 @@
 from typing import cast
 
 import arrayfire_wrapper.lib as wrapper
-from arrayfire_wrapper import AFArray
 
 from arrayfire.array_object import Array, afarray_as_array
-from arrayfire.dtypes import Dtype, complex32, float32, implicit_dtype, int64, is_complex_dtype, uint64
+from arrayfire.dtypes import Dtype, float32
 from arrayfire.library.constants import Pad
 
+from ._constant import create_constant_array
 
-def create_constant_array(number: int | float | complex, shape: tuple[int, ...], dtype: Dtype, /) -> AFArray:
-    if not dtype:
-        dtype = implicit_dtype(number, dtype)
 
-    if isinstance(number, complex):
-        return wrapper.constant_complex(number, shape, dtype if is_complex_dtype(dtype) else complex32)
+@afarray_as_array
+def constant(scalar: int | float | complex, shape: tuple[int, ...] = (1,), dtype: Dtype = float32) -> Array:
+    """
+    Create a multi-dimensional array filled with a constant value.
 
-    if dtype == int64:
-        return wrapper.constant_long(number, shape, dtype)
+    Parameters
+    ----------
+    scalar : int | float | complex
+        The value to fill each element of the constant array with.
 
-    if dtype == uint64:
-        return wrapper.constant_ulong(number, shape, dtype)
+    shape : tuple[int, ...], optional, default: (1,)
+        The shape of the constant array.
 
-    return wrapper.constant(number, shape, dtype)
+    dtype : Dtype, optional, default: float32
+        Data type of the array.
+
+    Returns
+    -------
+    Array
+        A multi-dimensional ArrayFire array filled with the specified value.
+
+    Notes
+    -----
+    The shape parameter determines the dimensions of the resulting array:
+    - If shape is (x1,), the output is a 1D array of size (x1,).
+    - If shape is (x1, x2), the output is a 2D array of size (x1, x2).
+    - If shape is (x1, x2, x3), the output is a 3D array of size (x1, x2, x3).
+    - If shape is (x1, x2, x3, x4), the output is a 4D array of size (x1, x2, x3, x4).
+    """
+    return cast(Array, create_constant_array(scalar, shape, dtype))
 
 
 @afarray_as_array
