@@ -1,4 +1,72 @@
-from __future__ import annotations
+__all__ = [
+    "add",
+    "bitshiftl",
+    "bitshiftr",
+    "div",
+    "mul",
+    "sub",
+    "conjg",
+    "cplx",
+    "imag",
+    "real",
+    "cbrt",
+    "erf",
+    "erfc",
+    "exp",
+    "expm1",
+    "factorial",
+    "lgamma",
+    "log",
+    "log1p",
+    "log2",
+    "log10",
+    "pow",
+    "pow2",
+    "root",
+    "rsqrt",
+    "sqrt",
+    "tgamma",
+    "acosh",
+    "asinh",
+    "atanh",
+    "cosh",
+    "sinh",
+    "tanh",
+    "logical_and",
+    "bitand",
+    "bitnot",
+    "bitor",
+    "bitxor",
+    "eq",
+    "ge",
+    "gt",
+    "le",
+    "lt",
+    "neq",
+    "logical_not",
+    "logical_or",
+    "abs",
+    "arg",
+    "ceil",
+    "clamp",
+    "floor",
+    "hypot",
+    "maxof",
+    "minof",
+    "mod",
+    "neg",
+    "rem",
+    "round",
+    "sign",
+    "trunc",
+    "acos",
+    "asin",
+    "atan",
+    "atan2",
+    "cos",
+    "sin",
+    "tan",
+]
 
 from typing import cast
 
@@ -6,7 +74,6 @@ import arrayfire_wrapper.lib as wrapper
 
 from arrayfire import Array
 from arrayfire.array_object import afarray_as_array
-from arrayfire.dtypes import is_complex_dtype
 
 
 @afarray_as_array
@@ -52,8 +119,6 @@ def mod(x1: int | float | Array, x2: int | float | Array, /) -> Array:
         If both operands are scalars or if the arrays' shapes do not match.
     """
 
-    _check_operands_fit_requirements(x1, x2)
-
     x1_ = x1.arr if isinstance(x1, Array) else x1
     x2_ = x2.arr if isinstance(x2, Array) else x2
 
@@ -63,8 +128,6 @@ def mod(x1: int | float | Array, x2: int | float | Array, /) -> Array:
 
 @afarray_as_array
 def pow(x1: int | float | Array, x2: int | float | Array, /) -> Array:
-    _check_operands_fit_requirements(x1, x2)
-
     x1_ = x1.arr if isinstance(x1, Array) else x1
     x2_ = x2.arr if isinstance(x2, Array) else x2
 
@@ -138,28 +201,22 @@ def clamp(x: Array, /, lo: float, hi: float) -> Array:
 
 @afarray_as_array
 def minof(x1: int | float | Array, x2: int | float | Array, /) -> Array:
-    _check_operands_fit_requirements(x1, x2)
-
     return cast(Array, wrapper.minof(x1.arr, x2.arr))
 
 
 @afarray_as_array
 def maxof(x1: int | float | Array, x2: int | float | Array, /) -> Array:
-    _check_operands_fit_requirements(x1, x2)
-
     return wrapper.maxof(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def rem(x1: int | float | Array, x2: int | float | Array, /) -> Array:
-    _check_operands_fit_requirements(x1, x2)
-
     return wrapper.rem(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def abs(x: Array, /) -> Array:
-    return wrapper.abs(x.arr)  # type: ignore[arg-type, return-value]
+    return wrapper.abs_(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
@@ -174,7 +231,7 @@ def sign(x: Array, /) -> Array:
 
 @afarray_as_array
 def round(x: Array, /) -> Array:
-    return wrapper.round(x.arr)  # type: ignore[arg-type, return-value]
+    return wrapper.round_(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
@@ -194,60 +251,50 @@ def ceil(x: Array, /) -> Array:
 
 @afarray_as_array
 def hypot(x1: int | float | Array, x2: int | float | Array, /) -> Array:
-    _check_operands_fit_requirements(x1, x2)
-
     return wrapper.hypot(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def sin(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
-
     return wrapper.sin(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def cos(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.cos(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def tan(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.tan(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def asin(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.asin(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def acos(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.acos(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def atan(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.atan(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def atan2(x1: int | float | Array, x2: int | float | Array, /) -> Array:
-    _check_operands_fit_requirements(x1, x2)
     return wrapper.atan2(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def cplx(x1: int | float | Array, x2: int | float | Array | None, /) -> Array:
     if x2 is None:
-        return wrapper.cplx1(x1)  # type: ignore[arg-type, return-value]
+        return cast(Array, wrapper.cplx(x1.arr))
     else:
-        return wrapper.cplx2(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
+        return cast(Array, wrapper.cplx2(x1.arr, x2.arr))
 
 
 @afarray_as_array
@@ -267,185 +314,149 @@ def conjg(x: Array, /) -> Array:
 
 @afarray_as_array
 def sinh(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.sinh(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def cosh(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.cosh(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def tanh(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.tanh(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def asinh(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.asinh(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def acosh(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.acosh(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def atanh(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.atanh(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def root(x1: int | float | Array, x2: int | float | Array, /) -> Array:
-    _check_operands_fit_requirements(x1, x2)
     return wrapper.root(x1.arr, x2.arr)
 
 
 @afarray_as_array
 def pow2(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.pow2(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def sigmoid(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.sigmoid(x.arr)
 
 
 @afarray_as_array
 def exp(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.exp(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def expm1(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.expm1(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def erf(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.erf(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def erfc(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.erfc(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def log(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.log(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def log1p(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.log1p(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def log10(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.log10(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def log2(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.log2(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def sqrt(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.sqrt(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def rsqrt(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.rsqrt(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def cbrt(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.cbrt(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def factorial(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.factorial(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def tgamma(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.tgamma(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def lgamma(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.lgamma(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def iszero(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.iszero(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def isinf(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.isinf(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
 def isnan(x: Array, /) -> Array:
-    _check_array_values_not_complex(x)
     return wrapper.isnan(x.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
-def and_(x1: Array, x2: Array, /) -> Array:
+def logical_and(x1: Array, x2: Array, /) -> Array:
     return wrapper.and_(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
-def or_(x1: Array, x2: Array, /) -> Array:
+def logical_or(x1: Array, x2: Array, /) -> Array:
     return wrapper.or_(x1.arr, x2.arr)  # type: ignore[arg-type, return-value]
 
 
 @afarray_as_array
-def not_(x: Array, /) -> Array:
+def logical_not(x: Array, /) -> Array:
     return wrapper.not_(x.arr)  # type: ignore[arg-type, return-value]
 
 
-def _check_operands_fit_requirements(x1: int | float | Array, x2: int | float | Array) -> None:
-    if isinstance(x1, Array) and isinstance(x2, Array):
-        if x1.shape != x2.shape:
-            raise ValueError("Array shapes must match.")
-
-    if not isinstance(x1, Array) and not isinstance(x2, Array):
-        raise ValueError("At least one operand must be an Array.")
-
-
-def _check_array_values_not_complex(x: Array) -> None:
-    if is_complex_dtype(x.dtype):
-        raise TypeError("Values of an Array should not be the complex numbers.")
-    pass
+@afarray_as_array
+def neg(x: Array, /) -> Array:
+    return cast(Array, wrapper.neg(x.arr))

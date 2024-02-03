@@ -96,7 +96,7 @@ def det(array: Array, /) -> int | float | complex:
 
 
 @afarray_as_array
-def inverse(array: Array, /, options: MatProp = MatProp.NONE) -> Array:
+def inverse(array: Array, /, *, options: MatProp = MatProp.NONE) -> Array:
     return cast(Array, wrapper.inverse(array.arr, options))
 
 

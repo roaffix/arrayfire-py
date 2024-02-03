@@ -273,7 +273,7 @@ def imax(array: Array, /, *, axis: int | None = None) -> tuple[int | float | com
 
 
 def max(
-    array: Array, /, *, axis: int | None = None, keys: Array | None, ragged_len: Array | None
+    array: Array, /, *, axis: int | None = None, keys: Array | None = None, ragged_len: Array | None = None
 ) -> int | float | complex | Array | tuple[Array, Array]:
     if keys and ragged_len:
         raise RuntimeError("To process ragged max function, the keys value should be None and vice versa.")

@@ -2,9 +2,9 @@ from typing import cast
 
 import arrayfire_wrapper.lib as wrapper
 
-from arrayfire import Array
-from arrayfire.array_object import afarray_as_array
+from arrayfire.array_object import Array, afarray_as_array
 from arrayfire.library.constants import Match
+from arrayfire.library.features import Features
 
 
 def gloh(
@@ -17,7 +17,7 @@ def gloh(
     dobule_input: bool = True,
     intensity_scale: float = 1.0 / 255,
     feature_ratio: float = 0.05,
-) -> tuple[Array, Array]:
+) -> tuple[Features, Array]:
     features, descriptors = wrapper.gloh(
         image.arr,
         n_layers,
@@ -28,7 +28,7 @@ def gloh(
         intensity_scale,
         feature_ratio,
     )
-    return Array.from_afarray(features), Array.from_afarray(descriptors)
+    return Features.from_affeatures(features), Array.from_afarray(descriptors)
 
 
 def orb(
@@ -39,9 +39,9 @@ def orb(
     scale_factor: float = 1.5,
     n_levels: int = 4,
     blur_image: bool = False,
-) -> tuple[Array, Array]:
+) -> tuple[Features, Array]:
     features, descriptors = wrapper.orb(image.arr, fast_threshold, max_features, scale_factor, n_levels, blur_image)
-    return Array.from_afarray(features), Array.from_afarray(descriptors)
+    return Features.from_affeatures(features), Array.from_afarray(descriptors)
 
 
 def sift(
@@ -54,7 +54,7 @@ def sift(
     dobule_input: bool = True,
     intensity_scale: float = 1.0 / 255,
     feature_ratio: float = 0.05,
-) -> tuple[Array, Array]:
+) -> tuple[Features, Array]:
     features, descriptors = wrapper.sift(
         image.arr,
         n_layers,
@@ -65,7 +65,7 @@ def sift(
         intensity_scale,
         feature_ratio,
     )
-    return Array.from_afarray(features), Array.from_afarray(descriptors)
+    return Features.from_affeatures(features), Array.from_afarray(descriptors)
 
 
 @afarray_as_array
@@ -73,7 +73,6 @@ def dog(image: Array, radius1: int, radius2: int, /) -> Array:
     return cast(Array, wrapper.dog(image.arr, radius1, radius2))
 
 
-@afarray_as_array
 def fast(
     image: Array,
     /,
@@ -82,11 +81,10 @@ def fast(
     non_max: bool = True,
     feature_ratio: float = 0.05,
     edge: int = 3,
-) -> Array:
-    return cast(Array, wrapper.fast(image.arr, fast_threshold, arc_length, non_max, feature_ratio, edge))
+) -> Features:
+    return Features.from_affeatures(wrapper.fast(image.arr, fast_threshold, arc_length, non_max, feature_ratio, edge))
 
 
-@afarray_as_array
 def harris(
     image: Array,
     /,
@@ -95,11 +93,12 @@ def harris(
     sigma: float = 1.0,
     block_size: int = 0,
     k_threshold: float = 0,
-) -> Array:
-    return cast(Array, wrapper.harris(image.arr, max_corners, min_response, sigma, block_size, k_threshold))
+) -> Features:
+    return Features.from_affeatures(
+        wrapper.harris(image.arr, max_corners, min_response, sigma, block_size, k_threshold)
+    )
 
 
-@afarray_as_array
 def susan(
     image: Array,
     /,
@@ -108,8 +107,10 @@ def susan(
     geom_threshold: float = 1.0,
     feature_ratio: float = 0.05,
     edge: int = 3,
-) -> Array:
-    return cast(Array, wrapper.susan(image.arr, radius, diff_threshold, geom_threshold, feature_ratio, edge))
+) -> Features:
+    return Features.from_affeatures(
+        wrapper.susan(image.arr, radius, diff_threshold, geom_threshold, feature_ratio, edge)
+    )
 
 
 def hamming_matcher(query: Array, train: Array, /, axis: int = 0, n_nearest: int = 1) -> tuple[Array, Array]:
