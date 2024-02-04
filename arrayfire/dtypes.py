@@ -93,30 +93,6 @@ supported_dtypes = (
 )
 
 
-def implicit_dtype(number: int | float | py_bool | complex, array_dtype: Dtype) -> Dtype:
-    if isinstance(number, py_bool):
-        number_dtype = bool
-    elif isinstance(number, int):
-        number_dtype = int64
-    elif isinstance(number, float):
-        number_dtype = float64
-    elif isinstance(number, complex):
-        number_dtype = complex64
-    else:
-        raise TypeError(f"{type(number)} is not supported and can not be converted to af.Dtype.")
-
-    if not (array_dtype == float32 or array_dtype == complex32):
-        return number_dtype
-
-    if number_dtype == float64:
-        return float32
-
-    if number_dtype == complex64:
-        return complex32
-
-    return number_dtype
-
-
 def c_api_value_to_dtype(value: int) -> Dtype:
     for dtype in supported_dtypes:
         if value == dtype.c_api_value:
