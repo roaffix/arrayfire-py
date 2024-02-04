@@ -456,6 +456,7 @@ __all__ += [
     "logical_and",
     "logical_or",
     "logical_not",
+    "neg",
 ]
 
 
@@ -511,6 +512,7 @@ from .library.mathematical_functions import (
     minof,
     mod,
     mul,
+    neg,
     neq,
     pow,
     pow2,

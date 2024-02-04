@@ -37,10 +37,7 @@ typecheck :
 
 .PHONY : tests
 tests :
-	pytest --color=yes -v -rf --durations=40 \
-			--cov-config=.coveragerc \
-			--cov=$(SRC) \
-			--cov-report=xml
+	pytest --color=yes -v -rf --durations=40 --cov-config=.coveragerc --cov=$(SRC) --cov-report=xml
 
 # Cleaning
 

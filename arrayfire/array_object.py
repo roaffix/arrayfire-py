@@ -164,7 +164,7 @@ class Array:
             determined by Type Promotion Rules.
 
         """
-        return _process_c_function(0, self, wrapper.sub)
+        return process_c_function(0, self, wrapper.sub)
 
     def __add__(self, other: int | float | Array, /) -> Array:
         """
@@ -183,7 +183,7 @@ class Array:
             An array containing the element-wise sums. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, wrapper.add)
+        return process_c_function(self, other, wrapper.add)
 
     def __sub__(self, other: int | float | Array, /) -> Array:
         """
@@ -205,7 +205,7 @@ class Array:
             An array containing the element-wise differences. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, wrapper.sub)
+        return process_c_function(self, other, wrapper.sub)
 
     def __mul__(self, other: int | float | Array, /) -> Array:
         """
@@ -224,7 +224,7 @@ class Array:
             An array containing the element-wise products. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, wrapper.mul)
+        return process_c_function(self, other, wrapper.mul)
 
     def __truediv__(self, other: int | float | Array, /) -> Array:
         """
@@ -251,7 +251,7 @@ class Array:
         Specification-compliant libraries may choose to raise an error or return an array containing the element-wise
         results. If an array is returned, the array must have a real-valued floating-point data type.
         """
-        return _process_c_function(self, other, wrapper.div)
+        return process_c_function(self, other, wrapper.div)
 
     def __floordiv__(self, other: int | float | Array, /) -> Array:
         # TODO
@@ -281,7 +281,7 @@ class Array:
         - For input arrays which promote to an integer data type, the result of division by zero is unspecified and
         thus implementation-defined.
         """
-        return _process_c_function(self, other, wrapper.mod)
+        return process_c_function(self, other, wrapper.mod)
 
     def __pow__(self, other: int | float | Array, /) -> Array:
         """
@@ -303,7 +303,7 @@ class Array:
             An array containing the element-wise results. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, wrapper.pow)
+        return process_c_function(self, other, wrapper.pow)
 
     # Array Operators
 
@@ -347,7 +347,7 @@ class Array:
             An array containing the element-wise results. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, wrapper.bitand)
+        return process_c_function(self, other, wrapper.bitand)
 
     def __or__(self, other: int | bool | Array, /) -> Array:
         """
@@ -367,7 +367,7 @@ class Array:
             An array containing the element-wise results. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, wrapper.bitor)
+        return process_c_function(self, other, wrapper.bitor)
 
     def __xor__(self, other: int | bool | Array, /) -> Array:
         """
@@ -387,7 +387,7 @@ class Array:
             An array containing the element-wise results. The returned array must have a data type determined
             by Type Promotion Rules.
         """
-        return _process_c_function(self, other, wrapper.bitxor)
+        return process_c_function(self, other, wrapper.bitxor)
 
     def __lshift__(self, other: int | Array, /) -> Array:
         """
@@ -407,7 +407,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have the same data type as self.
         """
-        return _process_c_function(self, other, wrapper.bitshiftl)
+        return process_c_function(self, other, wrapper.bitshiftl)
 
     def __rshift__(self, other: int | Array, /) -> Array:
         """
@@ -427,7 +427,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have the same data type as self.
         """
-        return _process_c_function(self, other, wrapper.bitshiftr)
+        return process_c_function(self, other, wrapper.bitshiftr)
 
     # Comparison Operators
 
@@ -448,7 +448,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have a data type of bool.
         """
-        return _process_c_function(self, other, wrapper.lt)
+        return process_c_function(self, other, wrapper.lt)
 
     def __le__(self, other: int | float | Array, /) -> Array:
         """
@@ -467,7 +467,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have a data type of bool.
         """
-        return _process_c_function(self, other, wrapper.le)
+        return process_c_function(self, other, wrapper.le)
 
     def __gt__(self, other: int | float | Array, /) -> Array:
         """
@@ -486,7 +486,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have a data type of bool.
         """
-        return _process_c_function(self, other, wrapper.gt)
+        return process_c_function(self, other, wrapper.gt)
 
     def __ge__(self, other: int | float | Array, /) -> Array:
         """
@@ -505,7 +505,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have a data type of bool.
         """
-        return _process_c_function(self, other, wrapper.ge)
+        return process_c_function(self, other, wrapper.ge)
 
     def __eq__(self, other: int | float | bool | Array, /) -> Array:  # type: ignore[override]
         """
@@ -524,7 +524,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have a data type of bool.
         """
-        return _process_c_function(self, other, wrapper.eq)
+        return process_c_function(self, other, wrapper.eq)
 
     def __ne__(self, other: int | float | bool | Array, /) -> Array:  # type: ignore[override]
         """
@@ -543,7 +543,7 @@ class Array:
         out : Array
             An array containing the element-wise results. The returned array must have a data type of bool.
         """
-        return _process_c_function(self, other, wrapper.neq)
+        return process_c_function(self, other, wrapper.neq)
 
     # Reflected Arithmetic Operators
 
@@ -551,25 +551,25 @@ class Array:
         """
         Return other + self.
         """
-        return _process_c_function(other, self, wrapper.add)
+        return process_c_function(other, self, wrapper.add)
 
     def __rsub__(self, other: Array, /) -> Array:
         """
         Return other - self.
         """
-        return _process_c_function(other, self, wrapper.sub)
+        return process_c_function(other, self, wrapper.sub)
 
     def __rmul__(self, other: Array, /) -> Array:
         """
         Return other * self.
         """
-        return _process_c_function(other, self, wrapper.mul)
+        return process_c_function(other, self, wrapper.mul)
 
     def __rtruediv__(self, other: Array, /) -> Array:
         """
         Return other / self.
         """
-        return _process_c_function(other, self, wrapper.div)
+        return process_c_function(other, self, wrapper.div)
 
     def __rfloordiv__(self, other: Array, /) -> Array:
         # TODO
@@ -579,13 +579,13 @@ class Array:
         """
         Return other % self.
         """
-        return _process_c_function(other, self, wrapper.mod)
+        return process_c_function(other, self, wrapper.mod)
 
     def __rpow__(self, other: Array, /) -> Array:
         """
         Return other ** self.
         """
-        return _process_c_function(other, self, wrapper.pow)
+        return process_c_function(other, self, wrapper.pow)
 
     # Reflected Array Operators
 
@@ -599,31 +599,31 @@ class Array:
         """
         Return other & self.
         """
-        return _process_c_function(other, self, wrapper.bitand)
+        return process_c_function(other, self, wrapper.bitand)
 
     def __ror__(self, other: Array, /) -> Array:
         """
         Return other | self.
         """
-        return _process_c_function(other, self, wrapper.bitor)
+        return process_c_function(other, self, wrapper.bitor)
 
     def __rxor__(self, other: Array, /) -> Array:
         """
         Return other ^ self.
         """
-        return _process_c_function(other, self, wrapper.bitxor)
+        return process_c_function(other, self, wrapper.bitxor)
 
     def __rlshift__(self, other: Array, /) -> Array:
         """
         Return other << self.
         """
-        return _process_c_function(other, self, wrapper.bitshiftl)
+        return process_c_function(other, self, wrapper.bitshiftl)
 
     def __rrshift__(self, other: Array, /) -> Array:
         """
         Return other >> self.
         """
-        return _process_c_function(other, self, wrapper.bitshiftr)
+        return process_c_function(other, self, wrapper.bitshiftr)
 
     # In-place Arithmetic Operators
 
@@ -632,25 +632,25 @@ class Array:
         """
         Return self += other.
         """
-        return _process_c_function(self, other, wrapper.add)
+        return process_c_function(self, other, wrapper.add)
 
     def __isub__(self, other: int | float | Array, /) -> Array:
         """
         Return self -= other.
         """
-        return _process_c_function(self, other, wrapper.sub)
+        return process_c_function(self, other, wrapper.sub)
 
     def __imul__(self, other: int | float | Array, /) -> Array:
         """
         Return self *= other.
         """
-        return _process_c_function(self, other, wrapper.mul)
+        return process_c_function(self, other, wrapper.mul)
 
     def __itruediv__(self, other: int | float | Array, /) -> Array:
         """
         Return self /= other.
         """
-        return _process_c_function(self, other, wrapper.div)
+        return process_c_function(self, other, wrapper.div)
 
     def __ifloordiv__(self, other: int | float | Array, /) -> Array:
         # TODO
@@ -660,13 +660,13 @@ class Array:
         """
         Return self %= other.
         """
-        return _process_c_function(self, other, wrapper.mod)
+        return process_c_function(self, other, wrapper.mod)
 
     def __ipow__(self, other: int | float | Array, /) -> Array:
         """
         Return self **= other.
         """
-        return _process_c_function(self, other, wrapper.pow)
+        return process_c_function(self, other, wrapper.pow)
 
     # In-place Array Operators
 
@@ -680,31 +680,31 @@ class Array:
         """
         Return self &= other.
         """
-        return _process_c_function(self, other, wrapper.bitand)
+        return process_c_function(self, other, wrapper.bitand)
 
     def __ior__(self, other: int | bool | Array, /) -> Array:
         """
         Return self |= other.
         """
-        return _process_c_function(self, other, wrapper.bitor)
+        return process_c_function(self, other, wrapper.bitor)
 
     def __ixor__(self, other: int | bool | Array, /) -> Array:
         """
         Return self ^= other.
         """
-        return _process_c_function(self, other, wrapper.bitxor)
+        return process_c_function(self, other, wrapper.bitxor)
 
     def __ilshift__(self, other: int | Array, /) -> Array:
         """
         Return self <<= other.
         """
-        return _process_c_function(self, other, wrapper.bitshiftl)
+        return process_c_function(self, other, wrapper.bitshiftl)
 
     def __irshift__(self, other: int | Array, /) -> Array:
         """
         Return self >>= other.
         """
-        return _process_c_function(self, other, wrapper.bitshiftr)
+        return process_c_function(self, other, wrapper.bitshiftr)
 
     # Methods
 
@@ -821,7 +821,10 @@ class Array:
         return _array_as_str(self)
 
     def __del__(self) -> None:
-        if not self._arr.value:
+        if not hasattr(self._arr, "value"):
+            return
+
+        if self._arr.value == 0:
             return
 
         wrapper.release_array(self._arr)
@@ -1116,7 +1119,7 @@ def _metadata_string(dtype: Dtype, dims: tuple[int, ...] | None = None) -> str:
 
 
 @afarray_as_array
-def _process_c_function(lhs: int | float | Array, rhs: int | float | Array, c_function: Any) -> Array:
+def process_c_function(lhs: int | float | Array, rhs: int | float | Array, c_function: Any) -> Array:
     if isinstance(lhs, Array) and isinstance(rhs, Array):
         lhs_array = lhs.arr
         rhs_array = rhs.arr
