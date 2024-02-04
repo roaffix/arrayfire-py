@@ -13,7 +13,6 @@ from arrayfire_wrapper.defines import AFArray, ArrayBuffer, CType
 from .dtypes import Dtype
 from .dtypes import bool as afbool
 from .dtypes import c_api_value_to_dtype, float32, str_to_dtype
-from .library.array_management._constant import create_constant_array
 from .library.device import PointerSource
 
 if TYPE_CHECKING:
@@ -794,10 +793,9 @@ class Array:
             dims = _get_processed_index(key, self.shape)
             if is_array_with_bool:
                 ndims = 1
-                # FIXME
-                other_arr = create_constant_array(value, (int(num),), self.dtype)  # type: ignore[call-overload]
+                other_arr = wrapper.create_constant_array(value, (int(num.real),), self.dtype)
             else:
-                other_arr = create_constant_array(value, dims, self.dtype)
+                other_arr = wrapper.create_constant_array(value, dims, self.dtype)
             del_other = True
         else:
             other_arr = value.arr
@@ -1125,10 +1123,10 @@ def _process_c_function(lhs: int | float | Array, rhs: int | float | Array, c_fu
 
     elif isinstance(lhs, Array) and isinstance(rhs, (int, float)):
         lhs_array = lhs.arr
-        rhs_array = create_constant_array(rhs, lhs.shape, lhs.dtype)
+        rhs_array = wrapper.create_constant_array(rhs, lhs.shape, lhs.dtype)
 
     elif isinstance(lhs, (int, float)) and isinstance(rhs, Array):
-        lhs_array = create_constant_array(lhs, rhs.shape, rhs.dtype)
+        lhs_array = wrapper.create_constant_array(lhs, rhs.shape, rhs.dtype)
         rhs_array = rhs.arr
 
     else:

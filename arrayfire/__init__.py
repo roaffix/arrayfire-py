@@ -71,6 +71,74 @@ from .dtypes import (
 )
 
 __all__ += [
+    "constant",
+    "diag",
+    "identity",
+    "iota",
+    "lower",
+    "upper",
+    "pad",
+    "range",
+    "isinf",
+    "isnan",
+    "iszero",
+    "set_manual_eval_flag",
+    "eval",
+    "copy_array",
+    "flat",
+    "flip",
+    "join",
+    "moddims",
+    "reorder",
+    "replace",
+    "select",
+    "shift",
+    "tile",
+    "transpose",
+]
+
+from arrayfire.library.array_functions import (
+    constant,
+    copy_array,
+    diag,
+    eval,
+    flat,
+    flip,
+    identity,
+    iota,
+    isinf,
+    isnan,
+    iszero,
+    join,
+    lower,
+    moddims,
+    pad,
+    range,
+    reorder,
+    replace,
+    select,
+    set_manual_eval_flag,
+    shift,
+    tile,
+    transpose,
+    upper,
+)
+
+__all__ += ["gloh", "orb", "sift", "dog", "fast", "harris", "susan", "hamming_matcher", "nearest_neighbour"]
+
+from arrayfire.library.computer_vision import (
+    dog,
+    fast,
+    gloh,
+    hamming_matcher,
+    harris,
+    nearest_neighbour,
+    orb,
+    sift,
+    susan,
+)
+
+__all__ += [
     "Match",
     "MatProp",
     "BinaryOperator",
@@ -116,7 +184,7 @@ from arrayfire.library.constants import (
     pi,
 )
 
-__all__ = [
+__all__ += [
     "alloc_device",
     "alloc_host",
     "alloc_pinned",
@@ -582,3 +650,7 @@ from arrayfire.library.vector_algorithms import (
     sum,
     where,
 )
+
+__all__ += ["cast"]
+
+from arrayfire.library.utils import cast

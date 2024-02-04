@@ -39,18 +39,3 @@ def cast(array: Array, dtype: Dtype, /) -> Array:
         An array containing the values from `array` after conversion to the specified `dtype`.
     """
     return typing_cast(Array, wrapper.cast(array.arr, dtype))
-
-
-@afarray_as_array
-def isinf(array: Array, /) -> Array:
-    return typing_cast(Array, wrapper.isinf(array.arr))
-
-
-@afarray_as_array
-def isnan(array: Array, /) -> Array:
-    return typing_cast(Array, wrapper.isnan(array.arr))
-
-
-@afarray_as_array
-def iszero(array: Array, /) -> Array:
-    return typing_cast(Array, wrapper.iszero(array.arr))

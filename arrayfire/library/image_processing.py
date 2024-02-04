@@ -56,7 +56,7 @@ from arrayfire.library.constants import (
     YCCStd,
 )
 
-from .array_management.creation import constant
+from .array_functions import constant
 from .vector_algorithms import max as afmax
 from .vector_algorithms import min as afmin
 

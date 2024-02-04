@@ -1,3 +1,41 @@
+import pytest
+
+import arrayfire as af
+
+# Test reduction operators
+
+
+@pytest.fixture
+def true_array() -> af.Array:
+    return af.constant(1, (5, 5))
+
+
+@pytest.fixture
+def false_array() -> af.Array:
+    arr = af.constant(1, (5, 5))
+    arr[2, 2] = 0  # Set one element to False
+    return arr
+
+
+# BUG af.Array.to_list()
+# def test_all_true_with_axis(true_array: af.Array) -> None:
+#     result = va.all_true(true_array, axis=0)
+#     assert result.to_list() == [True, True, True, True, True]
+
+
+# Test cases for the sum function
+
+
+@pytest.fixture
+def sample_array() -> af.Array:
+    return af.Array([1, 2, 3, 4])
+
+
+def test_sum_no_axis_no_nan_value(sample_array: af.Array) -> None:
+    result = af.sum(sample_array)
+    assert result == 10  # Sum of all elements is 1 + 2 + 3 + 4 = 10
+
+
 # from typing import Union
 # import arrayfire as af
 # import pytest
@@ -30,3 +68,5 @@
 #     array = af.randu(3, 4)
 #     with pytest.raises(ValueError, match="Invalid axis"):
 #         accum(array, axis=2)
+
+# TODO add more test cases
