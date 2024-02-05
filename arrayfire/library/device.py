@@ -1,6 +1,56 @@
+__all__ = [
+    "alloc_device",
+    "alloc_host",
+    "alloc_pinned",
+    "device_gc",
+    "device_info",
+    "device_mem_info",
+    "free_device",
+    "free_host",
+    "free_pinned",
+    "get_dbl_support",
+    "get_device",
+    "get_device_count",
+    "get_half_support",
+    "get_kernel_cache_directory",
+    "get_mem_step_size",
+    "info",
+    "info_string",
+    "init",
+    "print_mem_info",
+    "set_device",
+    "sync",
+    "set_kernel_cache_directory",
+    "set_mem_step_size",
+]
+
 import enum
 
-from arrayfire.backend import _clib_wrapper as wrapper
+from arrayfire_wrapper.lib import (
+    alloc_device,
+    alloc_host,
+    alloc_pinned,
+    device_gc,
+    device_info,
+    device_mem_info,
+    free_device,
+    free_host,
+    free_pinned,
+    get_dbl_support,
+    get_device,
+    get_device_count,
+    get_half_support,
+    get_kernel_cache_directory,
+    get_mem_step_size,
+    info,
+    info_string,
+    init,
+    print_mem_info,
+    set_device,
+    set_kernel_cache_directory,
+    set_mem_step_size,
+    sync,
+)
 
 
 class PointerSource(enum.Enum):
@@ -10,14 +60,3 @@ class PointerSource(enum.Enum):
 
     device = 0  # gpu
     host = 1  # cpu
-
-
-def get_device() -> int:  # FIXME
-    return wrapper.get_device()
-
-
-def sync(device_id: int) -> None:  # FIXME
-    return wrapper.sync(device_id)
-
-
-supported_devices = []

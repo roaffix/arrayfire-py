@@ -1,7 +1,9 @@
 from typing import cast as typing_cast
 
-from arrayfire.array_object import Array, afarray_as_array
-from arrayfire.backend import _clib_wrapper as wrapper
+import arrayfire_wrapper.lib as wrapper
+
+from arrayfire import Array
+from arrayfire.array_object import afarray_as_array
 from arrayfire.dtypes import Dtype
 
 
@@ -37,45 +39,3 @@ def cast(array: Array, dtype: Dtype, /) -> Array:
         An array containing the values from `array` after conversion to the specified `dtype`.
     """
     return typing_cast(Array, wrapper.cast(array.arr, dtype))
-
-
-# def timeit(af_func, *args):
-#     """
-#     Function to time arrayfire functions.
-
-#     Parameters
-#     ----------
-
-#     af_func    : arrayfire function
-
-#     *args      : arguments to `af_func`
-
-#     Returns
-#     --------
-
-#     t   : Time in seconds
-#     """
-
-#     sample_trials = 3
-
-#     sample_time = 1E20
-
-#     for i in range(sample_trials):
-#         start = time()
-#         res = af_func(*args)
-#         eval(res)
-#         sync()
-#         sample_time = min(sample_time, time() - start)
-
-#     if (sample_time >= 0.5):
-#         return sample_time
-
-#     num_iters = max(math.ceil(1.0 / sample_time), 3.0)
-
-#     start = time()
-#     for i in range(int(num_iters)):
-#         res = af_func(*args)
-#         eval(res)
-#     sync()
-#     sample_time = (time() - start) / num_iters
-#     return sample_time
