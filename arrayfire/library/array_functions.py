@@ -380,7 +380,7 @@ def shift(array: Array, shape: tuple[int, ...], /) -> Array:
 
 
 @afarray_as_array
-def tile(array: Array, shape: tuple[int, ...], /) -> Array:
+def tile(array: Array, /, shape: tuple[int, ...]) -> Array:
     if len(shape) > 4:
         raise ValueError("Max 4-dimensional arrays are supported.")
 
