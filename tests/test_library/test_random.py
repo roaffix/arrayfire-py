@@ -89,7 +89,11 @@ def test_randu_invalid_shape_type() -> None:
     # Test with an invalid shape (non-tuple)
     with pytest.raises(ValueError):
         shape = [5, 5]
+<<<<<<< HEAD
         af.randu(shape)  # type: ignore[arg-type]
+=======
+        random.randu(shape)  # type: ignore[arg-type]
+>>>>>>> 951aee8 (Update tests. Add randn)
 
 
 # Test cases for the randn function
@@ -97,22 +101,37 @@ def test_randu_invalid_shape_type() -> None:
 
 def test_randn_shape_1d() -> None:
     shape = (10,)
+<<<<<<< HEAD
     result: af.Array = af.randn(shape)
     assert isinstance(result, af.Array)
+=======
+    result: Array = random.randn(shape)
+    assert isinstance(result, Array)
+>>>>>>> 951aee8 (Update tests. Add randn)
     assert result.shape == shape
 
 
 def test_randn_shape_2d() -> None:
     shape = (5, 7)
+<<<<<<< HEAD
     result: af.Array = af.randn(shape)
     assert isinstance(result, af.Array)
+=======
+    result: Array = random.randn(shape)
+    assert isinstance(result, Array)
+>>>>>>> 951aee8 (Update tests. Add randn)
     assert result.shape == shape
 
 
 def test_randn_shape_3d() -> None:
     shape = (3, 4, 6)
+<<<<<<< HEAD
     result: af.Array = af.randn(shape)
     assert isinstance(result, af.Array)
+=======
+    result: Array = random.randn(shape)
+    assert isinstance(result, Array)
+>>>>>>> 951aee8 (Update tests. Add randn)
     assert result.shape == shape
 
 
