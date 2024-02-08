@@ -533,9 +533,9 @@ from .library.mathematical_functions import (
     trunc,
 )
 
-__all__ += ["randu"]
+__all__ += ["randn", "randu"]
 
-from arrayfire.library.random import randu
+from arrayfire.library.random import randn, randu
 
 __all__ += [
     "fft",
