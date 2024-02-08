@@ -91,3 +91,63 @@ def test_randu_invalid_shape_type() -> None:
     with pytest.raises(ValueError):
         shape = [5, 5]
         random.randu(shape)  # type: ignore[arg-type]
+
+
+# Test cases for the randn function
+
+
+def test_randn_shape_1d() -> None:
+    shape = (10,)
+    result: Array = random.randn(shape)
+    assert isinstance(result, Array)
+    assert result.shape == shape
+
+
+def test_randn_shape_2d() -> None:
+    shape = (5, 7)
+    result: Array = random.randn(shape)
+    assert isinstance(result, Array)
+    assert result.shape == shape
+
+
+def test_randn_shape_3d() -> None:
+    shape = (3, 4, 6)
+    result: Array = random.randn(shape)
+    assert isinstance(result, Array)
+    assert result.shape == shape
+
+
+def test_randn_shape_4d() -> None:
+    shape = (2, 2, 3, 5)
+    result: Array = random.randn(shape)
+    assert isinstance(result, Array)
+    assert result.shape == shape
+
+
+def test_randn_default_engine() -> None:
+    shape = (5, 5)
+    result: Array = random.randn(shape)
+    assert isinstance(result, Array)
+    assert result.shape == shape
+
+
+def test_randn_custom_engine() -> None:
+    shape = (3, 3)
+    custom_engine = RandomEngine(RandomEngineType.THREEFRY, seed=42)
+    result: Array = random.randn(shape, engine=custom_engine)
+    assert isinstance(result, Array)
+    assert result.shape == shape
+
+
+def test_randn_invalid_shape() -> None:
+    # Test with an invalid shape (empty tuple)
+    with pytest.raises(ValueError):
+        shape = ()
+        random.randn(shape)
+
+
+def test_randn_invalid_shape_type() -> None:
+    # Test with an invalid shape (non-tuple)
+    with pytest.raises(ValueError):
+        shape = [5, 5]
+        random.randn(shape)  # type: ignore[arg-type]
