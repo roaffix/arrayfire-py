@@ -659,3 +659,9 @@ from arrayfire.library.vector_algorithms import (
 __all__ += ["cast"]
 
 from arrayfire.library.utils import cast
+
+# Backend
+
+__all__ += ["set_backend", "get_backend", "BackendType"]
+
+from arrayfire_wrapper import BackendType, get_backend, set_backend
