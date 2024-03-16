@@ -68,7 +68,7 @@ setup(
     name="arrayfire",
     version=VERSION["VERSION"],
     description="ArrayFire Python Wrapper",
-    licence="BSD",
+    license="BSD",
     long_description=(ABS_PATH / "README.md").open("r").read(),
     long_description_content_type="text/markdown",
     author="ArrayFire",

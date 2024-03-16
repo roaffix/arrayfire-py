@@ -533,9 +533,9 @@ from .library.mathematical_functions import (
     trunc,
 )
 
-__all__ += ["randu"]
+__all__ += ["randn", "randu"]
 
-from arrayfire.library.random import randu
+from arrayfire.library.random import randn, randu
 
 __all__ += [
     "fft",
@@ -591,23 +591,26 @@ __all__ += ["corrcoef", "cov", "mean", "median", "stdev", "topk", "var"]
 
 from arrayfire.library.statistics import corrcoef, cov, mean, median, stdev, topk, var
 
-__all__ += [
-    "get_active_backend",
-    "get_available_backends",
-    "get_backend_count",
-    "get_backend_id",
-    "get_device_id",
-    "set_backend",
-]
+# TODO
+# Temp solution. Remove when arrayfire-binary-python-wrapper is finalized
 
-from arrayfire.library.unified_api_functions import (
-    get_active_backend,
-    get_available_backends,
-    get_backend_count,
-    get_backend_id,
-    get_device_id,
-    set_backend,
-)
+# __all__ += [
+#     "get_active_backend",
+#     "get_available_backends",
+#     "get_backend_count",
+#     "get_backend_id",
+#     "get_device_id",
+#     "set_backend",
+# ]
+
+# from arrayfire.library.unified_api_functions import (
+#     get_active_backend,
+#     get_available_backends,
+#     get_backend_count,
+#     get_backend_id,
+#     get_device_id,
+#     set_backend,
+# )
 
 __all__ += [
     "accum",
@@ -656,3 +659,9 @@ from arrayfire.library.vector_algorithms import (
 __all__ += ["cast"]
 
 from arrayfire.library.utils import cast
+
+# Backend
+
+__all__ += ["set_backend", "get_backend", "BackendType"]
+
+from arrayfire_wrapper import BackendType, get_backend, set_backend

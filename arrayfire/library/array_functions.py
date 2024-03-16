@@ -241,6 +241,7 @@ def copy_array(array: Array, /) -> Array:
 def eval(*arrays: Array) -> None:
     if len(arrays) == 1:
         wrapper.eval(arrays[0].arr)
+        return
 
     arrs = [array.arr for array in arrays]
     wrapper.eval_multiple(len(arrays), *arrs)

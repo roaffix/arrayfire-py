@@ -132,6 +132,52 @@ class RandomEngine:
 
 
 @afarray_as_array
+def randn(shape: tuple[int, ...], /, *, dtype: Dtype = float32, engine: RandomEngine | None = None) -> Array:
+    """
+    Create a multi-dimensional array containing values sampled from a normal distribution with mean 0
+    and standard deviation of 1.
+
+    Parameters
+    ----------
+    shape : tuple[int, ...]
+        The shape of the resulting array. Must be a tuple with at least one element, e.g., shape=(3,).
+
+    dtype : Dtype, optional, default: `float32`
+        The data type of the array elements.
+
+    engine : RandomEngine | None, optional
+        The random number generator engine to be used. If None, uses a default engine created by ArrayFire.
+
+    Returns
+    -------
+    Array
+        A multi-dimensional array whose elements are sampled from a normal distribution. The dimensions of the array
+        are determined by `shape`:
+        - If shape is (x,), the output is a 1D array of size (x,).
+        - If shape is (x, y), the output is a 2D array of size (x, y).
+        - If shape is (x, y, z), the output is a 3D array of size (x, y, z).
+        - For more dimensions, the output shape corresponds directly to the specified `shape` tuple.
+
+    Notes
+    -----
+    The function supports creating arrays of up to N dimensions, where N is determined by the length
+    of the `shape` tuple.
+
+    Raises
+    ------
+    ValueError
+        If `shape` is not a tuple or has less than one value.
+    """
+    if not isinstance(shape, tuple) or not shape:
+        raise ValueError("Argument shape must be a tuple with at least 1 value.")
+
+    if engine is None:
+        return cast(Array, wrapper.randn(shape, dtype))
+
+    return cast(Array, wrapper.random_normal(shape, dtype, engine.get_engine()))
+
+
+@afarray_as_array
 def randu(shape: tuple[int, ...], /, *, dtype: Dtype = float32, engine: RandomEngine | None = None) -> Array:
     """
     Create a multi-dimensional array containing values from a uniform distribution.
