@@ -664,4 +664,4 @@ from arrayfire.library.utils import cast
 
 __all__ += ["set_backend", "get_backend", "BackendType"]
 
-from arrayfire_wrapper import BackendType, get_backend, set_backend
+from arrayfire_wrapper import BackendType, get_backend # , set_backend
