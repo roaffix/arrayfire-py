@@ -1007,8 +1007,8 @@ def shift(array: Array, shape: tuple[int, ...], /) -> Array:
     Shifts the input ArrayFire array along each dimension by specified amounts.
 
     This function cyclically shifts the elements of the input array along each dimension. The amount of shift for each
-    dimension is specified in the `shape` tuple. A positive shift moves elements towards higher indices, while a negative
-    shift moves them towards lower indices.
+    dimension is specified in the `shape` tuple. A positive shift moves elements towards higher indices, while a
+    negative shift moves them towards lower indices.
 
     Parameters
     ----------
@@ -1016,9 +1016,9 @@ def shift(array: Array, shape: tuple[int, ...], /) -> Array:
         The input multi-dimensional ArrayFire array to be shifted.
 
     shape : tuple[int, ...]
-        A tuple specifying the amount of shift along each dimension. Can contain up to four values, corresponding to the
-        shift along the first, second, third, and fourth dimensions, respectively. Unspecified dimensions are assumed to
-        have a shift of 0.
+        A tuple specifying the amount of shift along each dimension. Can contain up to four values, corresponding to
+        the shift along the first, second, third, and fourth dimensions, respectively. Unspecified dimensions are
+        assumed to have a shift of 0.
 
     Raises
     ------
@@ -1066,6 +1066,66 @@ def shift(array: Array, shape: tuple[int, ...], /) -> Array:
 
 @afarray_as_array
 def tile(array: Array, /, shape: tuple[int, ...]) -> Array:
+    """
+    Repeats an ArrayFire array along specified dimensions to create a tiled array.
+
+    This function creates a larger array by repeating the input array a specified number of times along each dimension.
+    The amount of repetition for each dimension is specified in the `shape` tuple. This can be used to duplicate data
+    along one or more axes.
+
+    Parameters
+    ----------
+    array : Array
+        The input multi-dimensional ArrayFire array to be tiled.
+
+    shape : tuple[int, ...]
+        A tuple specifying the number of times the input array should be repeated along each dimension. Can contain up
+        to four values, corresponding to the repetition factor along the first, second, third, and fourth dimensions,
+        respectively. Dimensions not specified will not be tiled (i.e., treated as if they have a repetition factor
+        of 1).
+
+    Raises
+    ------
+    ValueError
+        If the `shape` tuple contains more than four elements, as only up to 4-dimensional arrays are supported.
+
+    Returns
+    -------
+    Array
+        An ArrayFire array resulting from tiling the input array according to the specified `shape`.
+
+    Examples
+    --------
+    >>> import arrayfire as af
+    >>> a = af.randu((2, 3))  # Generate a 2x3 random array
+    >>> a
+    [2 3 1 1]
+        0.9508     0.2591     0.7928
+        0.5367     0.8359     0.8719
+
+    >>> af.tile(a, (2,))  # Tile along the first dimension by 2
+    [4 3 1 1]
+        0.9508     0.2591     0.7928
+        0.5367     0.8359     0.8719
+        0.9508     0.2591     0.7928
+        0.5367     0.8359     0.8719
+
+    >>> af.tile(a, (1, 2))  # Tile along the second dimension by 2
+    [2 6 1 1]
+        0.9508     0.2591     0.7928     0.9508     0.2591     0.7928
+        0.5367     0.8359     0.8719     0.5367     0.8359     0.8719
+
+    >>> af.tile(a, (2, 2))  # Tile both dimensions by 2
+    [4 6 1 1]
+        0.9508     0.2591     0.7928     0.9508     0.2591     0.7928
+        0.5367     0.8359     0.8719     0.5367     0.8359     0.8719
+        0.9508     0.2591     0.7928     0.9508     0.2591     0.7928
+        0.5367     0.8359     0.8719     0.5367     0.8359     0.8719
+
+    Note
+    ----
+    - The repetition factor of 1 means the dimension is not tiled.
+    """
     if len(shape) > 4:
         raise ValueError("Max 4-dimensional arrays are supported.")
 
@@ -1074,6 +1134,54 @@ def tile(array: Array, /, shape: tuple[int, ...]) -> Array:
 
 @afarray_as_array
 def transpose(array: Array, /, *, conjugate: bool = False, inplace: bool = False) -> Array:
+    """
+    Perform the transpose (and optionally, the complex conjugate transpose) of an ArrayFire array.
+    The operation can be performed in-place for square matrices or square matrix batches.
+
+    Parameters
+    ----------
+    array : Array
+        The input multi-dimensional ArrayFire array to be transposed. If `inplace` is True, `array` must be a square
+        matrix or a batch of square matrices.
+
+    conjugate : bool, optional, keyword-only, default: False
+        If True, performs a complex conjugate transpose. This is only relevant for complex data types and is ignored
+        for other data types.
+
+    inplace : bool, optional, keyword-only, default: False
+        If True, performs the transpose operation in-place, modifying the input `array`. The input `array` must be a
+        square matrix or a batch of square matrices.
+
+    Returns
+    -------
+    Array
+        If `inplace` is False, returns a new ArrayFire array containing the transpose of `array`. If `inplace` is True,
+        returns the modified `array` containing its own transpose. For in-place operations, the input `array` is
+        directly modified.
+
+    Examples
+    --------
+    >>> import arrayfire as af
+    >>> a = af.randu(3, 3)  # Generate a random 3x3 array
+    >>> a
+    [3 3 1 1]
+        0.7269     0.3569     0.3341
+        0.7104     0.1437     0.0899
+        0.5201     0.4563     0.5363
+
+    >>> af.transpose(a)  # Transpose the array
+    [3 3 1 1]
+        0.7269     0.7104     0.5201
+        0.3569     0.1437     0.4563
+        0.3341     0.0899     0.5363
+
+    Note
+    ----
+    - The `inplace` operation requires the input array to be a square matrix or a batch of square matrices.
+    Attempting an in-place transpose on non-square matrices will result in an error.
+    - For complex matrices, setting `conjugate` to True applies the complex conjugate in addition to the transpose
+    operation.
+    """
     if inplace:
         wrapper.transpose_inplace(array.arr, conjugate)
         return array

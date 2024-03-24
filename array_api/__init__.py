@@ -18,10 +18,10 @@ from ._creation_function import (
     meshgrid,
     ones,
     ones_like,
-    zeros,
-    zeros_like,
     tril,
     triu,
+    zeros,
+    zeros_like,
 )
 
 __all__ += ["asarray"]

@@ -4,7 +4,7 @@ import arrayfire as af
 
 from ._array_object import Array
 from ._constants import Device, NestedSequence, SupportsBufferProtocol
-from ._dtypes import all_dtypes, float32, int32, float64
+from ._dtypes import all_dtypes, float32, float64, int32
 
 
 def _check_valid_dtype(dtype: af.Dtype | None) -> None:
@@ -176,6 +176,8 @@ def empty(
     array = af.constant(0, shape, dtype)
     # TODO
     # device -> get_device -> set_device
+    # TODO
+    # check create_handle
     return Array._new(array)
 
 
