@@ -29,11 +29,43 @@ def dot(
     lhs: Array,
     rhs: Array,
     /,
-    lhs_opts: MatProp = MatProp.NONE,
-    rhs_opts: MatProp = MatProp.NONE,
     *,
     return_scalar: bool = False,
 ) -> int | float | complex | Array:
+    """
+    Calculates the dot product of two input arrays, with options to modify the operation
+    on the input arrays and the possibility to return the result as a scalar.
+
+    Parameters
+    ----------
+    lhs : Array
+        A 1-dimensional, int of float Array instance, representing an array.
+
+    rhs : Array
+        A 1-dimensional, int of float Array instance, representing another array.
+
+    return_scalar : bool, optional
+        When set to True, the input arrays are flattened, and the output is a scalar value.
+        Default is False.
+
+    Returns
+    -------
+    out : int | float | complex | Array
+        The result of the dot product. Returns an Array unless `return_scalar` is True,
+        in which case a scalar value (int, float, or complex) is returned based on the
+        data type of the inputs.
+
+    Note
+    -----
+    - The data types of `lhs` and `rhs` should be the same.
+    - Batch operations are not supported.
+    - Modification options for `lhs` and `rhs` are currently disabled as function supports only `MatProp.NONE`.
+    """
+    # TODO
+    # Add support of lhs_opts and rhs_opts and return them as key arguments.
+    lhs_opts: MatProp = MatProp.NONE
+    rhs_opts: MatProp = MatProp.NONE
+
     if return_scalar:
         return wrapper.dot_all(lhs.arr, rhs.arr, lhs_opts, rhs_opts)
 
@@ -50,11 +82,105 @@ def gemm(
     alpha: int | float = 1.0,
     beta: int | float = 0.0,
 ) -> Array:
+    """
+    Performs BLAS general matrix multiplication (GEMM) on two Array instances.
+
+    The operation is defined as: C = alpha * op(lhs) * op(rhs) + beta * C, where op(X) is
+    one of no operation, transpose, or Hermitian transpose, determined by lhs_opts and rhs_opts.
+
+    Parameters
+    ----------
+    lhs : Array
+        A 2-dimensional, real or complex array representing the left-hand side matrix.
+
+    rhs : Array
+        A 2-dimensional, real or complex array representing the right-hand side matrix.
+
+    lhs_opts : MatProp, optional
+        Operation to perform on `lhs` before multiplication. Default is MatProp.NONE. Options include:
+         - MatProp.NONE: No operation.
+         - MatProp.TRANS: Transpose.
+         - MatProp.CTRANS: Hermitian transpose.
+
+    rhs_opts : MatProp, optional
+        Operation to perform on `rhs` before multiplication. Default is MatProp.NONE. Options include:
+         - MatProp.NONE: No operation.
+         - MatProp.TRANS: Transpose.
+         - MatProp.CTRANS: Hermitian transpose.
+
+    alpha : int | float, optional
+        Scalar multiplier for the product of `lhs` and `rhs`. Default is 1.0.
+
+    beta : int | float, optional
+        Scalar multiplier for the existing matrix C in the accumulation. Default is 0.0.
+
+    Returns
+    -------
+    Array
+        The result of the matrix multiplication operation.
+
+    Note
+    -----
+    - The data types of `lhs` and `rhs` must be compatible.
+    - Batch operations are not supported in this version.
+    """
     return cast(Array, wrapper.gemm(lhs.arr, rhs.arr, lhs_opts, rhs_opts, alpha, beta))
 
 
 @afarray_as_array
 def matmul(lhs: Array, rhs: Array, /, lhs_opts: MatProp = MatProp.NONE, rhs_opts: MatProp = MatProp.NONE) -> Array:
+    """
+    Performs generalized matrix multiplication between two arrays with optional
+    transposition or hermitian transposition operations on the input matrices.
+
+    Parameters
+    ----------
+    lhs : af.Array
+        A 2-dimensional, real or complex ArrayFire array representing the left-hand side matrix.
+
+    rhs : af.Array
+        A 2-dimensional, real or complex ArrayFire array representing the right-hand side matrix.
+
+    lhs_opts : af.MATPROP, optional
+        Operation to perform on the `lhs` matrix before multiplication. Defaults to af.MATPROP.NONE.
+        Options include:
+        - af.MATPROP.NONE: No operation.
+        - af.MATPROP.TRANS: Transpose `lhs`.
+        - af.MATPROP.CTRANS: Hermitian transpose (conjugate transpose) `lhs`.
+
+    rhs_opts : af.MATPROP, optional
+        Operation to perform on the `rhs` matrix before multiplication. Defaults to af.MATPROP.NONE.
+        Options include:
+        - af.MATPROP.NONE: No operation.
+        - af.MATPROP.TRANS: Transpose `rhs`.
+        - af.MATPROP.CTRANS: Hermitian transpose (conjugate transpose) `rhs`.
+
+    Returns
+    -------
+    out : af.Array
+        The result of the matrix multiplication. The output is a 2-dimensional ArrayFire array.
+
+    Notes
+    -----
+    - The data types of `lhs` and `rhs` must be the same.
+    - Batch operations (multiplying multiple pairs of matrices at once) are not supported in this implementation.
+
+    Examples
+    --------
+    Basic matrix multiplication:
+
+        A = af.randu(5, 4, dtype=af.Dtype.f32)
+        B = af.randu(4, 6, dtype=af.Dtype.f32)
+        C = matmul(A, B)
+
+    Matrix multiplication with the left-hand side transposed:
+
+        C = matmul(A, B, lhs_opts=af.MATPROP.TRANS)
+
+    Matrix multiplication with both matrices transposed:
+
+        C = matmul(A, B, lhs_opts=af.MATPROP.TRANS, rhs_opts=af.MATPROP.TRANS)
+    """
     return cast(Array, wrapper.matmul(lhs.arr, rhs.arr, lhs_opts, rhs_opts))
 
 
@@ -121,5 +247,5 @@ def solve(a: Array, b: Array, /, *, options: MatProp = MatProp.NONE, pivot: None
     return cast(Array, wrapper.solve(a.arr, b.arr, options))
 
 
-# TODO
-# Add Sparse functions? #good_first_issue
+# TODO #good_first_issue
+# Add Sparse functions

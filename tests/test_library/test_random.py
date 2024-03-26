@@ -1,8 +1,7 @@
 import pytest
 from arrayfire_wrapper.lib import create_random_engine
 
-from arrayfire import Array
-from arrayfire.library import random
+import arrayfire as af
 from arrayfire.library.random import RandomEngine, RandomEngineType
 
 # Test cases for the Random Engine
@@ -38,44 +37,44 @@ def test_random_engine_deletion() -> None:
 
 def test_randu_shape_1d() -> None:
     shape = (10,)
-    result: Array = random.randu(shape)
-    assert isinstance(result, Array)
+    result: af.Array = af.randu(shape)
+    assert isinstance(result, af.Array)
     assert result.shape == shape
 
 
 def test_randu_shape_2d() -> None:
     shape = (5, 7)
-    result: Array = random.randu(shape)
-    assert isinstance(result, Array)
+    result: af.Array = af.randu(shape)
+    assert isinstance(result, af.Array)
     assert result.shape == shape
 
 
 def test_randu_shape_3d() -> None:
     shape = (3, 4, 6)
-    result: Array = random.randu(shape)
-    assert isinstance(result, Array)
+    result: af.Array = af.randu(shape)
+    assert isinstance(result, af.Array)
     assert result.shape == shape
 
 
 def test_randu_shape_4d() -> None:
     shape = (2, 2, 3, 5)
-    result: Array = random.randu(shape)
-    assert isinstance(result, Array)
+    result: af.Array = af.randu(shape)
+    assert isinstance(result, af.Array)
     assert result.shape == shape
 
 
 def test_randu_default_engine() -> None:
     shape = (5, 5)
-    result: Array = random.randu(shape)
-    assert isinstance(result, Array)
+    result: af.Array = af.randu(shape)
+    assert isinstance(result, af.Array)
     assert result.shape == shape
 
 
 def test_randu_custom_engine() -> None:
     shape = (3, 3)
     custom_engine = RandomEngine(RandomEngineType.THREEFRY, seed=42)
-    result: Array = random.randu(shape, engine=custom_engine)
-    assert isinstance(result, Array)
+    result: af.Array = af.randu(shape, engine=custom_engine)
+    assert isinstance(result, af.Array)
     assert result.shape == shape
 
 
@@ -83,11 +82,71 @@ def test_randu_invalid_shape() -> None:
     # Test with an invalid shape (empty tuple)
     with pytest.raises(ValueError):
         shape = ()
-        random.randu(shape)
+        af.randu(shape)
 
 
 def test_randu_invalid_shape_type() -> None:
     # Test with an invalid shape (non-tuple)
     with pytest.raises(ValueError):
         shape = [5, 5]
-        random.randu(shape)  # type: ignore[arg-type]
+        af.randu(shape)  # type: ignore[arg-type]
+
+
+# Test cases for the randn function
+
+
+def test_randn_shape_1d() -> None:
+    shape = (10,)
+    result: af.Array = af.randn(shape)
+    assert isinstance(result, af.Array)
+    assert result.shape == shape
+
+
+def test_randn_shape_2d() -> None:
+    shape = (5, 7)
+    result: af.Array = af.randn(shape)
+    assert isinstance(result, af.Array)
+    assert result.shape == shape
+
+
+def test_randn_shape_3d() -> None:
+    shape = (3, 4, 6)
+    result: af.Array = af.randn(shape)
+    assert isinstance(result, af.Array)
+    assert result.shape == shape
+
+
+def test_randn_shape_4d() -> None:
+    shape = (2, 2, 3, 5)
+    result: af.Array = af.randn(shape)
+    assert isinstance(result, af.Array)
+    assert result.shape == shape
+
+
+def test_randn_default_engine() -> None:
+    shape = (5, 5)
+    result: af.Array = af.randn(shape)
+    assert isinstance(result, af.Array)
+    assert result.shape == shape
+
+
+def test_randn_custom_engine() -> None:
+    shape = (3, 3)
+    custom_engine = RandomEngine(RandomEngineType.THREEFRY, seed=42)
+    result: af.Array = af.randn(shape, engine=custom_engine)
+    assert isinstance(result, af.Array)
+    assert result.shape == shape
+
+
+def test_randn_invalid_shape() -> None:
+    # Test with an invalid shape (empty tuple)
+    with pytest.raises(ValueError):
+        shape = ()
+        af.randn(shape)
+
+
+def test_randn_invalid_shape_type() -> None:
+    # Test with an invalid shape (non-tuple)
+    with pytest.raises(ValueError):
+        shape = [5, 5]
+        af.randn(shape)  # type: ignore[arg-type]
