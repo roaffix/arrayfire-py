@@ -166,6 +166,12 @@ def empty(
     optimizing performance and compatibility with specific hardware or computational tasks.
     """
     _check_valid_dtype(dtype)
+    # TODO apply for new remastered Device
+    # original_backend = af.get_backend()
+    # original_device = af.get_device()
+    # # NOTE order is important. Backend then device
+    # af.set_backend(device.backend_type)
+    # af.set_device(device.device_id)
 
     if isinstance(shape, int):
         shape = (shape,)
@@ -178,6 +184,12 @@ def empty(
     # device -> get_device -> set_device
     # TODO
     # check create_handle
+
+    # TODO apply for new remastered Device
+    # An idea is to create array on device and return back to original device
+    # af.set_backend(original_backend)
+    # af.set_device(original_device)
+
     return Array._new(array)
 
 

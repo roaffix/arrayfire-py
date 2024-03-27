@@ -17,6 +17,11 @@ from ._dtypes import (
     promote_types,
 )
 
+# TODO
+# - add check if two arrays are on the same device (both backend and device)
+# - - include it in magic methods here
+# - - include it in elementwise functions also
+
 
 class Array:
     _array: af.Array
@@ -816,6 +821,14 @@ class Array:
         return self.__class__._new(res)
 
     def to_device(self: Array, device: Device, /, stream: None = None) -> Array:
+        # TODO
+        # Replace code to fit the following logic
+        #
+        # Pseudocode:
+        # af_malloc_host(  ... )
+        # af_write_array ( void* allocated on host)
+        # af_create_array( host_pointer, new_device)
+        # af_free_host(host_pointer)
         if stream is not None:
             raise ValueError("The stream argument to to_device() is not supported")
         if device == "cpu":
@@ -834,7 +847,8 @@ class Array:
     @property
     def device(self) -> Device:
         # HACK mocked
-        # TODO add logic
+        # TODO
+        # return Device(af.get_backend, af.get_device)
         return Device.CPU
 
     # @property

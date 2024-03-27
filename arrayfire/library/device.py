@@ -24,8 +24,6 @@ __all__ = [
     "set_mem_step_size",
 ]
 
-import enum
-
 from arrayfire_wrapper.lib import (
     alloc_device,
     alloc_host,
@@ -51,12 +49,3 @@ from arrayfire_wrapper.lib import (
     set_mem_step_size,
     sync,
 )
-
-
-class PointerSource(enum.Enum):
-    """
-    Source of the pointer.
-    """
-
-    device = 0  # gpu
-    host = 1  # cpu

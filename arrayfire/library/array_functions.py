@@ -23,6 +23,7 @@ __all__ = [
     "shift",
     "tile",
     "transpose",
+    "lookup",
 ]
 
 import warnings
@@ -159,11 +160,14 @@ def identity(shape: tuple[int, ...], dtype: Dtype = float32) -> Array:
         1.0000     0.0000     1.0000     0.0000     1.0000     0.0000
         0.0000     1.0000     0.0000     1.0000     0.0000     1.0000
     """
+    if not isinstance(shape, tuple) and len(shape) < 2:
+        raise ValueError("Argument shape must be a tuple with at least 2 values.")
+
     return cast(Array, wrapper.identity(shape, dtype))
 
 
 @afarray_as_array
-def iota(shape: tuple[int, ...], /, *, tile_shape: tuple[int, ...] = (), dtype: Dtype = float32) -> Array:
+def iota(shape: int | tuple[int, ...], /, *, tile_shape: tuple[int, ...] = (), dtype: Dtype = float32) -> Array:
     """
     Generate a multi-dimensional ArrayFire array with values populated based on their linear index within the array,
     optionally tiling the result to create larger arrays.
@@ -175,7 +179,7 @@ def iota(shape: tuple[int, ...], /, *, tile_shape: tuple[int, ...] = (), dtype: 
     ----------
     shape : tuple[int, ...]
         The shape of the array to be generated. This parameter defines the dimensions of the array.
-        For example, `shape=(5,)` creates a 1-dimensional array of length 5, `shape=(5, 4)` creates a 2D array
+        For example, `shape=5` creates a 1-dimensional array of length 5, `shape=(5, 4)` creates a 2D array
         of size 5x4, and so on.
 
     tile_shape : tuple[int, ...], optional, keyword-only, default: ()
@@ -193,6 +197,11 @@ def iota(shape: tuple[int, ...], /, *, tile_shape: tuple[int, ...] = (), dtype: 
         A multi-dimensional ArrayFire array with elements populated based on their linear index, optionally tiled
         according to `tile_shape`.
 
+    Raises
+    ------
+    ValueError
+        If `shape` is not int or tuple with less than one value.
+
     Examples
     --------
     >>> import arrayfire as af
@@ -208,6 +217,12 @@ def iota(shape: tuple[int, ...], /, *, tile_shape: tuple[int, ...] = (), dtype: 
         1.0000     4.0000     7.0000     1.0000     4.0000     7.0000
         2.0000     5.0000     8.0000     2.0000     5.0000     8.0000
     """
+    if isinstance(shape, int):
+        shape = (shape,)
+
+    if not isinstance(shape, tuple) or not shape:
+        raise ValueError("Argument shape must be a tuple with at least 1 value.")
+
     return cast(Array, wrapper.iota(shape, tile_shape, dtype))
 
 
@@ -383,7 +398,7 @@ def pad(
 
 
 @afarray_as_array
-def range(shape: tuple[int, ...], /, *, axis: int = 0, dtype: Dtype = float32) -> Array:
+def range(shape: int | tuple[int, ...], /, *, axis: int = 0, dtype: Dtype = float32) -> Array:
     """
     Create a multi-dimensional array using the length of a dimension as a range.
 
@@ -410,6 +425,9 @@ def range(shape: tuple[int, ...], /, *, axis: int = 0, dtype: Dtype = float32) -
     ValueError
         If axis value is greater than the number of axes in resulting Array.
 
+    ValueError
+        If `shape` is not int or tuple with less than one value.
+
     Notes
     -----
     The `shape` parameter determines the dimensions of the resulting array:
@@ -435,6 +453,12 @@ def range(shape: tuple[int, ...], /, *, axis: int = 0, dtype: Dtype = float32) -
         0.0000     1.0000
         0.0000     1.0000
     """
+    if isinstance(shape, int):
+        shape = (shape,)
+
+    if not isinstance(shape, tuple) or not shape:
+        raise ValueError("Argument shape must be a tuple with at least 1 value.")
+
     if axis > len(shape):
         raise ValueError(
             f"Can not calculate along {axis} dimension. The resulting Array is set to has {len(shape)} dimensions."
@@ -930,7 +954,7 @@ def replace(lhs: Array, rhs: Array | int | float, conditional: Array, /) -> None
     wrapper.replace_scalar(lhs.arr, conditional.arr, rhs)
 
 
-def select(lhs: Array | int | float, rhs: Array | int | float, conditional: Array, /) -> None:
+def select(lhs: Array | int | float, rhs: Array | int | float, conditional: Array, /) -> Array:
     """
     Conditionally selects elements from one of two sources (ArrayFire arrays or scalars) based on a condition array.
 
@@ -987,16 +1011,13 @@ def select(lhs: Array | int | float, rhs: Array | int | float, conditional: Arra
     - At least one of `lhs` or `rhs` must be an ArrayFire array.
     """
     if isinstance(lhs, Array) and isinstance(rhs, Array):
-        wrapper.select(lhs.arr, conditional.arr, rhs.arr)
-        return
+        return cast(Array, wrapper.select(lhs.arr, conditional.arr, rhs.arr))
 
     if isinstance(lhs, Array) and not isinstance(rhs, Array):
-        wrapper.select_scalar_r(lhs.arr, conditional.arr, rhs)
-        return
+        return cast(Array, wrapper.select_scalar_r(lhs.arr, conditional.arr, rhs))
 
     if not isinstance(lhs, Array) and isinstance(rhs, Array):
-        wrapper.select_scalar_l(lhs, conditional.arr, rhs.arr)
-        return
+        return cast(Array, wrapper.select_scalar_l(lhs, conditional.arr, rhs.arr))
 
     raise TypeError("At least one array (lhr or rhs) must be of type af.Array.")
 
@@ -1187,3 +1208,57 @@ def transpose(array: Array, /, *, conjugate: bool = False, inplace: bool = False
         return array
 
     return cast(Array, wrapper.transpose(array.arr, conjugate))
+
+
+@afarray_as_array
+def lookup(array: Array, indices: Array, /, *, axis: int = 0) -> Array:
+    """
+    Performs a lookup operation on the input ArrayFire array based on the specified indices along a given dimension.
+
+    This function gathers elements from the input array `array` at positions specified by the `indices` array.
+    The operation is performed along the dimension specified by `axis`.
+
+    Parameters
+    ----------
+    array : Array
+        The input multi-dimensional ArrayFire array from which elements are to be gathered.
+
+    indices : Array
+        An ArrayFire array containing the indices of elements to gather. The values in `indices` should be of integer
+        type.
+
+    axis : int, optional, keyword-only, default: 0
+        The dimension along which the lookup is performed.
+
+    Returns
+    -------
+    Array
+        An ArrayFire array containing the elements of `array` at the locations specified by `indices`. The shape of
+        the output array is determined by the shape of `indices` and the dimension specified by `axis`.
+
+    Examples
+    --------
+    >>> import arrayfire as af
+    >>> a = af.Array([1, 0, 3, 4, 5, 6], shape=(2, 3))  # Create a 2x3 array
+    >>> a
+    [2 3 1 1]
+        1.0000     3.0000     5.0000
+        0.0000     4.0000     6.0000
+
+    >>> idx = af.Array([0, 2])  # Indices for lookup
+    >>> af.lookup(a, idx, axis=1)  # Lookup along the second dimension
+    [2 2 1 1]
+        1.0000     5.0000
+        0.0000     6.0000
+
+    >>> idx = af.Array([0])  # Indices for lookup
+    >>> af.lookup(arr, idx, axis=0)  # Lookup along the first dimension
+    [1 3 1 1]
+        1.0000     3.0000     5.0000
+
+    Note
+    ----
+    - The `indices` array must contain integer values indicating the positions of elements to gather from `array`.
+    - The dimension specified by `axis` must not exceed the number of dimensions in `array`.
+    """
+    return cast(Array, wrapper.lookup(array.arr, indices.arr, axis))
