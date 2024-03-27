@@ -13,7 +13,6 @@ from arrayfire_wrapper.defines import AFArray, ArrayBuffer, CType
 from .dtypes import Dtype
 from .dtypes import bool as afbool
 from .dtypes import c_api_value_to_dtype, float32, str_to_dtype
-from .library.device import PointerSource
 
 if TYPE_CHECKING:
     from ctypes import Array as CArray
@@ -126,7 +125,7 @@ class Array:
             return
 
         self._arr = wrapper.create_strided_array(
-            shape, dtype, _array_buffer, offset, strides, PointerSource.device  # type: ignore[arg-type]
+            shape, dtype, _array_buffer, offset, strides, wrapper.PointerSource(to_device)  # type: ignore[arg-type]
         )
 
     # Arithmetic Operators
