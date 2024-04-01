@@ -29,48 +29,48 @@ if __name__ == "__main__":
     B = af.Array(obj=h_B, shape=(3, 3), dtype=af.int32)
 
     print("\n---- Sub referencing and sub assignment\n")
-    print(_array_as_str(A))
-    print(_array_as_str(A[0, :]))
-    print(_array_as_str(A[:, 0]))
+    print(A)
+    print(A[0, :])
+    print(A[:, 0])
     A[0, 0] = 11
     A[1] = 100
-    print(_array_as_str(A))
-    print(_array_as_str(B))
+    print(A)
+    print(B)
     A[1, :] = B[2, :]
-    print(_array_as_str(A))
+    print(A)
 
     b_A = array("I", (1, 1, 1, 0, 1, 1, 0, 0, 0))
     b_B = array("I", (1, 0, 1, 0, 1, 0, 1, 0, 1))
 
     C = af.Array(obj=b_A, shape=(3, 3), dtype=af.uint32)
     D = af.Array(obj=b_B, shape=(3, 3), dtype=af.uint32)
-    print(_array_as_str(C))
-    print(_array_as_str(D))
+    print(C)
+    print(D)
 
     print("\n---- Bitwise operations\n")
-    print(_array_as_str(af.bitand(C, D)))
-    print(_array_as_str(af.bitor(C, D)))
-    print(_array_as_str(af.bitxor(C, D)))
+    print(af.bitand(C, D))
+    print(af.bitor(C, D))
+    print(C, D)
 
     print("\n---- Transpose\n")
-    print(_array_as_str(A))
-    print(_array_as_str(af.transpose(A)))
+    print(A)
+    print(af.transpose(A))
 
     print("\n---- Flip Vertically / Horizontally\n")
-    print(_array_as_str(A))
-    print(_array_as_str(af.flip(A, axis=0)))
-    print(_array_as_str(af.flip(A, axis=1)))
+    print(A)
+    print(af.flip(A, axis=0))
+    print(af.flip(A, axis=1))
 
     print("\n---- Sum, Min, Max along row / columns\n")
-    print(_array_as_str(A))
-    print(_array_as_str(af.min(A, axis=0)))  # type: ignore[arg-type]
-    print(_array_as_str(af.max(A, axis=0)))  # type: ignore[arg-type]
+    print(A)
+    print(af.min(A, axis=0))  # type: ignore[arg-type]
+    print(af.max(A, axis=0))  # type: ignore[arg-type]
 
-    print(_array_as_str(af.min(A, axis=1)))  # type: ignore[arg-type]
-    print(_array_as_str(af.max(A, axis=1)))  # type: ignore[arg-type]
+    print(af.min(A, axis=1))  # type: ignore[arg-type]
+    print(af.max(A, axis=1))  # type: ignore[arg-type]
 
-    print(_array_as_str(af.sum(A, axis=0)))  # type: ignore[arg-type]
-    print(_array_as_str(af.sum(A, axis=1)))  # type: ignore[arg-type]
+    print(af.sum(A, axis=0))  # type: ignore[arg-type]
+    print(af.sum(A, axis=1))  # type: ignore[arg-type]
 
     print("\n---- Get minimum with index\n")
     (min_val, min_idx) = af.imin(A, axis=0)
