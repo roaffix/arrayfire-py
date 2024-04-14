@@ -124,7 +124,7 @@ from arrayfire.library.array_functions import (
     upper,
 )
 
-__all__ += ["gloh", "orb", "sift", "dog", "fast", "harris", "susan", "hamming_matcher", "nearest_neighbour"]
+__all__ += ["gloh", "orb", "sift", "dog", "fast", "harris", "susan", "hamming_matcher", "nearest_neighbour", "match_template"]
 
 from arrayfire.library.computer_vision import (
     dog,
@@ -133,6 +133,7 @@ from arrayfire.library.computer_vision import (
     hamming_matcher,
     harris,
     nearest_neighbour,
+    match_template,
     orb,
     sift,
     susan,
@@ -550,6 +551,7 @@ __all__ += [
     "fft_convolve1",
     "fft_convolve2",
     "fft_convolve3",
+    "convolve2",
     "ifft",
     "ifft2",
     "ifft3",
@@ -578,6 +580,7 @@ from arrayfire.library.signal_processing import (
     fft_convolve1,
     fft_convolve2,
     fft_convolve3,
+    convolve2,
     fft_r2c,
     fir,
     ifft,

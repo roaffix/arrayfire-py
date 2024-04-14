@@ -202,7 +202,7 @@ def sobel_operator(image: Array, /, *, kernel_size: int = 3) -> tuple[Array, Arr
 
 # Gaussian kernel
 
-
+@afarray_as_array
 def gaussian_kernel(
     rows: int, columns: int, /, *, rows_sigma: None | float = None, columns_sigma: None | float = None
 ) -> Array:

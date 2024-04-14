@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #######################################################
-# Copyright (c) 2018, ArrayFire
+# Copyright (c) 2024, ArrayFire
 # All rights reserved.
 #
 # This file is distributed under 3-clause BSD license.
@@ -17,8 +17,6 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import imageio as io
-
-
 
 
 def draw_corners(img, x, y, draw_len):
@@ -74,10 +72,9 @@ def fast_demo(console):
 
 
     print("Features found: {}".format(num_features))
-    print(console)
     if not console:
         # Previews color image with green crosshairs
-        file_path = os.path.join(os.getcwd(), 'output_image.png')
+        file_path = os.path.join(os.getcwd(), 'fast_image.png')
         af.save_image(img_color, file_path)
     
     else:
