@@ -11,8 +11,6 @@
 
 import sys
 from array import array
-
-# from time import time
 from timeit import timeit
 
 import arrayfire as af
@@ -34,8 +32,8 @@ if __name__ == "__main__":
     h_spread = array("f", (1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5))
 
     img = af.randu((640, 480))
-    dx = af.Array(obj=h_dx, shape=(5, 1))
-    spread = af.Array(obj=h_spread, shape=(1, 5))
+    dx = af.Array(h_dx, shape=(5, 1))
+    spread = af.Array(h_spread, shape=(1, 5))
     kernel = af.matmul(dx, spread)
 
     full_res = convolve2(img, kernel)
