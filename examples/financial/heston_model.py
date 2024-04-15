@@ -88,7 +88,7 @@ def main():
     # Price plain vanilla call option
     tic = time.time()
     (x, v) = simulateHestonModel(T, nT, R, r, kappa, vBar, sigmaV, rho, x0, v0)
-    af.sync(-1)
+    af.sync()
     toc = time.time() - tic
     K = math.exp(k)
     zeroConstant = af.constant(0, (R,))

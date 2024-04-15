@@ -25,7 +25,7 @@ def monte_carlo_options(N, K, t, vol, r, strike, steps, use_barrier=True, B=None
     randmat = af.randn((N, steps - 1), dtype=ty)
     randmat = af.exp((r - (vol * vol * 0.5)) * dt + vol * math.sqrt(dt) * randmat)
 
-    S = af.product(af.join(1, s, randmat), 1)
+    S = af.product(af.join(1, s, randmat), axis=1)
 
     if use_barrier:
         S = S * af.all_true(S < B, 1)
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     monte_carlo_simulate(1000, use_barrier=False)
     monte_carlo_simulate(1000, use_barrier=True)
-    af.sync(-1)
+    af.sync()
 
     for n in range(10000, 100001, 10000):
         print(

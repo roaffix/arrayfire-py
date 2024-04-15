@@ -13,7 +13,6 @@ import math
 import sys
 from time import time
 
-# TODO: Remove -1 from sync() after default value has been put in
 import arrayfire as af
 
 sqrt2 = math.sqrt(2.0)
@@ -61,7 +60,7 @@ if __name__ == "__main__":
     (C, P) = black_scholes(S, X, R, V, T)
     af.eval(C)
     af.eval(P)
-    af.sync(-1)
+    af.sync()
 
     num_iter = 100
     for N in range(50, 501, 50):
@@ -70,7 +69,7 @@ if __name__ == "__main__":
         R = af.randu((M, N))
         V = af.randu((M, N))
         T = af.randu((M, N))
-        af.sync(-1)
+        af.sync()
 
         print("Input data size: %d elements" % (M * N))
 
@@ -79,7 +78,7 @@ if __name__ == "__main__":
             (C, P) = black_scholes(S, X, R, V, T)
             af.eval(C)
             af.eval(P)
-        af.sync(-1)
+        af.sync()
         sec = (time() - start) / num_iter
 
         print("Mean GPU Time: %0.6f ms\n\n" % (1000.0 * sec))
