@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 #######################################################
-# Copyright (c) 2015, ArrayFire
+# Copyright (c) 2024, ArrayFire
 # All rights reserved.
 #
 # This file is distributed under 3-clause BSD license.
@@ -15,7 +15,6 @@ from time import time
 
 import arrayfire as af
 
-# TODO: Remove -1 from sync() after default value has been put in
 try:
     import numpy as np
 except ImportError:
