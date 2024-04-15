@@ -13,15 +13,10 @@ import sys
 from random import random
 from time import time
 
+import numpy as np
+
 import arrayfire as af
 
-try:
-    import numpy as np
-except ImportError:
-    np = None  # type: ignore[assignment]
-
-#TODO: Remove Python2 support?
-# alias range / xrange because xrange is faster than range in python2
 try:
     frange = xrange  # type: ignore[name-defined]
 except NameError:
