@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #######################################################
-# Copyright (c) 2019, ArrayFire
+# Copyright (c) 2024, ArrayFire
 # All rights reserved.
 #
 # This file is distributed under 3-clause BSD license.
@@ -107,7 +107,7 @@ def benchmark_logistic_regression(train_feats, train_targets, test_feats):
     t0 = time.time()
     Weights = train(train_feats, train_targets, 0.1, 1.0, 0.01, 1000)
     af.eval(Weights)
-    af.sync(-1)
+    af.sync()
     t1 = time.time()
     dt = t1 - t0
     print('Training time: {0:4.4f} s'.format(dt))
@@ -117,7 +117,7 @@ def benchmark_logistic_regression(train_feats, train_targets, test_feats):
     for i in range(iters):
         test_outputs = predict_prob(test_feats, Weights)
         af.eval(test_outputs)
-    af.sync(-1)
+    af.sync()
     t1 = time.time()
     dt = t1 - t0
     print('Prediction time: {0:4.4f} s'.format(dt / iters))
