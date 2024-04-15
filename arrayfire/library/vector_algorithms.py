@@ -206,10 +206,10 @@ def sum(array: Array, /, *, axis: int | None = None, nan_value: float | None = N
 
         return wrapper.sum_nan_all(array.arr, nan_value)
 
-    if nan_value is not None:
-        return Array.from_afarray(wrapper.sum_nan(array.arr, axis, nan_value))
+    if nan_value is None:
+        return Array.from_afarray(wrapper.sum(array.arr, axis))
 
-    return Array.from_afarray(wrapper.sum(array.arr, axis))  # type: ignore[call-arg]
+    return Array.from_afarray(wrapper.sum_nan(array.arr, axis, nan_value))  # type: ignore[call-arg]
 
 
 def product(
