@@ -13,7 +13,6 @@ import sys
 from array import array
 
 import arrayfire as af
-from arrayfire.array_object import _array_as_str
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -74,5 +73,5 @@ if __name__ == "__main__":
 
     print("\n---- Get minimum with index\n")
     (min_val, min_idx) = af.imin(A, axis=0)
-    print(_array_as_str(min_val))  # type: ignore[arg-type]
-    print(_array_as_str(min_idx))  # type: ignore[arg-type]
+    print(min_val)  # type: ignore[arg-type]
+    print(min_idx)  # type: ignore[arg-type]
