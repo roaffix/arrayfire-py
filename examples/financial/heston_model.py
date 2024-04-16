@@ -33,12 +33,11 @@
 
 import math
 import time
-from typing import Tuple
 
 import arrayfire as af
 
 
-def initialize_parameters() -> Tuple[float, float, float, float, float, float, float, float]:
+def initialize_parameters() -> tuple[float, float, float, float, float, float, float, float]:
     """Initialize and return model parameters."""
     r = math.log(1.0319)  # risk-free rate
     rho = -0.82  # instantaneous correlation between Brownian motions
@@ -53,7 +52,7 @@ def initialize_parameters() -> Tuple[float, float, float, float, float, float, f
 
 def simulate_heston_model(
     T: int, N: int, R: int, mu: float, kappa: float, vBar: float, sigmaV: float, rho: float, x0: float, v0: float
-) -> Tuple[af.Array, af.Array]:
+) -> tuple[af.Array, af.Array]:
     """Simulate the Heston model for given parameters and return the resulting arrays."""
     deltaT = T / (N - 1)
     sqrtDeltaT = math.sqrt(deltaT)
