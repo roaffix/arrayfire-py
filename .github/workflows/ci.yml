@@ -21,8 +21,19 @@ defaults:
 
 jobs:
   code_style:
-    name: Code Style Checks
+    name: ${{ matrix.check.name }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        check:
+          - name: Code Formatting | black
+            command: black --check .
+          - name: Import Ordering | isort
+            command: isort --check .
+          - name: Linting | flake8
+            command: flake8 .
+          - name: Type Checking | mypy
+            command: mypy . --cache-dir=/dev/null
     steps:
       - uses: actions/checkout@v3
       
@@ -45,25 +56,10 @@ jobs:
           source .venv/bin/activate
           pip install -r dev-requirements.txt
 
-      - name: Code Style check - Run black
+      - name: Run Code Style Check
         run: |
           source .venv/bin/activate
-          black --check .
-
-      - name: Imports ordering check - Run isort
-        run: |
-          source .venv/bin/activate
-          isort --check .
-
-      - name: Linting check - Run flake8
-        run: |
-          source .venv/bin/activate
-          flake8 .
-
-      - name: Typing check - Run mypy
-        run: |
-          source .venv/bin/activate
-          mypy . --cache-dir=/dev/null
+          ${{ matrix.check.command }}
 
   unit_tests:
     name: Unit Tests
