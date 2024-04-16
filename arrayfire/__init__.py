@@ -95,6 +95,7 @@ __all__ += [
     "shift",
     "tile",
     "transpose",
+    "lookup",
 ]
 
 from arrayfire.library.array_functions import (
@@ -110,6 +111,7 @@ from arrayfire.library.array_functions import (
     isnan,
     iszero,
     join,
+    lookup,
     lower,
     moddims,
     pad,
@@ -593,27 +595,6 @@ from arrayfire.library.signal_processing import (
 __all__ += ["corrcoef", "cov", "mean", "median", "stdev", "topk", "var"]
 
 from arrayfire.library.statistics import corrcoef, cov, mean, median, stdev, topk, var
-
-# TODO
-# Temp solution. Remove when arrayfire-binary-python-wrapper is finalized
-
-# __all__ += [
-#     "get_active_backend",
-#     "get_available_backends",
-#     "get_backend_count",
-#     "get_backend_id",
-#     "get_device_id",
-#     "set_backend",
-# ]
-
-# from arrayfire.library.unified_api_functions import (
-#     get_active_backend,
-#     get_available_backends,
-#     get_backend_count,
-#     get_backend_id,
-#     get_device_id,
-#     set_backend,
-# )
 
 __all__ += [
     "accum",
