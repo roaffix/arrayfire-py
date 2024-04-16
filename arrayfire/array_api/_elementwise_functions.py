@@ -4,6 +4,9 @@ import arrayfire as af
 
 from ._array_object import Array
 
+# TODO
+# Add documentation and edge cases like types checking, array values, etc.
+
 
 def abs(x: Array, /) -> Array:
     return Array._new(af.abs(x._array))

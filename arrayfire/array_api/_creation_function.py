@@ -1,60 +1,87 @@
 from __future__ import annotations
 
+from functools import wraps
+from typing import TYPE_CHECKING, Any, Callable
+
 import arrayfire as af
 
 from ._array_object import Array
-from ._constants import Device, NestedSequence, SupportsBufferProtocol
-from ._dtypes import all_dtypes, float32, float64, int32
+from ._constants import Device
+from ._dtypes import all_dtypes, float32, int32
+
+if TYPE_CHECKING:
+    from ._constants import NestedSequence, SupportsBufferProtocol
 
 
 def _check_valid_dtype(dtype: af.Dtype | None) -> None:
-    # Note: Only spelling dtypes as the dtype objects is supported.
-
-    # We use this instead of "dtype in _all_dtypes" because the dtype objects
-    # define equality with the sorts of things we want to disallow.
     if dtype not in (None,) + all_dtypes:
         raise ValueError("dtype must be one of the supported dtypes")
 
 
+def _flatten_sequence(sequence: NestedSequence[bool | int | float]) -> NestedSequence[bool | int | float]:
+    """Recursively flatten a nested list."""
+    if isinstance(sequence[0], list | tuple):
+        return [item for sublist in sequence for item in _flatten_sequence(sublist)]  # type: ignore[arg-type]  # FIXME
+    else:
+        return list(sequence)
+
+
+def _determine_shape(sequence: NestedSequence[bool | int | float]) -> tuple[int, ...]:
+    """Recursively determine the shape of the nested sequence."""
+    if isinstance(sequence, list | tuple) and isinstance(sequence[0], list | tuple):
+        return (len(sequence),) + _determine_shape(sequence[0])
+    else:
+        return (len(sequence),)
+
+
+def _process_nested_sequence(sequence: NestedSequence[bool | int | float]) -> af.Array:
+    """Process a nested sequence to create an ArrayFire array of appropriate dimensions."""
+    shape = _determine_shape(sequence)
+    flat_sequence = _flatten_sequence(sequence)
+    # TODO
+    # validate the default type
+    return af.Array(flat_sequence, shape=shape, dtype=af.float32)  # type: ignore[arg-type]  # FIXME
+
+
+def manage_device(func: Callable) -> Callable:
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        _default_device = Device.use_default()
+
+        device = kwargs.get("device", _default_device)
+
+        # HACK
+        if func.__name__.endswith("_like") and device is None:
+            other = args[0]
+            device = other.device
+
+        if device is None:
+            device = _default_device
+
+        # Set the backend and device
+        af.set_backend(device.backend_type)
+        af.set_device(device.device_id)
+
+        try:
+            result = func(*args, **kwargs)
+        finally:
+            # Restore to the default backend and device settings
+            af.set_backend(_default_device.backend_type)
+            af.set_device(_default_device.device_id)
+
+        return result
+
+    return wrapper
+
+
+@manage_device
 def asarray(
-    obj: Array | bool | int | float | complex | NestedSequence | SupportsBufferProtocol,
+    obj: Array | bool | int | float | complex | NestedSequence[bool | int | float] | SupportsBufferProtocol,
     /,
     *,
     dtype: af.Dtype | None = None,
     device: Device | None = None,
     copy: bool | None = None,
-) -> Array:
-    _check_valid_dtype(dtype)
-
-    # if device not in supported_devices:
-    #     raise ValueError(f"Unsupported device {device!r}")
-
-    if dtype is None and isinstance(obj, int) and (obj > 2**64 or obj < -(2**63)):
-        raise OverflowError("Integer out of bounds for array dtypes")
-
-    if device == Device.CPU or device is None:
-        to_device = False
-    elif device == Device.GPU:
-        to_device = True
-    else:
-        raise ValueError(f"Unsupported device {device!r}")
-
-    # if isinstance(obj, int | float):
-    #     afarray = af.Array([obj], dtype=dtype, shape=(1,), to_device=to_device)
-    #     return Array._new(afarray)
-
-    afarray = af.Array(obj, dtype=dtype, to_device=to_device)
-    return Array._new(afarray)
-
-
-def arange(
-    start: int | float,
-    /,
-    stop: int | float | None = None,
-    step: int | float = 1,
-    *,
-    dtype: af.Dtype | None = None,
-    device: Device | None = None,
 ) -> Array:
     """
     Converts the input to an array.
@@ -107,9 +134,38 @@ def arange(
     - The `copy` parameter offers control over whether data is duplicated when creating the array, which can be
       important for managing memory use and computational efficiency.
     """
+    _check_valid_dtype(dtype)
+
+    if dtype is None:
+        dtype = float32
+
+    if isinstance(obj, bool | int | float | complex):
+        afarray = af.constant(obj, dtype=dtype)
+    elif isinstance(obj, Array):
+        afarray = Array._array if not copy else af.copy_array(Array._array)
+    elif isinstance(obj, list | tuple):
+        afarray = _process_nested_sequence(obj)
+    else:
+        # HACK
+        afarray = af.Array(obj, dtype=dtype)  # type: ignore[arg-type]
+
+    return Array._new(afarray)
+
+
+def arange(
+    start: int | float,
+    /,
+    stop: int | float | None = None,
+    step: int | float = 1,
+    *,
+    dtype: af.Dtype | None = None,
+    device: Device | None = None,
+) -> Array:
+    # TODO
     return NotImplemented
 
 
+@manage_device
 def empty(
     shape: int | tuple[int, ...],
     *,
@@ -166,12 +222,6 @@ def empty(
     optimizing performance and compatibility with specific hardware or computational tasks.
     """
     _check_valid_dtype(dtype)
-    # TODO apply for new remastered Device
-    # original_backend = af.get_backend()
-    # original_device = af.get_device()
-    # # NOTE order is important. Backend then device
-    # af.set_backend(device.backend_type)
-    # af.set_device(device.device_id)
 
     if isinstance(shape, int):
         shape = (shape,)
@@ -179,20 +229,12 @@ def empty(
     if dtype is None:
         dtype = float32
 
-    array = af.constant(0, shape, dtype)
-    # TODO
-    # device -> get_device -> set_device
-    # TODO
-    # check create_handle
-
-    # TODO apply for new remastered Device
-    # An idea is to create array on device and return back to original device
-    # af.set_backend(original_backend)
-    # af.set_device(original_device)
+    array = af.Array(None, dtype=dtype, shape=shape)
 
     return Array._new(array)
 
 
+@manage_device
 def empty_like(x: Array, /, *, dtype: af.Dtype | None = None, device: Device | None = None) -> Array:
     """
     Returns an uninitialized array with the same shape and, optionally, the same data type as the input array `x`.
@@ -244,12 +286,10 @@ def empty_like(x: Array, /, *, dtype: af.Dtype | None = None, device: Device | N
     if dtype is None:
         dtype = x.dtype
 
-    if device is None:
-        device = x.device
-
-    return empty(x.shape, dtype=dtype, device=device)
+    return empty(x.shape, dtype=dtype, device=device)  # type: ignore[no-any-return]  # FIXME
 
 
+@manage_device
 def eye(
     n_rows: int,
     n_cols: int | None = None,
@@ -324,9 +364,6 @@ def eye(
     if dtype is None:
         dtype = float32
 
-    # TODO
-    # device
-
     if n_rows <= abs(k):
         return Array._new(af.constant(0, (n_rows, n_cols), dtype))
 
@@ -351,6 +388,7 @@ def eye(
     return Array._new(shifted_array)
 
 
+@manage_device
 def full(
     shape: int | tuple[int, ...],
     fill_value: int | float,
@@ -417,12 +455,10 @@ def full(
     if dtype is None:
         dtype = float32 if isinstance(fill_value, float) else int32
 
-    # TODO
-    # Device
-
     return Array._new(af.constant(fill_value, shape, dtype=dtype))
 
 
+@manage_device
 def full_like(
     x: Array,
     /,
@@ -480,12 +516,10 @@ def full_like(
     if dtype is None:
         dtype = x.dtype
 
-    if device is None:
-        device = x.device
-
-    return full(x.shape, fill_value, dtype=dtype, device=device)
+    return full(x.shape, fill_value, dtype=dtype, device=device)  # type: ignore[no-any-return] # FIXME
 
 
+@manage_device
 def linspace(
     start: int | float,
     stop: int | float,
@@ -544,13 +578,10 @@ def linspace(
     >>> linspace(2.0, 3.0, num=5, endpoint=False)
     Array([2. , 2.2, 2.4, 2.6, 2.8])
     """
-    # BUG
+    # BUG, FIXME
     # # Default dtype handling based on 'start' and 'stop' types if 'dtype' not provided
     # if dtype is None:
     #     dtype = float32
-
-    # # TODO
-    # # Device
 
     # # Generate the linearly spaced array
     # if endpoint:
@@ -630,7 +661,7 @@ def meshgrid(*arrays: Array, indexing: str = "xy") -> list[Array]:
            [4, 5, 6, 7],
            [4, 5, 6, 7]])
     """
-    # BUG
+    # BUG, FIXME
     # arrays_af = [arr._array for arr in arrays]  # Convert custom Array to ArrayFire array for processing
     # dims = [arr.size for arr in arrays_af]  # Get the number of elements in each array
 
@@ -667,6 +698,7 @@ def meshgrid(*arrays: Array, indexing: str = "xy") -> list[Array]:
     return NotImplemented
 
 
+@manage_device
 def ones(
     shape: int | tuple[int, ...],
     *,
@@ -728,6 +760,7 @@ def ones(
     return Array._new(af.constant(1, shape, dtype))
 
 
+@manage_device
 def ones_like(x: Array, /, *, dtype: af.Dtype | None = None, device: Device | None = None) -> Array:
     """
     Returns a new array with the same shape and type as a given array, filled with ones.
@@ -780,10 +813,7 @@ def ones_like(x: Array, /, *, dtype: af.Dtype | None = None, device: Device | No
     if dtype is None:
         dtype = x.dtype
 
-    if device is None:
-        device = x.device
-
-    return ones(x.shape, dtype=dtype, device=device)
+    return ones(x.shape, dtype=dtype, device=device)  # type: ignore[no-any-return]  # FIXME
 
 
 def tril(x: Array, /, *, k: int = 0) -> Array:
@@ -916,6 +946,7 @@ def triu(x: Array, /, *, k: int = 0) -> Array:
     return Array._new(array * af.cast(mask, dtype))
 
 
+@manage_device
 def zeros(
     shape: int | tuple[int, ...],
     *,
@@ -980,6 +1011,7 @@ def zeros(
     return Array._new(af.constant(0, shape, dtype))
 
 
+@manage_device
 def zeros_like(x: Array, /, *, dtype: af.Dtype | None = None, device: Device | None = None) -> Array:
     """
     Returns a new array with the same shape as the input array `x`, filled with zeros.
@@ -1038,7 +1070,4 @@ def zeros_like(x: Array, /, *, dtype: af.Dtype | None = None, device: Device | N
     if dtype is None:
         dtype = x.dtype
 
-    if device is None:
-        device = x.device
-
-    return zeros(x.shape, dtype=dtype, device=device)
+    return zeros(x.shape, dtype=dtype, device=device)  # type: ignore[no-any-return]

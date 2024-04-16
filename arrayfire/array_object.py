@@ -47,7 +47,7 @@ def afarray_as_array(func: Callable[P, Array]) -> Callable[P, Array]:
 class Array:
     def __init__(
         self,
-        obj: None | Array | _pyarray.array | int | AFArray | list[int | float] = None,
+        obj: None | Array | _pyarray.array | int | AFArray | list[bool | int | float] = None,
         dtype: None | Dtype | str = None,
         shape: tuple[int, ...] = (),
         to_device: bool = False,
@@ -56,6 +56,9 @@ class Array:
     ) -> None:
         self._arr = AFArray.create_null_pointer()
         _no_initial_dtype = False  # HACK, FIXME
+
+        if len(shape) > 4:
+            raise ValueError("Can not create 5 or more -dimensional arrays.")
 
         if isinstance(dtype, str):
             dtype = str_to_dtype(dtype)  # type: ignore[arg-type]

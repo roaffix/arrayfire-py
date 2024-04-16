@@ -8,10 +8,9 @@ valid for inputs that match the given type annotations.
 
 from __future__ import annotations
 
-import enum
 from dataclasses import dataclass
 
-from arrayfire_wrapper import BackendType
+import arrayfire as af
 
 __all__ = [
     "Device",
@@ -29,6 +28,35 @@ class NestedSequence(Protocol[_T_co]):
     def __getitem__(self, key: int, /) -> _T_co | NestedSequence[_T_co]: ...
 
     def __len__(self, /) -> int: ...
+
+    def __iter__(self, /) -> Iterator[_T_co | NestedSequence[_T_co]]: ...
+
+
+@dataclass
+class Device:
+    backend_type: af.BackendType
+    device_id: int = 0
+
+    @classmethod
+    def use_default(cls) -> Device:
+        _backend = af.get_backend()
+        return cls(_backend.backend_type, af.get_device())
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.backend_type, af.BackendType):
+            raise ValueError("Bad backend type. Only support ones from af.BackendType.")
+
+        if self.device_id < 0:
+            raise ValueError("Device ID can not be lesser than 0")
+
+        if self.device_id > af.get_device_count() - 1:
+            raise ValueError("Device ID can not be higher than count of available devices.")
+
+        if self.backend_type == af.BackendType.unified:
+            raise ValueError(f"Uncompatible backend type '{self.backend_type.name}' with Array API.")
+
+        if self.backend_type == af.BackendType.cpu and self.device_id != 0:
+            raise ValueError(f"Device ID can not be greater than '{self.device_id}' with cpu backend.")
 
 
 # TODO
@@ -60,15 +88,15 @@ class NestedSequence(Protocol[_T_co]):
 # aa + bb -> Error: bad devices
 
 
-class Device(enum.Enum):
-    CPU = enum.auto()
-    GPU = enum.auto()
+# class Device(enum.Enum):
+#     CPU = enum.auto()
+#     GPU = enum.auto()
 
-    def __repr__(self) -> str:
-        return str(self.value)
+#     def __repr__(self) -> str:
+#         return str(self.value)
 
-    def __iter__(self) -> Iterator[Device]:
-        yield self
+#     def __iter__(self) -> Iterator[Device]:
+#         yield self
 
 
 SupportsBufferProtocol = Any

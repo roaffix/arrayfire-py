@@ -67,7 +67,7 @@ signed_integer_dtypes = (int8, int16, int32, int64)
 unsigned_integer_dtypes = (uint8, uint16, uint32, uint64)
 integer_or_boolean_dtypes = boolean_dtypes + integer_dtypes
 real_numeric_dtypes = real_floating_dtypes + integer_dtypes
-numeric_dtypes = floating_dtypes + integer_dtypes
+numeric_dtypes = floating_dtypes + integer_dtypes + complex_floating_dtypes
 
 dtype_categories = {
     "all": all_dtypes,

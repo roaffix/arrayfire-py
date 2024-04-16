@@ -4,14 +4,17 @@ import types
 from typing import Any
 
 import arrayfire as af
+from arrayfire import array_api
 
 from ._constants import Device, NestedSequence, PyCapsule, SupportsBufferProtocol
+from ._data_type_functions import iinfo
 from ._dtypes import (
     all_dtypes,
     boolean_dtypes,
     complex_floating_dtypes,
     dtype_categories,
     floating_dtypes,
+    integer_dtypes,
     integer_or_boolean_dtypes,
     numeric_dtypes,
     promote_types,
@@ -44,7 +47,7 @@ class Array:
         """
         if self.dtype not in dtype_categories[dtype_category]:
             raise TypeError(f"Only {dtype_category} dtypes are allowed in {op}")
-        if isinstance(other, (int, complex, float, bool)):
+        if isinstance(other, int | complex | float | bool):
             other = self._promote_scalar(other)
         elif isinstance(other, Array):
             if other.dtype not in dtype_categories[dtype_category]:
@@ -70,7 +73,7 @@ class Array:
 
         return other
 
-    def _promote_scalar(self, scalar):
+    def _promote_scalar(self, scalar: bool | int | float | complex) -> Array:
         """
         Returns a promoted version of a Python scalar appropriate for use with
         operations on self.
@@ -79,21 +82,18 @@ class Array:
         integer that is too large to fit in a NumPy integer dtype, or
         TypeError when the scalar type is incompatible with the dtype of self.
         """
-        # Note: Only Python scalar types that match the array dtype are
-        # allowed.
+        # NOTE
+        # Only Python scalar types that match the array dtype are allowed.
         if isinstance(scalar, bool):
             if self.dtype not in boolean_dtypes:
                 raise TypeError("Python bool scalars can only be promoted with bool arrays")
         elif isinstance(scalar, int):
             if self.dtype in boolean_dtypes:
                 raise TypeError("Python int scalars cannot be promoted with bool arrays")
-            # TODO
-            # if self.dtype in integer_dtypes:
-            #     info = np.iinfo(self.dtype)
-            #     if not (info.min <= scalar <= info.max):
-            #         raise OverflowError(
-            #             "Python int scalars must be within the bounds of the dtype for integer arrays")
-            # int + array(floating) is allowed
+            if self.dtype in integer_dtypes:
+                info = iinfo(self.dtype)
+                if not (info.min <= scalar <= info.max):
+                    raise OverflowError("Python int scalars must be within the bounds of the dtype for integer arrays")
         elif isinstance(scalar, float):
             if self.dtype not in floating_dtypes:
                 raise TypeError("Python float scalars can only be promoted with floating-point arrays.")
@@ -103,17 +103,17 @@ class Array:
         else:
             raise TypeError("'scalar' must be a Python scalar")
 
-        # Note: scalars are unconditionally cast to the same dtype as the
-        # array.
+        # NOTE
+        # Scalars are unconditionally cast to the same dtype as the array.
 
-        # Note: the spec only specifies integer-dtype/int promotion
-        # behavior for integers within the bounds of the integer dtype.
-        # Outside of those bounds we use the default NumPy behavior (either
-        # cast or raise OverflowError).
-        return Array._new(af.Array(scalar, self.dtype, shape=(1,)))
+        # NOTE (numpy-specific rule)
+        # The spec only specifies integer-dtype/int promotion behavior for integers within the bounds of the integer
+        # dtype. Outside of those bounds we use the default NumPy behavior (either cast or raise OverflowError).
+        return Array._new(af.constant(scalar, dtype=self.dtype, shape=(1,)))
 
     @staticmethod
-    def _normalize_two_args(x1, x2) -> Tuple[Array, Array]:
+    def _normalize_two_args(x1: Array, x2: Array) -> tuple[Array, Array]:
+        # BUG, FIXME
         # """
         # Normalize inputs to two arg functions to fix type promotion rules
 
@@ -176,18 +176,21 @@ class Array:
         """
         return self._array.__str__()  # .replace("array", "Array")
 
-    # def __repr__(self: Array, /) -> str:
-    #     """
-    #     Performs the operation __repr__.
-    #     """
-    #     suffix = f", dtype={self.dtype.name})"
-    #     if 0 in self.shape:
-    #         prefix = "empty("
-    #         mid = str(self.shape)
-    #     else:
-    #         prefix = "Array("
-    #         mid = np.array2string(self._array, separator=', ', prefix=prefix, suffix=suffix)
-    #     return prefix + mid + suffix
+    def __repr__(self: Array, /) -> str:
+        """
+        Performs the operation __repr__.
+        """
+        # TODO
+        # Numpy representation:
+        # suffix = f", dtype={self.dtype.name})"
+        # if 0 in self.shape:
+        #     prefix = "empty("
+        #     mid = str(self.shape)
+        # else:
+        #     prefix = "Array("
+        #     mid = np.array2string(self._array, separator=', ', prefix=prefix, suffix=suffix)
+        # return prefix + mid + suffix
+        return repr(self._array)
 
     def __abs__(self: Array, /) -> Array:
         """
@@ -223,7 +226,6 @@ class Array:
     def __array_namespace__(self: Array, /, *, api_version: str | None = None) -> types.ModuleType:
         if api_version is not None and not api_version.startswith("2021."):
             raise ValueError(f"Unrecognized array API version: {api_version!r}")
-        from arrayfire import array_api
 
         return array_api
 
@@ -252,6 +254,7 @@ class Array:
         """
         return self._array.__dlpack__(stream=stream)
 
+    # FIXME
     # def __dlpack_device__(self: Array, /) -> Tuple[IntEnum, int]:
     #     """
     #     Performs the operation __dlpack_device__.
@@ -259,7 +262,7 @@ class Array:
     #     # Note: device support is required for this
     #     return self._array.__dlpack_device__()
 
-    def __eq__(self: Array, other: int | float | bool | Array, /) -> Array:
+    def __eq__(self: Array, other: int | float | bool | Array, /) -> Array:  # type: ignore[override]
         """
         Performs the operation __eq__.
         """
@@ -429,7 +432,7 @@ class Array:
         res = self._array.__mul__(other._array)
         return self.__class__._new(res)
 
-    def __ne__(self: Array, other: int | float | bool | Array, /) -> Array:
+    def __ne__(self: Array, other: int | float | bool | Array, /) -> Array:  # type: ignore[override]
         """
         Performs the operation __ne__.
         """
@@ -822,18 +825,16 @@ class Array:
 
     def to_device(self: Array, device: Device, /, stream: None = None) -> Array:
         # TODO
-        # Replace code to fit the following logic
-        #
         # Pseudocode:
-        # af_malloc_host(  ... )
-        # af_write_array ( void* allocated on host)
-        # af_create_array( host_pointer, new_device)
+        # af_malloc_host(...)
+        # af_write_array (void* allocated on host)
+        # af_create_array(host_pointer, new_device)
         # af_free_host(host_pointer)
+
         if stream is not None:
             raise ValueError("The stream argument to to_device() is not supported")
-        if device == "cpu":
-            return self
-        raise ValueError(f"Unsupported device {device!r}")
+
+        return NotImplemented
 
     @property
     def dtype(self) -> af.Dtype:
@@ -846,16 +847,15 @@ class Array:
 
     @property
     def device(self) -> Device:
-        # HACK mocked
         # TODO
-        # return Device(af.get_backend, af.get_device)
-        return Device.CPU
+        # Pseudocode:
+        # return Device(af.get_backend.get_arrays_active_backend(self), af.get_arrays_device(self))
+        return NotImplemented
 
-    # @property
-    # def mT(self) -> Array:
-    #     from .linalg import matrix_transpose
-
-    #     return matrix_transpose(self)
+    @property
+    def mT(self) -> Array:
+        # TODO
+        return NotImplemented
 
     @property
     def ndim(self) -> int:
@@ -891,7 +891,7 @@ class Array:
 
         See its docstring for more information.
         """
-        # Note: T only works on 2-dimensional arrays. See the corresponding
+        # NOTE: T only works on 2-dimensional arrays. See the corresponding
         # note in the specification:
         # https://data-apis.org/array-api/latest/API_specification/array_object.html#t
         if self.ndim != 2:
