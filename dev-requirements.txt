@@ -1,0 +1,20 @@
+# Testing-related packages
+
+# Checks style, syntax, etc.
+flake8~=7.0.0
+
+# Static type checking
+mypy~=1.9.0
+
+# Check import order style
+isort>=5.13.2
+
+# Automatic code formatting
+black>=24.4.0
+
+# Allows generation of coverage reports with pytest.
+pytest-cov>=5.0.0
+
+# Allows codecov to generate coverage reports
+coverage[toml]>=6.4
+codecov>=2.1.12

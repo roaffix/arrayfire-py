@@ -46,17 +46,6 @@ Homepage = "http://arrayfire.com"
 [project.entry-points.array_api]
 array_api = "arrayfire.array_api"
 
-[project.optional-dependencies]
-dev = [
-  "flake8~=7.0.0",
-  "mypy~=1.9.0",
-  "isort>=5.13.2",
-  "black>=24.4.0",
-  "pytest-cov>=5.0.0",
-  "coverage[toml]>=6.4",
-  "codecov>=2.1.12",
-]
-
 [tool.setuptools.dynamic]
 version = { attr = "arrayfire.__version__" }
 

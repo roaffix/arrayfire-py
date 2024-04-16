@@ -14,26 +14,13 @@ endif
 version : 
 	@python -c 'from arrayfire.version import VERSION; print(f"ArrayFire Python v{VERSION}")'
 
-.PHONY : install
-install :
-	pip install --upgrade pip
-	pip install pip-tools
-	pip-compile requirements.in -o final_requirements.txt --allow-unsafe --rebuild --verbose
-	pip install -e . -r final_requirements.txt
+# Dev
+
+.PHONY : pre-commit
+pre-commit :
+	black --check . && isort --check . && flake8 . && mypy . --cache-dir=/dev/null
 
 # Testing
-
-.PHONY : flake8
-flake8 :
-	flake8 arrayfire tests examples
-
-.PHONY : import-sort
-import-sort :
-	isort arrayfire tests examples
-
-.PHONY : typecheck
-typecheck :
-	mypy arrayfire tests examples --cache-dir=/dev/null
 
 .PHONY : tests
 tests :
