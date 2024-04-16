@@ -15,7 +15,7 @@ __all__ = [
     "solve",
 ]
 
-from typing import cast
+from typing import Literal, cast, overload
 
 import arrayfire_wrapper.lib as wrapper
 from arrayfire_wrapper.lib import is_lapack_available
@@ -23,6 +23,17 @@ from arrayfire_wrapper.lib import is_lapack_available
 from arrayfire import Array
 from arrayfire.array_object import afarray_as_array
 from arrayfire.library.constants import MatProp, Norm
+
+# TODO
+# Add missing documentation
+
+
+@overload
+def dot(lhs: Array, rhs: Array, /, *, return_scalar: Literal[True]) -> int | float | complex: ...
+
+
+@overload
+def dot(lhs: Array, rhs: Array, /, *, return_scalar: Literal[False] = False) -> Array: ...
 
 
 def dot(
@@ -184,6 +195,14 @@ def matmul(lhs: Array, rhs: Array, /, lhs_opts: MatProp = MatProp.NONE, rhs_opts
     return cast(Array, wrapper.matmul(lhs.arr, rhs.arr, lhs_opts, rhs_opts))
 
 
+@overload
+def cholesky(array: Array, /, is_upper: bool = True, *, inplace: Literal[True]) -> int: ...
+
+
+@overload
+def cholesky(array: Array, /, is_upper: bool = True, *, inplace: Literal[False] = False) -> tuple[Array, int]: ...
+
+
 def cholesky(array: Array, /, is_upper: bool = True, *, inplace: bool = False) -> int | tuple[Array, int]:
     if inplace:
         return wrapper.cholesky_inplace(array.arr, is_upper)
@@ -192,12 +211,28 @@ def cholesky(array: Array, /, is_upper: bool = True, *, inplace: bool = False) -
     return Array.from_afarray(matrix), info
 
 
+@overload
+def lu(array: Array, /, *, inplace: Literal[True], is_lapack_pivot: bool = True) -> Array: ...
+
+
+@overload
+def lu(array: Array, /, *, inplace: Literal[False] = False, is_lapack_pivot: bool = True) -> tuple[Array, ...]: ...
+
+
 def lu(array: Array, /, *, inplace: bool = False, is_lapack_pivot: bool = True) -> Array | tuple[Array, ...]:
     if inplace:
         return Array.from_afarray(wrapper.lu_inplace(array.arr, is_lapack_pivot))
 
     lower, upper, pivot = wrapper.lu(array.arr)
     return Array.from_afarray(lower), Array.from_afarray(upper), Array.from_afarray(pivot)
+
+
+@overload
+def qr(array: Array, /, *, inplace: Literal[True]) -> Array: ...
+
+
+@overload
+def qr(array: Array, /, *, inplace: Literal[False] = False) -> tuple[Array, ...]: ...
 
 
 def qr(array: Array, /, *, inplace: bool = False) -> Array | tuple[Array, ...]:
@@ -247,5 +282,5 @@ def solve(a: Array, b: Array, /, *, options: MatProp = MatProp.NONE, pivot: None
     return cast(Array, wrapper.solve(a.arr, b.arr, options))
 
 
-# TODO #good_first_issue
-# Add Sparse functions
+# TODO
+# Create issues as #good_first_issue: add Sparse functions

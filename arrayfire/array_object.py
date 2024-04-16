@@ -549,41 +549,41 @@ class Array:
 
     # Reflected Arithmetic Operators
 
-    def __radd__(self, other: Array, /) -> Array:
+    def __radd__(self, other: int | float | Array, /) -> Array:
         """
         Return other + self.
         """
         return process_c_function(other, self, wrapper.add)
 
-    def __rsub__(self, other: Array, /) -> Array:
+    def __rsub__(self, other: int | float | Array, /) -> Array:
         """
         Return other - self.
         """
         return process_c_function(other, self, wrapper.sub)
 
-    def __rmul__(self, other: Array, /) -> Array:
+    def __rmul__(self, other: int | float | Array, /) -> Array:
         """
         Return other * self.
         """
         return process_c_function(other, self, wrapper.mul)
 
-    def __rtruediv__(self, other: Array, /) -> Array:
+    def __rtruediv__(self, other: int | float | Array, /) -> Array:
         """
         Return other / self.
         """
         return process_c_function(other, self, wrapper.div)
 
-    def __rfloordiv__(self, other: Array, /) -> Array:
+    def __rfloordiv__(self, other: int | float | Array, /) -> Array:
         # TODO
         return NotImplemented
 
-    def __rmod__(self, other: Array, /) -> Array:
+    def __rmod__(self, other: int | float | Array, /) -> Array:
         """
         Return other % self.
         """
         return process_c_function(other, self, wrapper.mod)
 
-    def __rpow__(self, other: Array, /) -> Array:
+    def __rpow__(self, other: int | float | Array, /) -> Array:
         """
         Return other ** self.
         """
@@ -597,31 +597,31 @@ class Array:
 
     # Reflected Bitwise Operators
 
-    def __rand__(self, other: Array, /) -> Array:
+    def __rand__(self, other: int | bool | Array, /) -> Array:
         """
         Return other & self.
         """
         return process_c_function(other, self, wrapper.bitand)
 
-    def __ror__(self, other: Array, /) -> Array:
+    def __ror__(self, other: int | bool | Array, /) -> Array:
         """
         Return other | self.
         """
         return process_c_function(other, self, wrapper.bitor)
 
-    def __rxor__(self, other: Array, /) -> Array:
+    def __rxor__(self, other: int | bool | Array, /) -> Array:
         """
         Return other ^ self.
         """
         return process_c_function(other, self, wrapper.bitxor)
 
-    def __rlshift__(self, other: Array, /) -> Array:
+    def __rlshift__(self, other: int | Array, /) -> Array:
         """
         Return other << self.
         """
         return process_c_function(other, self, wrapper.bitshiftl)
 
-    def __rrshift__(self, other: Array, /) -> Array:
+    def __rrshift__(self, other: int | Array, /) -> Array:
         """
         Return other >> self.
         """
@@ -1126,11 +1126,11 @@ def process_c_function(lhs: int | float | Array, rhs: int | float | Array, c_fun
         lhs_array = lhs.arr
         rhs_array = rhs.arr
 
-    elif isinstance(lhs, Array) and isinstance(rhs, (int, float)):
+    elif isinstance(lhs, Array) and isinstance(rhs, int | float):
         lhs_array = lhs.arr
         rhs_array = wrapper.create_constant_array(rhs, lhs.shape, lhs.dtype)
 
-    elif isinstance(lhs, (int, float)) and isinstance(rhs, Array):
+    elif isinstance(lhs, int | float) and isinstance(rhs, Array):
         lhs_array = wrapper.create_constant_array(lhs, rhs.shape, rhs.dtype)
         rhs_array = rhs.arr
 

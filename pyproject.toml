@@ -43,6 +43,9 @@ classifiers = [
 Homepage = "http://arrayfire.com"
 "General Documentation" = "https://arrayfire.org/docs/index.htm"
 
+[project.optional-dependencies]
+benchmarks = ["numpy ~= 1.26.4"]
+
 [project.entry-points.array_api]
 array_api = "arrayfire.array_api"
 
