@@ -62,7 +62,6 @@ version = { attr = "arrayfire.__version__" }
 
 [tool.black]
 line-length = 119
-
 exclude = '''
 (
       __pycache__
@@ -88,5 +87,4 @@ disallow_untyped_defs = true
 ignore_missing_imports = true
 show_error_codes = true
 warn_return_any = true
-
 exclude = ".venv"
