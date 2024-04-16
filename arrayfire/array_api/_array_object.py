@@ -4,10 +4,8 @@ import types
 from typing import Any
 
 import arrayfire as af
-from arrayfire import array_api
 
 from ._constants import Device, NestedSequence, PyCapsule, SupportsBufferProtocol
-from ._data_type_functions import iinfo
 from ._dtypes import (
     all_dtypes,
     boolean_dtypes,
@@ -82,11 +80,14 @@ class Array:
         integer that is too large to fit in a NumPy integer dtype, or
         TypeError when the scalar type is incompatible with the dtype of self.
         """
+        from ._data_type_functions import iinfo
+
         # NOTE
         # Only Python scalar types that match the array dtype are allowed.
         if isinstance(scalar, bool):
             if self.dtype not in boolean_dtypes:
                 raise TypeError("Python bool scalars can only be promoted with bool arrays")
+
         elif isinstance(scalar, int):
             if self.dtype in boolean_dtypes:
                 raise TypeError("Python int scalars cannot be promoted with bool arrays")
@@ -94,12 +95,15 @@ class Array:
                 info = iinfo(self.dtype)
                 if not (info.min <= scalar <= info.max):
                     raise OverflowError("Python int scalars must be within the bounds of the dtype for integer arrays")
+
         elif isinstance(scalar, float):
             if self.dtype not in floating_dtypes:
                 raise TypeError("Python float scalars can only be promoted with floating-point arrays.")
+
         elif isinstance(scalar, complex):
             if self.dtype not in complex_floating_dtypes:
                 raise TypeError("Python complex scalars can only be promoted with complex floating-point arrays.")
+
         else:
             raise TypeError("'scalar' must be a Python scalar")
 
@@ -160,9 +164,9 @@ class Array:
         """
         obj = super().__new__(cls)
         # Note: The spec does not have array scalars, only 0-D arrays.
-        if isinstance(x, (bool, int, float, complex)):
+        if isinstance(x, bool | int | float | complex):
             # Convert the array scalar to a 0-D array
-            x = af.Array(x)  # type: ignore[arg-type]
+            x = af.constant(x)  # type: ignore[arg-type]
         if x.dtype not in all_dtypes:  # type: ignore[union-attr]
             raise TypeError(
                 f"The array_api namespace does not support the dtype '{x.dtype}'"  # type: ignore[union-attr]
@@ -226,6 +230,8 @@ class Array:
     def __array_namespace__(self: Array, /, *, api_version: str | None = None) -> types.ModuleType:
         if api_version is not None and not api_version.startswith("2021."):
             raise ValueError(f"Unrecognized array API version: {api_version!r}")
+
+        from arrayfire import array_api
 
         return array_api
 
