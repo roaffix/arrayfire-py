@@ -33,7 +33,7 @@ def monte_carlo_options(
     s = af.constant(strike, (N, 1), dtype=ty)
 
     randmat = af.randn((N, steps - 1), dtype=ty)
-    randmat = af.exp((r - (vol**2 * 0.5)) * dt + vol * math.sqrt(dt) * randmat)
+    randmat = af.exp((r - (vol * vol * 0.5)) * dt + vol * math.sqrt(dt) * randmat)
 
     S = af.product(af.join(1, s, randmat), axis=1)
 
