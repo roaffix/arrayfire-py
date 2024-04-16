@@ -132,14 +132,14 @@ class RandomEngine:
 
 
 @afarray_as_array
-def randn(shape: tuple[int, ...], /, *, dtype: Dtype = float32, engine: RandomEngine | None = None) -> Array:
+def randn(shape: int | tuple[int, ...], /, *, dtype: Dtype = float32, engine: RandomEngine | None = None) -> Array:
     """
     Create a multi-dimensional array containing values sampled from a normal distribution with mean 0
     and standard deviation of 1.
 
     Parameters
     ----------
-    shape : tuple[int, ...]
+    shape : int | tuple[int, ...]
         The shape of the resulting array. Must be a tuple with at least one element, e.g., shape=(3,).
 
     dtype : Dtype, optional, default: `float32`
@@ -166,8 +166,11 @@ def randn(shape: tuple[int, ...], /, *, dtype: Dtype = float32, engine: RandomEn
     Raises
     ------
     ValueError
-        If `shape` is not a tuple or has less than one value.
+        If `shape` is not int or tuple with less than one value.
     """
+    if isinstance(shape, int):
+        shape = (shape,)
+
     if not isinstance(shape, tuple) or not shape:
         raise ValueError("Argument shape must be a tuple with at least 1 value.")
 
@@ -178,13 +181,13 @@ def randn(shape: tuple[int, ...], /, *, dtype: Dtype = float32, engine: RandomEn
 
 
 @afarray_as_array
-def randu(shape: tuple[int, ...], /, *, dtype: Dtype = float32, engine: RandomEngine | None = None) -> Array:
+def randu(shape: int | tuple[int, ...], /, *, dtype: Dtype = float32, engine: RandomEngine | None = None) -> Array:
     """
     Create a multi-dimensional array containing values from a uniform distribution.
 
     Parameters
     ----------
-    shape : tuple[int, ...]
+    shape : int | tuple[int, ...]
         The shape of the resulting array. Must have at least 1 element, e.g., shape=(3,)
 
     dtype : Dtype, optional, default: float32
@@ -211,6 +214,9 @@ def randu(shape: tuple[int, ...], /, *, dtype: Dtype = float32, engine: RandomEn
     ValueError
         If shape is not a tuple or has less than one value.
     """
+    if isinstance(shape, int):
+        shape = (shape,)
+
     if not isinstance(shape, tuple) or not shape:
         raise ValueError("Argument shape must be a tuple with at least 1 value.")
 

@@ -28,7 +28,7 @@ class TestArithmeticOperators:
     def test_div(self) -> None:
         res = af.div(self.array1, self.array2)
         res_quotient = self.array1 / self.array2
-        assert round_to(res.to_list()) == round_to(res_quotient.to_list()) == [0.25, 0.4, 0.5]
+        assert round_to(res.to_list()) == round_to(res_quotient.to_list()) == [0.25, 0.4, 0.5]  # type: ignore
 
     def test_mod(self) -> None:
         res = af.mod(self.array1, self.array2)

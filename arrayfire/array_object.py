@@ -13,7 +13,6 @@ from arrayfire_wrapper.defines import AFArray, ArrayBuffer, CType
 from .dtypes import Dtype
 from .dtypes import bool as afbool
 from .dtypes import c_api_value_to_dtype, float32, str_to_dtype
-from .library.device import PointerSource
 
 if TYPE_CHECKING:
     from ctypes import Array as CArray
@@ -48,7 +47,7 @@ def afarray_as_array(func: Callable[P, Array]) -> Callable[P, Array]:
 class Array:
     def __init__(
         self,
-        obj: None | Array | _pyarray.array | int | AFArray | list[int | float] = None,
+        obj: None | Array | _pyarray.array | int | AFArray | list[bool | int | float] = None,
         dtype: None | Dtype | str = None,
         shape: tuple[int, ...] = (),
         to_device: bool = False,
@@ -57,6 +56,9 @@ class Array:
     ) -> None:
         self._arr = AFArray.create_null_pointer()
         _no_initial_dtype = False  # HACK, FIXME
+
+        if len(shape) > 4:
+            raise ValueError("Can not create 5 or more -dimensional arrays.")
 
         if isinstance(dtype, str):
             dtype = str_to_dtype(dtype)  # type: ignore[arg-type]
@@ -126,7 +128,7 @@ class Array:
             return
 
         self._arr = wrapper.create_strided_array(
-            shape, dtype, _array_buffer, offset, strides, PointerSource.device  # type: ignore[arg-type]
+            shape, dtype, _array_buffer, offset, strides, wrapper.PointerSource(to_device)  # type: ignore[arg-type]
         )
 
     # Arithmetic Operators
