@@ -21,7 +21,7 @@ defaults:
 
 jobs:
   code_style:
-    name: Code Style
+    name: ${{ matrix.check.name }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
