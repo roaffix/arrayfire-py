@@ -14,6 +14,10 @@ endif
 version : 
 	@python -c 'from arrayfire.version import VERSION; print(f"ArrayFire Python v{VERSION}")'
 
+.PHONY : build
+build :
+	@python -m build
+
 # Dev
 
 .PHONY : pre-commit

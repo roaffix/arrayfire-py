@@ -562,6 +562,11 @@ __all__ += [
     "approx1_uniform",
     "approx2",
     "approx2_uniform",
+    "convolve1",
+    "convolve2",
+    "convolve2_nn",
+    "convolve2_separable",
+    "convolve3",
 ]
 
 from arrayfire.library.signal_processing import (
@@ -569,6 +574,11 @@ from arrayfire.library.signal_processing import (
     approx1_uniform,
     approx2,
     approx2_uniform,
+    convolve1,
+    convolve2,
+    convolve2_nn,
+    convolve2_separable,
+    convolve3,
     fft,
     fft2,
     fft2_c2r,

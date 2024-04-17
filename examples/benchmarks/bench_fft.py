@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 #######################################################
 # Copyright (c) 2024, ArrayFire
@@ -9,23 +9,23 @@
 # http://arrayfire.com/licenses/BSD-3-Clause
 ########################################################
 
-
 import sys
 from time import time
+from typing import Any, Callable
 
 import arrayfire as af
 
 try:
     import numpy as np
 except ImportError:
-    np = None  # type: ignore[assignment]
+    raise ImportError("Please install arrayfire-python[benchmarks] or numpy directly to run this example.")
 
 
-def calc_arrayfire(n):
+def calc_arrayfire(n: int) -> Callable:
     A = af.randu((n, n))
     af.sync(-1)
 
-    def run(iters):
+    def run(iters: int) -> None:
         for t in range(iters):
             B = af.fft2(A)  # noqa: F841
 
@@ -34,18 +34,18 @@ def calc_arrayfire(n):
     return run
 
 
-def calc_numpy(n):
+def calc_numpy(n: int) -> Callable:
     np.random.seed(1)
     A = np.random.rand(n, n).astype(np.float32)
 
-    def run(iters):
+    def run(iters: int) -> None:
         for t in range(iters):
             B = np.fft.fft2(A)  # noqa: F841
 
     return run
 
 
-def bench(calc, iters=100, upto=13):
+def bench(calc: Any, iters: int = 100, upto: int = 13) -> None:
     _, name = calc.__name__.split("_")
     print("Benchmark N x N 2D fft on %s" % name)
 
@@ -60,7 +60,6 @@ def bench(calc, iters=100, upto=13):
 
 
 if __name__ == "__main__":
-
     if len(sys.argv) > 1:
         af.set_device(int(sys.argv[1]))
 
