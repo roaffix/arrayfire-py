@@ -20,7 +20,7 @@ __all__ = [
     "sort",
 ]
 
-from typing import cast
+from typing import Literal, cast, overload
 
 from arrayfire_wrapper import lib as wrapper
 
@@ -116,6 +116,14 @@ def where(array: Array, /) -> Array:
     return cast(Array, wrapper.where(array.arr))
 
 
+@overload
+def all_true(array: Array, axis: None = None) -> bool: ...
+
+
+@overload
+def all_true(array: Array, axis: int) -> Array: ...
+
+
 def all_true(array: Array, axis: int | None = None) -> bool | Array:
     """
     Check if all the elements along a specified dimension are true.
@@ -144,6 +152,14 @@ def all_true(array: Array, axis: int | None = None) -> bool | Array:
     return Array.from_afarray(wrapper.all_true(array.arr, axis))
 
 
+@overload
+def any_true(array: Array, axis: None = None) -> bool: ...
+
+
+@overload
+def any_true(array: Array, axis: int) -> Array: ...
+
+
 def any_true(array: Array, axis: int | None = None) -> bool | Array:
     """
     Check if any of the elements along a specified dimension are true.
@@ -170,6 +186,22 @@ def any_true(array: Array, axis: int | None = None) -> bool | Array:
         return bool(wrapper.any_true_all(array.arr))
 
     return Array.from_afarray(wrapper.any_true(array.arr, axis))
+
+
+@overload
+def sum(array: Array, /, *, axis: None = None, nan_value: None = None) -> int | float | complex: ...
+
+
+@overload
+def sum(array: Array, /, *, axis: None, nan_value: float) -> int | float | complex: ...
+
+
+@overload
+def sum(array: Array, /, *, axis: int, nan_value: None = None) -> Array: ...
+
+
+@overload
+def sum(array: Array, /, *, axis: int, nan_value: float) -> Array: ...
 
 
 def sum(array: Array, /, *, axis: int | None = None, nan_value: float | None = None) -> int | float | complex | Array:
@@ -209,7 +241,23 @@ def sum(array: Array, /, *, axis: int | None = None, nan_value: float | None = N
     if nan_value is None:
         return Array.from_afarray(wrapper.sum(array.arr, axis))
 
-    return Array.from_afarray(wrapper.sum_nan(array.arr, axis, nan_value))  # type: ignore[call-arg]
+    return Array.from_afarray(wrapper.sum_nan(array.arr, axis, nan_value))
+
+
+@overload
+def product(array: Array, /, *, axis: None = None, nan_value: None = None) -> int | float | complex: ...
+
+
+@overload
+def product(array: Array, /, *, axis: None, nan_value: float) -> int | float | complex: ...
+
+
+@overload
+def product(array: Array, /, *, axis: int, nan_value: None = None) -> Array: ...
+
+
+@overload
+def product(array: Array, /, *, axis: int, nan_value: float) -> Array: ...
 
 
 def product(
@@ -247,7 +295,23 @@ def product(
     if nan_value is None:
         return Array.from_afarray(wrapper.product(array.arr, axis))
 
-    return Array.from_afarray(wrapper.product_nan(array.arr, axis, nan_value))  # type: ignore[call-arg]
+    return Array.from_afarray(wrapper.product_nan(array.arr, axis, nan_value))
+
+
+@overload
+def count(array: Array, /, *, axis: None = None, keys: None = None) -> int | float | complex: ...
+
+
+@overload
+def count(array: Array, /, *, axis: int, keys: None = None) -> Array: ...
+
+
+@overload
+def count(array: Array, /, *, axis: None, keys: Array) -> tuple[Array, Array]: ...
+
+
+@overload
+def count(array: Array, /, *, axis: int, keys: Array) -> tuple[Array, Array]: ...
 
 
 def count(
@@ -317,6 +381,14 @@ def count(
     return Array.from_afarray(wrapper.count(array.arr, axis))
 
 
+@overload
+def imax(array: Array, /, *, axis: None = None) -> tuple[int | float | complex, int]: ...
+
+
+@overload
+def imax(array: Array, /, *, axis: int) -> tuple[Array, Array]: ...
+
+
 def imax(array: Array, /, *, axis: int | None = None) -> tuple[int | float | complex, int] | tuple[Array, Array]:
     """
     Find the maximum value and its location within an ArrayFire array along a specified dimension, or globally if no
@@ -378,6 +450,24 @@ def imax(array: Array, /, *, axis: int | None = None) -> tuple[int | float | com
 
     maximum, location = wrapper.imax(array.arr, axis)
     return Array.from_afarray(maximum), Array.from_afarray(location)
+
+
+@overload
+def max(array: Array, /, *, axis: int, keys: None = None, ragged_len: None = None) -> Array: ...
+
+
+@overload
+def max(
+    array: Array, /, *, axis: None = None, keys: None = None, ragged_len: None = None
+) -> int | float | complex: ...
+
+
+@overload
+def max(array: Array, /, *, axis: int, keys: Array, ragged_len: None = None) -> tuple[Array, Array]: ...
+
+
+@overload
+def max(array: Array, /, *, axis: int, keys: None = None, ragged_len: Array) -> tuple[Array, Array]: ...
 
 
 def max(
@@ -443,6 +533,14 @@ def max(
     return Array.from_afarray(wrapper.max(array.arr, axis))
 
 
+@overload
+def imin(array: Array, /, *, axis: None = None) -> tuple[int | float | complex, int]: ...
+
+
+@overload
+def imin(array: Array, /, *, axis: int) -> tuple[Array, Array]: ...
+
+
 def imin(array: Array, /, *, axis: int | None = None) -> tuple[int | float | complex, int] | tuple[Array, Array]:
     """
     Find the value and location of the minimum value in an ArrayFire array along a specified dimension, or globally
@@ -492,6 +590,14 @@ def imin(array: Array, /, *, axis: int | None = None) -> tuple[int | float | com
 
     minimum, location = wrapper.imin(array.arr, axis)
     return Array.from_afarray(minimum), Array.from_afarray(location)
+
+
+@overload
+def min(array: Array, /, *, axis: None = None) -> int | float | complex: ...
+
+
+@overload
+def min(array: Array, /, *, axis: int) -> Array: ...
 
 
 def min(array: Array, /, *, axis: int | None = None) -> int | float | complex | Array:
@@ -825,6 +931,30 @@ def set_unique(array: Array, /, *, is_sorted: bool = False) -> Array:
     incorrect results.
     """
     return cast(Array, wrapper.set_unique(array.arr, is_sorted))
+
+
+@overload
+def sort(
+    array: Array,
+    /,
+    axis: int = 0,
+    is_ascending: bool = True,
+    *,
+    keys: None = None,
+    is_index_array: Literal[False] = False,
+) -> Array: ...
+
+
+@overload
+def sort(
+    array: Array, /, axis: int = 0, is_ascending: bool = True, *, keys: Array, is_index_array: Literal[False] = False
+) -> tuple[Array, Array]: ...
+
+
+@overload
+def sort(
+    array: Array, /, axis: int = 0, is_ascending: bool = True, *, keys: None = None, is_index_array: Literal[True]
+) -> tuple[Array, Array]: ...
 
 
 def sort(

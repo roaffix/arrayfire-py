@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 #######################################################
 # Copyright (c) 2024, ArrayFire
@@ -15,70 +15,67 @@ from time import time
 
 import arrayfire as af
 
-sqrt2 = math.sqrt(2.0)
+
+def initialize_device() -> None:
+    """Initialize the ArrayFire device based on command line arguments."""
+    device_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    af.set_device(device_id)
+    af.info()
 
 
-def cnd(x):
-    temp = x > 0
-    return temp * (0.5 + af.erf(x / sqrt2) / 2) + (1 - temp) * (0.5 - af.erf((-x) / sqrt2) / 2)
+def cumulative_normal_distribution(x: af.Array) -> af.Array:
+    """Calculate the cumulative normal distribution using ArrayFire."""
+    sqrt2 = math.sqrt(2.0)
+    condition = x > 0
+    lhs = condition * (0.5 + af.erf(x / sqrt2) / 2)
+    rhs = (1 - condition) * (0.5 - af.erf((-x) / sqrt2) / 2)
+    return lhs + rhs
 
 
-def black_scholes(S, X, R, V, T):
-    # S = Underlying stock price
-    # X = Strike Price
-    # R = Risk free rate of interest
-    # V = Volatility
-    # T = Time to maturity
+def black_scholes(S: af.Array, X: af.Array, R: af.Array, V: af.Array, T: af.Array) -> tuple[af.Array, af.Array]:
+    """Compute call and put options prices using the Black-Scholes formula."""
+    d1 = (af.log(S / X) + (R + 0.5 * V**2) * T) / (V * af.sqrt(T))
+    d2 = d1 - V * af.sqrt(T)
 
-    d1 = af.log(S / X)
-    d1 = d1 + (R + (V * V) * 0.5) * T
-    d1 = d1 / (V * af.sqrt(T))
+    cnd_d1 = cumulative_normal_distribution(d1)
+    cnd_d2 = cumulative_normal_distribution(d2)
 
-    d2 = d1 - (V * af.sqrt(T))
-    cnd_d1 = cnd(d1)
-    cnd_d2 = cnd(d2)
+    C = S * cnd_d1 - X * af.exp(-R * T) * cnd_d2
+    P = X * af.exp(-R * T) * (1 - cnd_d2) - S * (1 - cnd_d1)
+    return C, P
 
-    C = S * cnd_d1 - (X * af.exp((-R) * T) * cnd_d2)
-    P = X * af.exp((-R) * T) * (1 - cnd_d2) - (S * (1 - cnd_d1))
 
-    return (C, P)
+def benchmark_black_scholes(num_elements: int, num_iter: int = 100) -> None:
+    """Benchmark the Black-Scholes model over varying matrix sizes."""
+    M = 4000
+    for N in range(50, 501, 50):
+        S, X, R, V, T = (af.randu((M, N)) for _ in range(5))
+
+        print(f"Input data size: {M * N} elements")
+
+        start = time()
+        for _ in range(num_iter):
+            C, P = black_scholes(S, X, R, V, T)
+            af.eval(C, P)
+        af.sync()
+
+        sec = (time() - start) / num_iter
+        print(f"Mean GPU Time: {1000.0 * sec:.6f} ms\n")
+
+
+def main() -> None:
+    initialize_device()
+
+    # Run a small test to ensure that everything is set up correctly.
+    M = 4000
+    test_arrays = (af.randu((M, 1)) for _ in range(5))
+    C, P = black_scholes(*test_arrays)
+    af.eval(C, P)
+    af.sync()
+
+    # Benchmark Black-Scholes over varying sizes of input data.
+    benchmark_black_scholes(M)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        af.set_device(int(sys.argv[1]))
-    af.info()
-
-    M = 4000
-
-    S = af.randu((M, 1))
-    X = af.randu((M, 1))
-    R = af.randu((M, 1))
-    V = af.randu((M, 1))
-    T = af.randu((M, 1))
-
-    (C, P) = black_scholes(S, X, R, V, T)
-    af.eval(C)
-    af.eval(P)
-    af.sync()
-
-    num_iter = 100
-    for N in range(50, 501, 50):
-        S = af.randu((M, N))
-        X = af.randu((M, N))
-        R = af.randu((M, N))
-        V = af.randu((M, N))
-        T = af.randu((M, N))
-        af.sync()
-
-        print("Input data size: %d elements" % (M * N))
-
-        start = time()
-        for i in range(num_iter):
-            (C, P) = black_scholes(S, X, R, V, T)
-            af.eval(C)
-            af.eval(P)
-        af.sync()
-        sec = (time() - start) / num_iter
-
-        print("Mean GPU Time: %0.6f ms\n\n" % (1000.0 * sec))
+    main()

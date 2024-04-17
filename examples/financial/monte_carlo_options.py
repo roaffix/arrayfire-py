@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 #######################################################
 # Copyright (c) 2024, ArrayFire
@@ -12,14 +12,24 @@
 import math
 import sys
 from time import time
+from typing import cast
 
 import arrayfire as af
 
 
-def monte_carlo_options(N, K, t, vol, r, strike, steps, use_barrier=True, B=None, ty=af.float32):
-    payoff = af.constant(0, (N, 1), dtype=ty)
-
-    dt = t / float(steps - 1)
+def monte_carlo_options(
+    N: int,
+    K: float,
+    t: float,
+    vol: float,
+    r: float,
+    strike: int,
+    steps: int,
+    use_barrier: bool = True,
+    B: float | None = None,
+    ty: af.Dtype = af.float32,
+) -> float:
+    dt = t / (steps - 1)
     s = af.constant(strike, (N, 1), dtype=ty)
 
     randmat = af.randn((N, steps - 1), dtype=ty)
@@ -28,39 +38,53 @@ def monte_carlo_options(N, K, t, vol, r, strike, steps, use_barrier=True, B=None
     S = af.product(af.join(1, s, randmat), axis=1)
 
     if use_barrier:
+        if B is None:
+            raise ValueError("Barrier value B must be provided if use_barrier is True.")
         S = S * af.all_true(S < B, 1)
 
     payoff = af.maxof(0, S - K)
-    return af.mean(payoff) * math.exp(-r * t)
+    mean_payoff = cast(float, af.mean(payoff)) * math.exp(-r * t)
+
+    return mean_payoff
 
 
-def monte_carlo_simulate(N, use_barrier, num_iter=10):
+def monte_carlo_simulate(N: int, use_barrier: bool, num_iter: int = 10) -> float:
     steps = 180
     stock_price = 100.0
     maturity = 0.5
     volatility = 0.3
     rate = 0.01
     strike = 100
-    barrier = 115.0
+    barrier = 115.0 if use_barrier else None
 
-    start = time()
-    for i in range(num_iter):
+    total_time = time()
+    for _ in range(num_iter):
         monte_carlo_options(N, stock_price, maturity, volatility, rate, strike, steps, use_barrier, barrier)
+    average_time = (time() - total_time) / num_iter
 
-    return (time() - start) / num_iter
+    return average_time
+
+
+def main() -> None:
+    if len(sys.argv) > 1:
+        device_id = int(sys.argv[1])
+        af.set_device(device_id)
+    af.info()
+
+    # Initial simulation calls to test without and with barrier
+    print("Simulation without barrier:", monte_carlo_simulate(1000, use_barrier=False))
+    print("Simulation with barrier:", monte_carlo_simulate(1000, use_barrier=True))
+
+    af.sync()  # Synchronize ArrayFire computations before timing analysis
+
+    # Timing analysis for different numbers of paths
+    for n in range(10000, 100001, 10000):
+        time_vanilla = 1000 * monte_carlo_simulate(n, False, 100)
+        time_barrier = 1000 * monte_carlo_simulate(n, True, 100)
+        print(
+            f"Time for {n:7d} paths - vanilla method: {time_vanilla:4.3f} ms, barrier method: {time_barrier:4.3f} ms"
+        )
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        af.set_device(int(sys.argv[1]))
-    af.info()
-
-    monte_carlo_simulate(1000, use_barrier=False)
-    monte_carlo_simulate(1000, use_barrier=True)
-    af.sync()
-
-    for n in range(10000, 100001, 10000):
-        print(
-            "Time for %7d paths - vanilla method: %4.3f ms, barrier method: % 4.3f ms\n"
-            % (n, 1000 * monte_carlo_simulate(n, False, 100), 1000 * monte_carlo_simulate(n, True, 100))
-        )
+    main()

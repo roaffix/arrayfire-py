@@ -35,7 +35,7 @@ def argsort(x: Array, /, *, axis: int = -1, descending: bool = False, stable: bo
     if axis == -1:
         axis = x.ndim - 1
 
-    _, indices = af.sort(x._array, axis=axis, is_ascending=not descending, is_index_array=True)  # type: ignore[misc]
+    _, indices = af.sort(x._array, axis=axis, is_ascending=not descending, is_index_array=True)
     return Array._new(indices)
 
 

@@ -22,6 +22,11 @@ __all__ = [
     "approx1_uniform",
     "approx2",
     "approx2_uniform",
+    "convolve1",
+    "convolve2",
+    "convolve2_nn",
+    "convolve2_separable",
+    "convolve3",
 ]
 
 from typing import cast
