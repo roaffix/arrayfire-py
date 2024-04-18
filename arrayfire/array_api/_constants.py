@@ -105,3 +105,11 @@ PyCapsule = Any
 
 class SupportsDLPack(Protocol):
     def __dlpack__(self, /, *, stream: None = ...) -> PyCapsule: ...
+
+import math
+
+e = math.e
+inf = math.inf
+nan = math.nan
+pi = math.pi
+newaxis = None
