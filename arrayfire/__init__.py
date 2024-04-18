@@ -161,7 +161,6 @@ __all__ += [
     "Interp",
     "IterativeDeconv",
     "Pad",
-    "pi",
 ]
 
 from arrayfire.library.constants import (
@@ -184,7 +183,6 @@ from arrayfire.library.constants import (
     TopK,
     VarianceBias,
     YCCStd,
-    pi,
 )
 
 __all__ += [
