@@ -23,7 +23,11 @@ __all__ = [
     "shift",
     "tile",
     "transpose",
+<<<<<<< HEAD
     "lookup",
+=======
+    "lookup"
+>>>>>>> d006f32 (Fixed machine learning example, added functionality, fixed sum_function)
 ]
 
 import warnings
@@ -1209,6 +1213,7 @@ def transpose(array: Array, /, *, conjugate: bool = False, inplace: bool = False
 
     return cast(Array, wrapper.transpose(array.arr, conjugate))
 
+<<<<<<< HEAD
 
 @afarray_as_array
 def lookup(array: Array, indices: Array, /, *, axis: int = 0) -> Array:
@@ -1262,3 +1267,13 @@ def lookup(array: Array, indices: Array, /, *, axis: int = 0) -> Array:
     - The dimension specified by `axis` must not exceed the number of dimensions in `array`.
     """
     return cast(Array, wrapper.lookup(array.arr, indices.arr, axis))
+=======
+@afarray_as_array
+def lookup(array: Array, indices: Array, /, dim: int = 0,) -> Array:
+    if dim >= array.ndim:
+        raise ValueError(f"Dimension must be < {array.ndim}")
+    
+    return cast(Array, wrapper.lookup(array.arr, indices.arr, dim))
+
+
+>>>>>>> d006f32 (Fixed machine learning example, added functionality, fixed sum_function)
