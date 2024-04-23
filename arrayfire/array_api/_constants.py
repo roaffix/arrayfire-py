@@ -8,6 +8,7 @@ valid for inputs that match the given type annotations.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 import arrayfire as af
@@ -105,3 +106,10 @@ PyCapsule = Any
 
 class SupportsDLPack(Protocol):
     def __dlpack__(self, /, *, stream: None = ...) -> PyCapsule: ...
+
+
+e = math.e
+inf = math.inf
+nan = math.nan
+pi = math.pi
+newaxis = None
