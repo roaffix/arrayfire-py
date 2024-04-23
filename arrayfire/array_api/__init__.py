@@ -4,7 +4,7 @@ __array_api_version__ = "2022.12"
 
 __all__ = ["__array_api_version__"]
 
-from ._constants import Device, e, inf, nan, pi, newaxis
+from ._constants import Device, e, inf, nan, newaxis, pi
 
 __all__ += ["Device", "e", "inf", "nan", "pi", "newaxis"]
 
