@@ -124,7 +124,6 @@ from arrayfire.library.array_functions import (
     tile,
     transpose,
     upper,
-    lookup
 )
 
 __all__ += ["gloh", "orb", "sift", "dog", "fast", "harris", "susan", "hamming_matcher", "nearest_neighbour"]

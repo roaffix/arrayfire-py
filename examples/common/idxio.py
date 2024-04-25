@@ -8,9 +8,7 @@
 # The complete license agreement can be obtained at:
 # http://arrayfire.com/licenses/BSD-3-Clause
 ########################################################
-
-
-def reverse_char(b):
+def reverse_char(b: int) -> int:
     b = (b & 0xF0) >> 4 | (b & 0x0F) << 4
     b = (b & 0xCC) >> 2 | (b & 0x33) << 2
     b = (b & 0xAA) >> 1 | (b & 0x55) << 1
@@ -18,7 +16,7 @@ def reverse_char(b):
 
 
 # http://stackoverflow.com/a/9144870/2192361
-def reverse(x):
+def reverse(x: int) -> int:
     x = ((x >> 1) & 0x55555555) | ((x & 0x55555555) << 1)
     x = ((x >> 2) & 0x33333333) | ((x & 0x33333333) << 2)
     x = ((x >> 4) & 0x0F0F0F0F) | ((x & 0x0F0F0F0F) << 4)
@@ -27,7 +25,7 @@ def reverse(x):
     return x
 
 
-def read_idx(name):
+def read_idx(name: str) -> tuple[list[int], list[float]]:
     with open(name, "rb") as f:
         # In the C++ version, bytes the size of 4 chars are being read
         # May not work properly in machines where a char is not 1 byte
@@ -57,8 +55,9 @@ def read_idx(name):
 
         # Read the data
         cdata = f.read(elem * elemsize)
-        cdata = list(cdata)
-        data = [float(cdata_elem) for cdata_elem in cdata]
+        cdata_list = list(cdata)
+        import pdb; pdb.set_trace()
+        data = [float(cdata_elem) for cdata_elem in cdata_list]
 
         return (dims, data)
 
