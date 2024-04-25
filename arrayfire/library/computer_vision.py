@@ -463,5 +463,6 @@ def nearest_neighbour(
     return Array.from_afarray(indices), Array.from_afarray(distance)
 
 def match_template(search_image: Array, template_image: Array, / ,match_type: Match = Match.SAD) -> Array:
-    template = wrapper.match_template(search_image, template_image, match_type)
+    
+    template = wrapper.match_template(search_image.arr, template_image.arr, match_type)
     return Array.from_afarray(template)
