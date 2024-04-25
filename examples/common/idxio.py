@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 #######################################################
 # Copyright (c) 2024, ArrayFire
 # All rights reserved.
@@ -56,7 +57,6 @@ def read_idx(name: str) -> tuple[list[int], list[float]]:
         # Read the data
         cdata = f.read(elem * elemsize)
         cdata_list = list(cdata)
-        import pdb; pdb.set_trace()
         data = [float(cdata_elem) for cdata_elem in cdata_list]
 
         return (dims, data)
