@@ -1,4 +1,15 @@
-__all__ = ["gloh", "orb", "sift", "dog", "fast", "harris", "susan", "hamming_matcher", "nearest_neighbour", "match_template"]
+__all__ = [
+    "gloh",
+    "orb",
+    "sift",
+    "dog",
+    "fast",
+    "harris",
+    "susan",
+    "hamming_matcher",
+    "nearest_neighbour",
+    "match_template",
+]
 
 from typing import cast
 
@@ -462,7 +473,8 @@ def nearest_neighbour(
     indices, distance = wrapper.nearest_neighbour(query.arr, train.arr, axis, n_nearest, match_type)
     return Array.from_afarray(indices), Array.from_afarray(distance)
 
-def match_template(search_image: Array, template_image: Array, / ,match_type: Match = Match.SAD) -> Array:
-    
-    template = wrapper.match_template(search_image.arr, template_image.arr, match_type)
+
+def match_template(search_image: Array, template_image: Array, /, match_type: Match = Match.SAD) -> Array:
+
+    template = wrapper.g(search_image.arr, template_image.arr, match_type)
     return Array.from_afarray(template)
