@@ -11,6 +11,7 @@ __all__ = [
     "fft_convolve1",
     "fft_convolve2",
     "fft_convolve3",
+    "convolve2"
     "ifft",
     "ifft2",
     "ifft3",

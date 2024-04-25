@@ -1,4 +1,15 @@
-__all__ = ["gloh", "orb", "sift", "dog", "fast", "harris", "susan", "hamming_matcher", "nearest_neighbour"]
+__all__ = [
+    "gloh",
+    "orb",
+    "sift",
+    "dog",
+    "fast",
+    "harris",
+    "susan",
+    "hamming_matcher",
+    "nearest_neighbour",
+    "match_template",
+]
 
 from typing import cast
 
@@ -279,7 +290,7 @@ def harris(
     min_response: float = 1e5,
     sigma: float = 1.0,
     block_size: int = 0,
-    k_threshold: float = 0,
+    k_threshold: float = 0.04,
 ) -> Features:
     """
     Detects corners in an image using the Harris corner detection algorithm.
@@ -327,9 +338,9 @@ def harris(
 def susan(
     image: Array,
     /,
-    radius: int = 500,
-    diff_threshold: float = 1e5,
-    geom_threshold: float = 1.0,
+    radius: int = 3,
+    diff_threshold: float = 32.0,
+    geom_threshold: float = 10.0,
     feature_ratio: float = 0.05,
     edge: int = 3,
 ) -> Features:
@@ -461,3 +472,9 @@ def nearest_neighbour(
     """
     indices, distance = wrapper.nearest_neighbour(query.arr, train.arr, axis, n_nearest, match_type)
     return Array.from_afarray(indices), Array.from_afarray(distance)
+
+
+def match_template(search_image: Array, template_image: Array, /, match_type: Match = Match.SAD) -> Array:
+
+    template = wrapper.g(search_image.arr, template_image.arr, match_type)
+    return Array.from_afarray(template)

@@ -40,7 +40,6 @@ def afarray_as_array(func: Callable[P, Array]) -> Callable[P, Array]:
     def decorated(*args: P.args, **kwargs: P.kwargs) -> Array:
         result = func(*args, **kwargs)
         return Array.from_afarray(result)  # type: ignore[arg-type]  # FIXME
-
     return decorated
 
 
@@ -1168,6 +1167,12 @@ def _index_to_afindex(key: int | float | complex | bool | slice | wrapper.Parall
 
 
 def _slice_to_length(key: slice, axis: int) -> int:
+    # print(key, axis)
+
+    start = key.start
+    stop = key.stop
+    step = key.step
+
     if key.start is None:
         start = 0
     elif key.start < 0:
